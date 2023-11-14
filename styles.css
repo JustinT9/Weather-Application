@@ -1,0 +1,98 @@
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Merriweather', serif;
+}
+
+.container, 
+.main-stats, 
+.temp,
+.climate,
+.climate-icons,  
+.climate-stats,
+.week, 
+.daily {
+    display: flex; 
+}
+
+.container, 
+.main-stats, 
+.temp,
+.climate,
+.climate-icons,  
+.week,
+.daily {
+    align-items: center;
+}
+
+.container, 
+.temp {
+    justify-content: center;
+}
+
+.container, 
+.climate-icons, 
+.climate-stats, 
+.temp, 
+.daily {
+    flex-direction: column; 
+}
+
+.container {
+    height: 80vh; 
+    width: 100vw; 
+}
+
+.main-stats, 
+.climate, 
+.climate-icons,
+.climate-stats, 
+.week {
+    justify-content: space-evenly;
+}
+
+.main-stats {
+    width: 55%; 
+    margin-bottom: -10%; 
+    flex: 2; 
+}
+
+.weather-icon, 
+.temp h1 {
+    font-size: 5rem; 
+}
+
+.weather-icon {
+    color: yellow; 
+}
+
+.climate {
+    height: 100%;
+    width: 15%; 
+}
+
+.climate-icons, 
+.climate-stats {
+    height: 35%; 
+}
+
+.climate-icon {
+    font-size: 1.5rem; 
+}
+
+.climate-stats {
+    font-size: 1.25rem; 
+    align-items: start; 
+}
+
+.week { 
+    width: 50%; 
+    flex: 1; 
+}
+
+.daily {
+    height: 50%; 
+    justify-content: space-around;
+}
+
