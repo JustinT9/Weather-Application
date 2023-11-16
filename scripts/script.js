@@ -1,15 +1,22 @@
-import { api_key, city, state} from "../config.js"; 
+import { api_key, city, state } from "../config.js"; 
 
-const updateInfo = (city, state, date) => {
-    const locationElement = document.querySelector('h1'); 
+const setInfo = (city, state) => {
+    const Months = ["January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"];
+    const Days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
+    "Saturday", "Sunday"];
+
+    const locElement = document.querySelector('h1'); 
     const dateElement = document.querySelector('h3'); 
-    const dateObj = new Date(date); 
+    const date = new Date(Date.now()); 
+    const day = date.getDate().toString()[date.getDate().toString().length - 1]; 
 
-    locationElement.textContent = `${city}, ${state}`; 
-    dateElement.textContent = `${dateObj.getDay().toLocaleString()}, ${dateObj.getMonth().toLocaleString()} ${dateObj.getDate()}`; 
+    locElement.textContent = `${city}, ${state}`; 
+    dateElement.textContent = `${Days[date.getDay()]}, ${Months[date.getMonth()]} ${date.getDate()}` + 
+    (day === '1' ? 'st' : (day === 2 ? 'nd' : (day === 3 ? 'rd' : 'th'))); 
 }; 
 
-const updateTemp = (temp, maxTemp, minTemp) => {
+const setTemp = (temp, maxTemp, minTemp) => {
     const tempElement = document.querySelector('.temp h1'); 
     const minMaxElement = document.querySelector('.temp h6'); 
 
@@ -17,21 +24,24 @@ const updateTemp = (temp, maxTemp, minTemp) => {
     minMaxElement.textContent = `${Math.round(maxTemp)}` + ` / ` + `${Math.round(minTemp)}`; 
 }; 
 
+const setStats = (windSpeed, precipitation, humidity) => {  
+
+}; 
+
 const getWeather = () => {
     const key = api_key; 
     const proxy = "https://cors-anywhere.herokuapp.com/";   
-    const locationEndpoint = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${state},US&appid=${key}`;
+    const locEndpoint = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${state},US&appid=${key}`;
      
-    const location = fetch(proxy + locationEndpoint, {
+    const location = fetch(proxy + locEndpoint, {
         method: 'GET', 
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
     }).then(res => {
         return res.json(); 
 
     }).then(data => {
-        console.log(data); 
         const lat = data[0].lat; 
         const lon = data[0].lon; 
         const newCity = data[0].name; 
@@ -39,27 +49,24 @@ const getWeather = () => {
 
         // fahrenheit
         const metric = 'imperial'
-        console.log(lat, lon); 
-
         const weatherEndpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=${metric}`;
 
         const weather = fetch(proxy + weatherEndpoint, {
             method: 'GET', 
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             }
         }).then(res => {
             return res.json(); 
 
         }).then(data => { 
+            setInfo(newCity, newState); 
+            setTemp(data.main.temp, data.main.temp_max, data.main.temp_min); 
             console.log(data); 
-            updateInfo(newCity, newState, data.dt); 
-            updateTemp(data.main.temp, data.main.temp_max, data.main.temp_min); 
 
         }).catch(error => console.log(error)) 
 
     }).catch(error => console.log(error)) 
 }
 
-getWeather(); 
-
+// getWeather(); 
