@@ -98,12 +98,20 @@
 }
 
 .week { 
-    width: 50%;  
+    width: 65%;  
     flex: 1; 
 }
 
 .daily {
     height: 50%; 
     justify-content: space-around;
+}
+
+.daily h2 {
+    font-size: 1rem; 
+}
+
+.daily h4 {
+    font-size: 0.75rem; 
 }
 
