@@ -5,113 +5,89 @@
     font-family: 'Merriweather', serif;
 }
 
-:root {
-    height: 100vh; 
-    width: 100vh; 
-    display: flex; 
-    align-items: center;
-}
-
-.container,
-.main-stats, 
-.temp,
-.climate,
-.climate-icons,  
-.climate-stats,
-.week, 
-.daily {
-    display: flex; 
-}
-
 .container, 
-.main-stats, 
-.temp,
-.climate,
-.climate-icons,  
-.week,
-.daily {
-    align-items: center;
-}
-
-.container, 
-.temp {
-    justify-content: center;
-}
-
-.container, 
+.currentWeather, 
+.forecastWeather,
+.currentWeather, 
+.currentTemp, 
+.currentForecast, 
+.currentTempInfo,
+.climate, 
 .climate-icons, 
 .climate-stats, 
-.temp, 
-.daily {
-    flex-direction: column; 
+.forecastWeather, 
+.dailyForecast {
+    display: flex; 
 }
 
 .container {
-    height: 75vh; 
+    height: 100vh; 
     width: 100vw; 
 }
 
-.main-stats, 
-.climate, 
-.climate-icons,
-.climate-stats, 
-.week {
+.currentWeather, 
+.currentForecast, 
+.currentTemp, 
+.climate-icons, 
+.climate-stats,
+.forecastWeather {
+    flex-direction: column;
+}
+
+.currentWeather {
+    width: 65%; 
+}
+
+.currentTemp {
+    height: 60%; 
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.currentTempInfo {
+    height: 30%; 
+    width: 50%; 
     justify-content: space-evenly;
+    align-items: center;
+    margin-top: 5%; 
 }
 
-.container h3 {
-    margin-bottom: -7%;
-}
-
-.main-stats {
-    width: 55%; 
-    margin-bottom: -10%; 
-    flex: 2; 
-}
-
-.weather-icon, 
-.temp h1 {
-    font-size: 5rem; 
+.currentForecast {
+    height: 40%; 
 }
 
 .weather-icon {
     color: yellow; 
+    font-size: 5rem; 
 }
 
 .climate {
-    height: 100%;
-    width: 15%; 
+    height: 100%; 
+    width: 20%; 
+    justify-content: space-evenly;
 }
 
-.climate-icons, 
-.climate-stats {
-    height: 35%; 
-}
-
-.climate-icon {
-    font-size: 1.5rem; 
+.climate-icons {
+    height: 100%; 
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 .climate-stats {
-    font-size: 1.25rem; 
-    align-items: start; 
+    height: 100%; 
+    justify-content: space-evenly;
+    align-items: center;
 }
 
-.week { 
-    width: 65%;  
-    flex: 1; 
+.forecastWeather {
+    height: 100%; 
+    width: 35%;
+    padding: 25px;
 }
 
-.daily {
-    height: 50%; 
-    justify-content: space-around;
+.dailyForecast {
+    height: 20%; 
+    justify-content: space-between;
+    align-items: start;
 }
-
-.daily h2 {
-    font-size: 1rem; 
-}
-
-.daily h4 {
-    font-size: 0.75rem; 
-}
-

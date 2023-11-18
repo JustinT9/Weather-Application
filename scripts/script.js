@@ -60,8 +60,8 @@ const setInfo = (city, state) => {
 }; 
 
 const setTemp = (temp, maxTemp, minTemp) => {
-    const tempElement = document.querySelector('.temp h1'); 
-    const minMaxElement = document.querySelector('.temp h6'); 
+    const tempElement = document.querySelector('.tempNum h1'); 
+    const minMaxElement = document.querySelector('.tempNum h6'); 
 
     tempElement.textContent = Math.round(temp); 
     minMaxElement.textContent = `${Math.round(maxTemp)}` + ` / ` + `${Math.round(minTemp)}`; 
@@ -84,24 +84,24 @@ const setWeekly = (weekInfo) => {
     const Days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
     "Saturday", "Sunday"];
 
-    const weekElement = document.querySelector(".week"); 
+    const weekElement = document.querySelector(".forecastWeather"); 
 
-    weekInfo.forEach((daily, idx) => {
+    weekInfo.forEach((daily) => {
         const div = document.createElement("div"); 
     
         const icon = document.createElement("i"); 
-        const h2 = document.createElement("h2"); 
-        const h4 = document.createElement("h4"); 
+        const firsth4 = document.createElement("h4"); 
+        const secondh4 = document.createElement("h4");
         
-        div.className = "daily"; 
+        div.className = "dailyForecast"; 
         setIcon(daily.weather[0].description, icon); 
-        h2.textContent = `${Math.round(daily.temp.max)} / ${Math.round(daily.temp.min)}`;
-        h4.textContent = `${Days[new Date(daily.dt * 1000).getDay()]}`; 
+        firsth4.textContent = `${Days[new Date(daily.dt * 1000).getDay()]}`; 
+        secondh4.textContent = `${Math.round(daily.temp.max)} / ${Math.round(daily.temp.min)}`;
         
         weekElement.appendChild(div); 
+        div.appendChild(firsth4); 
         div.appendChild(icon); 
-        div.appendChild(h2); 
-        div.appendChild(h4); 
+        div.appendChild(secondh4); 
     }); 
 }; 
 
