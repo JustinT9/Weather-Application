@@ -10,55 +10,62 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300&display=swap" rel="stylesheet">
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" rel="stylesheet"></head>
 <body>
     <div class="container">
-        
+        <div class="navbar">
+            <i class="wi wi-cloudy weatherMenu"></i>
+        </div>
+
         <div class="currentWeather">
-            
             <div class="currentTemp">
-                <h1>Scotch Plains, NJ</h1>
-                <h3>Monday, November 17th</h3>
+                <div class="mainStats">
+                    <input class="addLocation" type="search" placeholder="Search For Location" />
 
-                <div class="currentTempInfo">
-                    <i class="wi wi-day-sunny weather-icon"></i>
-
-                    <div class="tempNum">
-                        <h1>99</h1>
-
-                        <h6>69 / 100</h6>
+                    <div class="currentGeo">
                     </div>
-
+    
+                    <div class="currentTempInfo">
+                        <i></i>
+    
+                        <div class="tempNum">
+                        </div>
+                    </div>
+    
                     <div class="climate">
                         <div class="climate-icons">
                             <i class="wi wi-windy climate-icon"></i>
                             <i class="wi wi-rain climate-icon"></i>
                             <i class="wi wi-humidity climate-icon"></i>
-                            <i class="wi wi-cloudy"></i>
+                            <i class="wi wi-cloudy climate-icon"></i>
                         </div>
         
                         <div class="climate-stats">
-                            <h6 class="first">5 mph</h6> 
-                            <h6 class="second">5 mm</h6>
-                            <h6 class="third">30%</h6>
-                            <h6 class="fourth">23%</h6>
+                            <h6 class="windSpeed"></h6> 
+                            <h6 class="rainVolume"></h6>
+                            <h6 class="humidity"></h6>
+                            <h6 class="cloudiness"></h6>
                         </div>
                     </div>
                 </div>
+
+                <div class="otherStats">
+
+                </div>
             </div>
 
-            <div class="currentForecast">
+            <div class="dailyContainer">
+                <h4>Today's Forecast</h4>
+
+                <div class="dailyForecast">
+                </div>
             </div>
         </div>
 
-        <div class="forecastWeather">
-            <div class="forecastDay">
-            </div>
+        <div class="forecastContainer">
+            <h2>Weekly Forecast</h2>
 
-            <div class="forecastIcon">
-            </div>
-
-            <div class="forecastTemps">
+            <div class="forecastWeather">
             </div>
         </div>
     </div>

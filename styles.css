@@ -5,109 +5,250 @@
     font-family: 'Merriweather', serif;
 }
 
-.container, 
-.currentWeather, 
-.forecastWeather,
-.currentWeather, 
-.currentTemp, 
-.currentForecast, 
-.currentTempInfo,
-.climate, 
-.climate-icons, 
-.climate-stats, 
-.forecastWeather, 
-.forecastDay, 
-.forecastIcon, 
-.forecastTemps, 
-.hourForecast {
-    display: flex; 
-}
-
-.container {
-    height: 100vh; 
+:root {
+    background-color: #87CEEB; 
+    height: 100vh;
     width: 100vw; 
-}
-
-.currentWeather, 
-.currentTemp, 
-.climate-icons, 
-.climate-stats,
-.forecastDay, 
-.forecastIcon, 
-.forecastTemps, 
-.hourForecast {
-    flex-direction: column;
-}
-
-.currentWeather {
-    width: 65%; 
-}
-
-.currentTemp {
-    height: 60%; 
-    width: 100%;
+    display: flex; 
     justify-content: center;
     align-items: center;
 }
 
-.currentTempInfo {
-    height: 30%; 
+.container,
+.navbar,  
+.currentWeather,
+.currentTemp, 
+.mainStats,
+.otherStats,  
+.currentGeo, 
+.currentTempInfo,
+.climate, 
+.climate-icons, 
+.climate-stats, 
+.dailyContainer, 
+.dailyForecast,
+.hourlyForecast,
+.forecastContainer, 
+.forecastWeather, 
+.forecastDay,  
+.forecastIcon {
+    display: flex; 
+}
+
+.container {
+    background-color: white; 
+    height: 85vh; 
+    width: 80vw; 
+    padding: 25px; 
+    border-radius: 25px; 
+    justify-content: space-evenly;
+}
+
+.navbar, 
+.currentWeather,
+.mainStats,
+.currentGeo, 
+.climate,
+.dailyContainer, 
+.hourlyForecast, 
+.forecastContainer, 
+.forecastWeather {
+    flex-direction: column;
+}
+
+.navbar {
+    background-color: #EEEEEE;
+    width: 5%; 
+    border-radius: 25px;
+    padding: 10px;
+    align-items: center;
+}
+
+.weatherMenu {
+    font-size: 2rem; 
+}
+
+.weatherMenu:hover {
+    opacity: 0.7; 
+    transition: 0.2;
+    cursor: pointer; 
+}
+
+.weatherMenu:active {
+    opacity: 0.5; 
+    transition: 0.25; 
+    cursor: pointer; 
+}
+
+.currentWeather {
+    width: 60%; 
+    justify-content: space-between;
+}
+
+.currentTemp {
+    height: 58%; 
+    width: 100%;
+}
+
+.addLocation {
+    background-color: #EEEEEE; 
+    height: 10%; 
+    width: 75%; 
+    border: hidden; 
+    border-radius: 15px;
+    padding: 10px; 
+    margin-bottom: 5%; 
+}
+
+.addLocation:hover {
+    opacity: 0.7; 
+    transition: 0.5; 
+}
+
+.addLocation:focus {
+    outline: none; 
+    opacity: 0.5; 
+    transition: 0.5; 
+}
+
+.mainStats {
+    height: 100%;
+    width: 50%;  
+}
+
+.otherStats {
+    background-color: #EEEEEE;
+    height: 100%; 
     width: 50%; 
+    border-radius: 25px;
+}
+
+.currentTempInfo {
+    height: 40%; 
+    width: 100%; 
     justify-content: space-evenly;
     align-items: center;
     margin-top: 5%; 
 }
 
-.currentForecast {
-    /* background-color: #f1f0f0;  */
-    height: 40%; 
-    justify-content: space-evenly;
-}
-
 .weather-icon {
     color: yellow; 
-    font-size: 5rem; 
+    font-size: 6rem; 
+}
+
+.tempNum h1 {
+    font-size: 4rem; 
+}
+
+.tempNum h6 {
+    font-size: 1rem; 
 }
 
 .climate {
-    height: 100%; 
-    width: 20%; 
+    height: 30%; 
+    width: 100%; 
     justify-content: space-evenly;
 }
 
 .climate-icons {
-    height: 100%; 
+    width: 100%; 
     justify-content: space-evenly;
     align-items: center;
 }
 
 .climate-stats {
-    height: 100%; 
+    width: 100%; 
     justify-content: space-evenly;
     align-items: center;
 }
 
-.forecastWeather {
-    height: 100%; 
-    width: 35%;
-    padding: 25px;
-    justify-content: space-between;
+.climate-icon {
+    font-size: 1.5rem; 
+}
+
+.windSpeed, 
+.rainVolume, 
+.humidity, 
+.cloudiness {
+    font-size: 1rem; 
+}
+
+.dailyContainer {
+    background-color: #EEEEEE;
+    height: 40%; 
+    border-radius: 25px; 
+    padding: 30px; 
+}
+
+.dailyContainer h4 {
+    height: 25%; 
 }
 
 .dailyForecast {
-    height: 20%; 
-    justify-content: space-between;
-    align-items: start;
-}
-
-.forecastDay, 
-.forecastIcon, 
-.forecastTemps {
-    justify-content: space-evenly;
-}
-
-.hourForecast {
-    height: 35%; 
+    height: 75%; 
+    width: 100%; 
     justify-content: space-evenly;
     align-items: center;
+}
+
+.hourlyForecast {
+    height: 80%; 
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.hourlyForecast:hover {
+    opacity: 0.5; 
+    transition: 0.25; 
+    cursor: pointer; 
+}
+
+.hourlyForecast i {
+    font-size: 2rem; 
+}
+
+.forecastContainer {
+    background-color: #EEEEEE;
+    height: 100%; 
+    width: 30%;
+    border-radius: 25px;
+    padding: 3%;
+}
+
+.forecastContainer h2 {
+    height: 15%; 
+}
+
+.forecastWeather {
+    height: 85%; 
+    width: 100%; 
+    justify-content: space-between; 
+}
+
+.forecastWeather i {
+    font-size: 1.75rem; 
+    position: absolute; 
+    right: 23%; 
+}
+
+.forecastDay {
+    height: 10%;
+    justify-content: start; 
+}
+
+.forecastDay:hover {
+    opacity: 0.75; 
+    transition: 0.15; 
+    cursor: pointer; 
+}
+
+.forecastDay:active {
+    opacity: 0.5; 
+    transition: 0.15; 
+    cursor: pointer; 
+}
+
+.forecastTemp {
+    position: absolute; 
+    right: 15%; 
 }
