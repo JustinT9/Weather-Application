@@ -2,7 +2,6 @@ import { api_key } from "../config.js";
 import { todayWeather, todayForecast, weekForecast } from "../mockdata.js"; 
 
 const setIcon = (weather, iconElement) => { 
-    console.log(weather, iconElement); 
     switch (weather) {
         case "clear sky": 
             iconElement.className = "wi wi-day-sunny";
@@ -132,7 +131,36 @@ const setDaily = (dailyInfo) => {
         hourlyForecast.appendChild(tempElement);
         forecastElement.appendChild(hourlyForecast); 
     }); 
-}
+}; 
+
+const setHighlights = (feelsLike, visibility, sunriseTime, sunsetTime) => {
+    const feelsElement   = document.querySelector(".feelslike"); 
+    const visibleElement = document.querySelector(".visible");  
+    const sunriseElement = document.querySelector(".sunrise"); 
+    const sunsetElement  = document.querySelector(".sunset"); 
+
+    const feelsInfo      = document.createElement("h4"); 
+    const visibleInfo    = document.createElement("h4"); 
+    const sunriseInfo    = document.createElement("h4"); 
+    const sunsetInfo     = document.createElement("h4"); 
+
+    const sunrise        = new Date(sunriseTime * 1000).toLocaleTimeString(); 
+    const sunset         = new Date(sunsetTime * 1000).toLocaleTimeString(); 
+
+    feelsInfo.textContent   = `${Math.round(feelsLike)}` + "\u00b0"; 
+    visibleInfo.textContent = `${((visibility / 1000) / 1.609).toFixed(1)} mi`; 
+    sunriseInfo.textContent = (sunrise.length % 2 === 0) ? 
+    (`${sunrise.substring(0, 4)} ${sunrise.substring(8, sunrise.length)}`) : 
+    (`${sunrise.substring(0, 5)} ${sunrise.substring(9, sunrise.length)}`);
+    sunsetInfo.textContent  = (sunset.length % 2 === 0) ? 
+    (`${sunset.substring(0, 4)} ${sunset.substring(8, sunset.length)}`) : 
+    (`${sunset.substring(0, 5)} ${sunset.substring(9, sunset.length)}`);
+
+    feelsElement.appendChild(feelsInfo);
+    visibleElement.appendChild(visibleInfo); 
+    sunriseElement.appendChild(sunriseInfo); 
+    sunsetElement.appendChild(sunsetInfo); 
+}; 
 
 // sets up the weekly forecast weather 
 const setWeekly = (weekInfo) => {
@@ -162,6 +190,19 @@ const setWeekly = (weekInfo) => {
         container.appendChild(temp);
         forecastElement.appendChild(container); 
     }); 
+}; 
+
+const inputLocation = () => {
+    const inputElement = document.querySelector(".addLocation"); 
+
+    inputElement.addEventListener("input", (e) => {
+        e.preventDefault(); 
+
+        
+        console.log(e.target.value); 
+    });  
+
+    console.log(inputElement); 
 }; 
 
 const currentWeather = (key, proxy, lat, lon) => {
@@ -242,8 +283,8 @@ const callWeatherData = () => {
         const lat = data[0].lat; 
         const lon = data[0].lon; 
     
-        // currentWeather(key, proxy, lat, lon); 
-        // dailyForecast(key, proxy, lat, lon); 
+        currentWeather(key, proxy, lat, lon); 
+        dailyForecast(key, proxy, lat, lon); 
         weeklyForecastWeather(key, proxy, lat, lon); 
 
     }).catch(error => console.log(error)); 
@@ -260,7 +301,12 @@ const mock = () => {
     setStats(todayWeather.wind.speed, todayWeather, todayWeather.main.humidity, todayWeather.clouds.all); 
     setDaily(todayForecast); 
     setWeekly(weekForecast);
+    setHighlights(todayWeather.main.feels_like, todayWeather.visibility, todayWeather.sys.sunrise, todayWeather.sys.sunset); 
+
+    inputLocation(); 
 }; 
 
 mock(); 
+
+// callWeatherData(); 
 
