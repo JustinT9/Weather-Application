@@ -14,6 +14,10 @@
     align-items: center;
 }
 
+a {
+    color: inherit;
+}
+
 .container,
 .navbar,  
 .currentWeather,
@@ -63,14 +67,16 @@
 
 .navbar {
     background-color: #EEEEEE;
+    height: 100%; 
     width: 5%; 
     border-radius: 25px;
-    padding: 10px;
+    padding: 15px;
     align-items: center;
 }
 
 .weatherMenu {
-    font-size: 2rem; 
+    font-size: 2rem;
+    margin-bottom: 50px;  
 }
 
 .weatherMenu:hover {
@@ -95,14 +101,19 @@
     width: 100%;
 }
 
-.addLocation {
-    background-color: #EEEEEE; 
+.inputWrapper {
     height: 10%; 
     width: 75%; 
+    margin-bottom: 5%; 
+}
+
+.addLocation {
+    background-color: #EEEEEE; 
+    height: 100%; 
+    width: 100%; 
     border: hidden; 
     border-radius: 15px;
     padding: 10px; 
-    margin-bottom: 5%; 
 }
 
 .addLocation:hover {
@@ -160,7 +171,6 @@
 }
 
 .weather-icon {
-    color: yellow; 
     font-size: 6rem; 
 }
 
