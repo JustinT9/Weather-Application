@@ -290,3 +290,58 @@ a {
     position: absolute; 
     right: 15%; 
 }
+
+@media (max-width: 1280px) {
+    .weatherMenu {
+        font-size: 1.25rem; 
+    }
+
+    .inputWrapper {
+        height: 15%;  
+    }
+
+    .currentGeo {
+        font-size: 0.75rem; 
+    }
+
+    .currentHighlights {
+        font-size: 1rem; 
+    }
+
+    .weather-icon {
+        font-size: 4rem; 
+    }
+    
+    .tempNum h1 {
+        font-size: 2.5rem; 
+    }
+    
+    .tempNum h6 {
+        font-size: 0.75rem; 
+    }
+
+    
+    .climate-icon {
+        font-size: 1rem; 
+    }
+
+    .windSpeed, 
+    .rainVolume, 
+    .humidity, 
+    .cloudiness {
+        font-size: 0.5rem; 
+    }
+
+    .forecastContainer h2 {
+        font-size: 1.25rem; 
+    }
+    
+    .hourlyForecast h4 {
+        font-size: 0.75rem; 
+    }
+
+    .hourlyForecast i {
+        font-size: 1.5rem; 
+    }
+
+}
