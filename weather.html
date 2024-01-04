@@ -31,28 +31,45 @@
                         <input class="addLocation" type="search" placeholder="City, State..." />
                     </form>
 
-                    <div class="currentGeo">
+                    <div class="header">
+                        <div class="currentGeo">
+                            <h1></h1>
+                            <h3></h3>
+                        </div>
+
+                        <div class="metrics">
+                            <i class="wi wi-fahrenheit metric-icon"></i> | 
+                            <i class="wi wi-celsius metric-icon"></i>
+                        </div>
                     </div>
 
                     <div class="currentTempInfo">
                         <i></i>
 
                         <div class="tempNum">
+                            <h1></h1>
+                            <h6></h6>
                         </div>
                     </div>
 
                     <div class="climate">
-                        <div class="climate-icons">
+                        <div class="climate-stat">
                             <i class="wi wi-windy climate-icon"></i>
-                            <i class="wi wi-rain climate-icon"></i>
-                            <i class="wi wi-humidity climate-icon"></i>
-                            <i class="wi wi-cloudy climate-icon"></i>
-                        </div>
-        
-                        <div class="climate-stats">
                             <h6 class="windSpeed"></h6> 
+                        </div>
+
+                        <div class="climate-stat">
+                            <i class="wi wi-rain climate-icon"></i>
                             <h6 class="rainVolume"></h6>
+                        </div>
+
+                        <div class="climate-stat">
+                            <i class="wi wi-humidity climate-icon"></i>
                             <h6 class="humidity"></h6>
+                        </div>
+
+                        <div class="climate-stat">
+                            <i class="wi wi-cloudy climate-icon"></i>
                             <h6 class="cloudiness"></h6>
                         </div>
                     </div>
@@ -64,21 +81,25 @@
                     <div class="currentHighlights">
                         <div class="topHalf">
                             <div class="feelslike"> 
-                                <i class="wi wi-thermometer"> Feels like</i>
+                                <i class="wi wi-thermometer"> Feels Like</i>
+                                <h4></h4>
                             </div>    
 
                             <div class="visible">
                                 <i class="wi wi-horizon"> Visibility</i>
+                                <h4></h4>
                             </div>
                         </div>
 
                         <div class="botHalf">
                             <div class="sunrise"> 
                                 <i class="wi wi-sunrise"> Sunrise</i>
+                                <h4></h4>
                             </div>
 
                             <div class="sunset"> 
                                 <i class="wi wi-sunset"> Sunset</i>
+                                <h4></h4>
                             </div>
                         </div>
                     </div>
