@@ -20,6 +20,7 @@ a {
 
 .container,
 .navbar,  
+.locations, 
 .currentWeather,
 .currentTemp, 
 .mainStats,
@@ -27,11 +28,12 @@ a {
 .currentHighlights,  
 .topHalf, 
 .botHalf, 
-.currentGeo, 
+.header, 
+.currentGeo,  
+.metrics, 
 .currentTempInfo,
 .climate, 
-.climate-icons, 
-.climate-stats, 
+.climate-stat, 
 .dailyContainer, 
 .dailyForecast,
 .hourlyForecast,
@@ -55,9 +57,9 @@ a {
 .currentWeather,
 .mainStats,
 .otherStats, 
-.currentHighlights, 
 .currentGeo, 
-.climate,
+.climate-stat,
+.currentHighlights, 
 .dailyContainer, 
 .hourlyForecast, 
 .forecastContainer, 
@@ -89,6 +91,38 @@ a {
     opacity: 0.5; 
     transition: 0.25; 
     cursor: pointer; 
+}
+
+.locations {
+    width: 91.25%; 
+}
+
+.header {
+    align-items: start;
+}
+
+.currentGeo {
+    height: 100%; 
+    width: 72%; 
+}
+
+.metrics {
+    font-size: 1.5rem; 
+    align-items: center;
+}
+
+.metric-icon {
+    cursor: pointer; 
+}
+
+.metric-icon:hover {
+    opacity: 0.7; 
+    transition: 0.15; 
+}
+
+.metric-icon:active {
+    opacity: 0.5; 
+    transition: 0.15; 
 }
 
 .currentWeather {
@@ -162,6 +196,14 @@ a {
     justify-content: space-around; 
 }
 
+.feelslike h4 {
+    margin-left: 17%; 
+}
+
+.visible h4 {
+    margin-left: 30%; 
+}
+
 .currentTempInfo {
     height: 40%; 
     width: 100%; 
@@ -186,16 +228,11 @@ a {
     height: 30%; 
     width: 100%; 
     justify-content: space-evenly;
-}
-
-.climate-icons {
-    width: 100%; 
-    justify-content: space-evenly;
     align-items: center;
 }
 
-.climate-stats {
-    width: 100%; 
+.climate-stat {
+    height: 100%; 
     justify-content: space-evenly;
     align-items: center;
 }
@@ -225,7 +262,7 @@ a {
 .dailyForecast {
     height: 75%; 
     width: 100%; 
-    justify-content: space-evenly;
+    justify-content: space-around;
     align-items: center;
 }
 
@@ -289,4 +326,59 @@ a {
 .forecastTemp {
     position: absolute; 
     right: 15%; 
+}
+
+@media (max-width: 1280px) {
+    .weatherMenu {
+        font-size: 1.25rem; 
+    }
+
+    .inputWrapper {
+        height: 15%;  
+    }
+
+    .header {
+        font-size: 0.75rem; 
+    }
+
+    .currentHighlights {
+        font-size: 1rem; 
+    }
+
+    .weather-icon {
+        font-size: 4rem; 
+    }
+    
+    .tempNum h1 {
+        font-size: 2.5rem; 
+    }
+    
+    .tempNum h6 {
+        font-size: 0.75rem; 
+    }
+
+    
+    .climate-icon {
+        font-size: 1rem; 
+    }
+
+    .windSpeed, 
+    .rainVolume, 
+    .humidity, 
+    .cloudiness {
+        font-size: 0.5rem; 
+    }
+
+    .forecastContainer h2 {
+        font-size: 1.25rem; 
+    }
+    
+    .hourlyForecast h4 {
+        font-size: 0.75rem; 
+    }
+
+    .hourlyForecast i {
+        font-size: 1.5rem; 
+    }
+
 }
