@@ -290,6 +290,18 @@ const showWeeklyForecast = (data) => {
     }); 
 }; 
 
+// must clear data before if there was any so the UI does not get conflicted for DOM nodes that are appended
+const clear = () => {
+    const dailyForecast  = document.querySelector(".dailyForecast"); 
+    const weeklyForecast = document.querySelector(".forecastWeather"); 
+
+    while (dailyForecast.firstChild || weeklyForecast.firstChild) {
+        if (dailyForecast.firstChild) dailyForecast.firstChild.remove(); 
+        
+        if (weeklyForecast.firstChild) weeklyForecast.firstChild.remove(); 
+    }
+}; 
+
 // requests data from openweatherAPI for current day's weather and climate 
 const currentWeather = (key, proxy, lat, lon, city) => {
     const weatherEndpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&units=${measure}&cnt=7`;
@@ -384,6 +396,38 @@ const callWeatherData = (city, state) => {
         weeklyForecastWeather(key, proxy, lat, lon); 
 
     }).catch(error => console.log(error)); 
+};
+
+const successCallback = (pos) => {
+    const key = api_key; 
+    const proxy = "https://cors-anywhere.herokuapp.com/";
+
+    const lat = pos.coords.latitude; 
+    const lon = pos.coords.longitude; 
+
+    const endpoint = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${key}`;
+
+    fetch(proxy + endpoint, {
+        method: "GET", 
+        headers: {
+            "Content-type": "application/json", 
+        }
+    }).then(res => {
+        return res.json(); 
+    }).then(data => {
+        clear();
+
+        pair = {"city": data[0].name, "state": data[0].state}; 
+
+        currentWeather(key, proxy, lat, lon, data[0].name); 
+        dailyForecast(key, proxy, lat, lon); 
+        weeklyForecastWeather(key, proxy, lat, lon); 
+
+    }).catch(error => console.log(error)); 
+}; 
+
+const getCurrentLocation = () => {
+    navigator.geolocation.getCurrentPosition(successCallback, (err) => console.log(err)); 
 }; 
 
 // searching option for data of weather for a specific inputted with regards to the format "City, State"
@@ -400,18 +444,6 @@ const searchLocation = () => {
         callWeatherData(pair["city"], pair["state"]); 
         document.querySelector(".addLocation").value = ""; 
     }); 
-}; 
-
-// must clear data before if there was any so the UI does not get conflicted for DOM nodes that are appended
-const clear = () => {
-    const dailyForecast  = document.querySelector(".dailyForecast"); 
-    const weeklyForecast = document.querySelector(".forecastWeather"); 
-
-    while (dailyForecast.firstChild || weeklyForecast.firstChild) {
-        if (dailyForecast.firstChild) dailyForecast.firstChild.remove(); 
-        
-        if (weeklyForecast.firstChild) weeklyForecast.firstChild.remove(); 
-    }
 }; 
 
 const switchMetrics = () => {
@@ -457,5 +489,6 @@ const mock = () => {
 
 mock(); 
 searchLocation(); 
+// getCurrentLocation();
 
 
