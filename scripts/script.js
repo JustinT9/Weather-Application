@@ -1,11 +1,13 @@
 import { api_key } from "../config.js"; 
 import { todayWeather, todayForecast, weekForecast } from "../mockdata.js"; 
 
+let GLOBALSTATE = {   
+    pair: undefined, 
+    today: undefined, 
+    measure: "imperial", 
+    flag: undefined 
+}; 
 const Days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-let pair; 
-let today;
-let measure = "imperial"; 
 
 // sets up the icon representing the weather 
 const setIcon = (iconElement, weather) => { 
@@ -69,7 +71,11 @@ const setInfo = (city) => {
     const locElement  = document.querySelector('.currentGeo h1'); 
     const dateElement = document.querySelector('.currentGeo h3'); 
 
-    locElement.textContent  = `${city}`; 
+    city.split(" ").forEach((word, idx) => {
+        if (idx === 0) locElement.textContent = ""; 
+
+        locElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
+    })
     dateElement.textContent = (date.toLocaleTimeString().length % 2 === 0) ? 
     (`${Days[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
     ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
@@ -221,13 +227,12 @@ const showHourlyForecast = (metric) => {
                 ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`));
 
                 if (labelElement.textContent !== "Today's Highlights") {
-                    const flag          = "daily"; 
                     const minMaxElement = document.querySelector(".tempNum h6");  
                     
                     labelElement.textContent  = "Today's Highlights"; 
-                    minMaxElement.textContent = `${Math.round(today.main.temp_max)}` + "\u00b0" + " / " + `${Math.round(today.main.temp_min)}` + "\u00b0";   
-                    setStats(flag, today.wind.speed, today, today.main.humidity, today.clouds.all);
-                    setHighlights(today.main.feels_like, today.visibility, today.sys.sunrise, today.sys.sunset);
+                    minMaxElement.textContent = `${Math.round(GLOBALSTATE.today.main.temp_max)}` + "\u00b0" + " / " + `${Math.round(GLOBALSTATE.today.main.temp_min)}` + "\u00b0";   
+                    setStats(GLOBALSTATE.flag, GLOBALSTATE.today.wind.speed, GLOBALSTATE.today, GLOBALSTATE.today.main.humidity, GLOBALSTATE.today.clouds.all);
+                    setHighlights(GLOBALSTATE.today.main.feels_like, GLOBALSTATE.today.visibility, GLOBALSTATE.today.sys.sunrise, GLOBALSTATE.today.sys.sunset);
                 }
             });
         }); 
@@ -241,7 +246,7 @@ const weeklyForecastTodayHelper = (date, flag, Days, today, labelElement, dayEle
     ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
     (`${Days[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
     ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`);
-    setTemp(measure, today.main.temp, today.main.temp_max, today.main.temp_min); 
+    setTemp(GLOBALSTATE.measure, today.main.temp, today.main.temp_max, today.main.temp_min); 
     setStats(flag, today.wind.speed, today, today.main.humidity, today.clouds.all);
     setHighlights(today.main.feels_like, today.visibility, today.sys.sunrise, today.sys.sunset);
 }; 
@@ -249,7 +254,7 @@ const weeklyForecastTodayHelper = (date, flag, Days, today, labelElement, dayEle
 const weeklyForecastOtherHelper = (forecast, i, flag, data, min, max, dayTitle, labelElement, dayElement) => {
     labelElement.textContent  = `${dayTitle}'s Highlights`; 
     dayElement.textContent    = forecast.childNodes[0].textContent; 
-    setTemp(measure, parseInt(max), parseInt(max), parseInt(min));  
+    setTemp(GLOBALSTATE.measure, parseInt(max), parseInt(max), parseInt(min));  
     setStats(flag, data[i-1].speed, data[i-1], data[i-1].humidity, data[i-1].clouds); 
     setHighlights(Math.round((data[i-1].feels_like["day"] + 
     data[i-1].feels_like["night"] + data[i-1].feels_like["eve"] + 
@@ -271,15 +276,12 @@ const showWeeklyForecast = (data) => {
                 const min = forecast.childNodes[2].textContent.split("/")[1];  
 
                 if (forecast.childNodes[0].textContent === "Today") {
-                    const flag = "daily";
                     const date = new Date(Date.now());                                                                                       
 
-                    weeklyForecastTodayHelper(date, flag, Days, today, labelElement, dayElement);
+                    weeklyForecastTodayHelper(date, GLOBALSTATE.flag, Days, GLOBALSTATE.today, labelElement, dayElement);
 
                 } else {
-                    const flag = "week"; 
-
-                    weeklyForecastOtherHelper(forecast, i, flag, data, min, max, 
+                    weeklyForecastOtherHelper(forecast, i, GLOBALSTATE.flag, data, min, max, 
                     forecast.childNodes[0].textContent, labelElement, dayElement); 
                 }
 
@@ -303,8 +305,8 @@ const clear = () => {
 }; 
 
 // requests data from openweatherAPI for current day's weather and climate 
-const currentWeather = (key, proxy, lat, lon, city) => {
-    const weatherEndpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&units=${measure}&cnt=7`;
+const currentWeather = (proxy, lat, lon, city) => {
+    const weatherEndpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=${GLOBALSTATE.measure}&cnt=7`;
 
     fetch(proxy + weatherEndpoint, {
         method: 'GET', 
@@ -315,18 +317,17 @@ const currentWeather = (key, proxy, lat, lon, city) => {
         return res.json(); 
 
     }).then(data => { 
-        const flag        = "daily";  
         const description = data.weather[0].description; 
         const iconElement = document.querySelector(".currentTempInfo i"); 
 
         setInfo(city); 
         setIcon(iconElement, description); 
-        setTemp(measure, data.main.temp, data.main.temp_max, data.main.temp_min); 
-        setStats(flag, data.wind.speed, data, data.main.humidity, data.clouds.all); 
+        setTemp(GLOBALSTATE.measure, data.main.temp, data.main.temp_max, data.main.temp_min); 
+        setStats(GLOBALSTATE.flag, data.wind.speed, data, data.main.humidity, data.clouds.all); 
         setHighlights(data.main.feels_like, data.visibility, data.sys.sunrise, data.sys.sunset); 
 
         iconElement.className = `${iconElement.className} weather-icon`; 
-        today = data; 
+        GLOBALSTATE.today = data; 
 
         console.log(data); 
 
@@ -334,8 +335,8 @@ const currentWeather = (key, proxy, lat, lon, city) => {
 };
 
 // requests data from openweatherAPI for forecast of today's weather for each hour 
-const dailyForecast = (key, proxy, lat, lon) => {
-    const forecastEndpoint = `https://pro.openweathermap.org/data/2.5/forecast/hourly?lat=${lat}&lon=${lon}&appid=${key}&cnt=7&units=${measure}`; 
+const dailyForecast = (proxy, lat, lon) => {
+    const forecastEndpoint = `https://pro.openweathermap.org/data/2.5/forecast/hourly?lat=${lat}&lon=${lon}&appid=${api_key}&cnt=7&units=${GLOBALSTATE.measure}`; 
     
     fetch(proxy + forecastEndpoint, {
         method: "GET", 
@@ -348,14 +349,14 @@ const dailyForecast = (key, proxy, lat, lon) => {
         const dailyInfo = data.list;
 
         setDaily(dailyInfo); 
-        showHourlyForecast(measure); 
+        showHourlyForecast(GLOBALSTATE.measure); 
         
     }).catch(error => console.log(error));  
 };
 
 // requests data from openweatherAPI for forecast of this week's weather 
-const weeklyForecastWeather = (key, proxy, lat, lon) => {
-    const forecastEndpoint = `api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${key}&units=${measure}`;
+const weeklyForecastWeather = (proxy, lat, lon) => {
+    const forecastEndpoint = `api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${api_key}&units=${GLOBALSTATE.measure}`;
     
     fetch(proxy + forecastEndpoint, {
         method: 'GET', 
@@ -375,9 +376,8 @@ const weeklyForecastWeather = (key, proxy, lat, lon) => {
 
 // initializes data call for weather board and loads it onto the UI of the specific town requested 
 const callWeatherData = (city, state) => {
-    const key = api_key; 
     const proxy = "https://cors-anywhere.herokuapp.com/";
-    const locEndpoint = `http://api.openweathermap.org/geo/1.0/direct?q=${city}, ${state},US&appid=${key}`;
+    const locEndpoint = `http://api.openweathermap.org/geo/1.0/direct?q=${city}, ${state},US&appid=${api_key}`;
 
     fetch(proxy + locEndpoint, {
         method: 'GET', 
@@ -391,21 +391,20 @@ const callWeatherData = (city, state) => {
         const lon = data[0].lon; 
 
         // request data for specific statistics 
-        currentWeather(key, proxy, lat, lon, city); 
-        dailyForecast(key, proxy, lat, lon); 
-        weeklyForecastWeather(key, proxy, lat, lon); 
+        currentWeather(proxy, lat, lon, city); 
+        dailyForecast(proxy, lat, lon); 
+        weeklyForecastWeather(proxy, lat, lon); 
 
     }).catch(error => console.log(error)); 
 };
 
 const successCallback = (pos) => {
-    const key = api_key; 
     const proxy = "https://cors-anywhere.herokuapp.com/";
 
     const lat = pos.coords.latitude; 
     const lon = pos.coords.longitude; 
 
-    const endpoint = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${key}`;
+    const endpoint = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${api_key}`;
 
     fetch(proxy + endpoint, {
         method: "GET", 
@@ -417,17 +416,20 @@ const successCallback = (pos) => {
     }).then(data => {
         clear();
 
-        pair = {"city": data[0].name, "state": data[0].state}; 
+        GLOBALSTATE.pair = {"city": data[0].name, "state": data[0].state}; 
 
-        currentWeather(key, proxy, lat, lon, data[0].name); 
-        dailyForecast(key, proxy, lat, lon); 
-        weeklyForecastWeather(key, proxy, lat, lon); 
+        currentWeather(proxy, lat, lon, data[0].name); 
+        dailyForecast(proxy, lat, lon); 
+        weeklyForecastWeather(proxy, lat, lon); 
 
     }).catch(error => console.log(error)); 
 }; 
 
 const getCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition(successCallback, (err) => console.log(err)); 
+    const currentLocationElement = document.querySelector(".fa-location-dot"); 
+    currentLocationElement.addEventListener("click", () => {
+        navigator.geolocation.getCurrentPosition(successCallback, (err) => console.log(err)); 
+    })
 }; 
 
 // searching option for data of weather for a specific inputted with regards to the format "City, State"
@@ -435,13 +437,29 @@ const searchLocation = () => {
     const formElement = document.querySelector('.inputWrapper'); 
 
     formElement.addEventListener('submit', (e) => {
-        const locationValue = document.querySelector(".addLocation").value; 
-        pair = {"city": locationValue.split(",")[0], "state": locationValue.split(",")[1].trim()}; 
+        const locationValue = document.querySelector(".addLocation").value.trim(); 
+        let city = ""; let state = ""; 
+
+        if (locationValue.indexOf(",") !== -1) {
+            city = locationValue.split(",")[0].toLowerCase();
+            state = locationValue.split(",")[1].trim(); 
+
+            GLOBALSTATE.pair = {"city": city, "state": state}; 
+        } else {
+            locationValue.split(" ").forEach((word, idx) => {
+                if (idx !== locationValue.split(" ").length-1) city += `${word} `;
+            }); 
+            city = city.trim(); 
+            state = locationValue.split(" ")[locationValue.split(" ").length-1]; 
+
+            GLOBALSTATE.pair = {"city": city, "state": state}; 
+        }   
 
         e.preventDefault(); 
 
         clear(); 
-        callWeatherData(pair["city"], pair["state"]); 
+
+        callWeatherData(GLOBALSTATE.pair["city"], GLOBALSTATE.pair["state"]); 
         document.querySelector(".addLocation").value = ""; 
     }); 
 }; 
@@ -451,44 +469,48 @@ const switchMetrics = () => {
     const celsiusElement    = document.querySelector(".wi-celsius"); 
 
     fahrenheitElement.addEventListener("click", () => {
-        if (measure === "metric") {
-            measure = "imperial";
+        if (GLOBALSTATE.measure === "metric") {
+            GLOBALSTATE.measure = "imperial";
 
             clear(); 
-            callWeatherData(pair["city"], pair["state"]); 
+            callWeatherData(GLOBALSTATE.pair["city"], GLOBALSTATE.pair["state"]); 
         }
     }); 
 
     celsiusElement.addEventListener("click", () => {
-        if (measure === "imperial") {
-            measure = "metric"; 
+        if (GLOBALSTATE.measure === "imperial") {
+            GLOBALSTATE.measure = "metric"; 
 
             clear(); 
-            callWeatherData(pair["city"], pair["state"]);  
+            callWeatherData(GLOBALSTATE.pair["city"], GLOBALSTATE.pair["state"]); 
         }
     }); 
 }; 
 
 const mock = () => {
-    const flag        = "daily"; 
     const description = todayWeather.weather[0].description; 
     const iconElement = document.querySelector(".currentTempInfo i"); 
-    today = todayWeather; 
+    GLOBALSTATE.today = todayWeather; 
 
     setIcon(iconElement, description); iconElement.className = `${iconElement.className} weather-icon`;
     setInfo(todayWeather.name); 
-    setTemp(measure, todayWeather.main.temp, todayWeather.main.temp_max, todayWeather.main.temp_min); 
-    setStats(flag, todayWeather.wind.speed, todayWeather, todayWeather.main.humidity, todayWeather.clouds.all); 
+    setTemp(GLOBALSTATE.measure, todayWeather.main.temp, todayWeather.main.temp_max, todayWeather.main.temp_min); 
+    setStats(GLOBALSTATE.flag, todayWeather.wind.speed, todayWeather, todayWeather.main.humidity, todayWeather.clouds.all); 
     setHighlights(todayWeather.main.feels_like, todayWeather.visibility, todayWeather.sys.sunrise, todayWeather.sys.sunset);
     setDaily(todayForecast); 
     setWeekly(weekForecast);
-    showHourlyForecast(measure); 
+    showHourlyForecast(GLOBALSTATE.measure); 
     showWeeklyForecast(weekForecast); 
     switchMetrics(); 
 }; 
+ 
+const init = () => {
+    searchLocation(); 
+    getCurrentLocation(); 
+}
 
 mock(); 
-searchLocation(); 
-// getCurrentLocation();
+init(); 
+
 
 
