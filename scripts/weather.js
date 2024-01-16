@@ -1,12 +1,7 @@
-import { api_key } from "../config.js"; 
-import { todayWeather, todayForecast, weekForecast } from "../mockdata.js"; 
+import { api_key } from "./config.js"; 
+import { todayWeather, todayForecast, weekForecast } from "./mockdata.js"; 
+import { GLOBALSTATE } from "./globalstate.js"; 
 
-let GLOBALSTATE = {   
-    pair: undefined, 
-    today: undefined, 
-    measure: "imperial", 
-    flag: undefined 
-}; 
 const Days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // sets up the icon representing the weather 
@@ -329,7 +324,7 @@ const currentWeather = (proxy, lat, lon, city) => {
         iconElement.className = `${iconElement.className} weather-icon`; 
         GLOBALSTATE.today = data; 
 
-        console.log(data); 
+        console.log("CURRENT WEATHER", data); 
 
     }).catch(error => console.log(error)); 
 };
@@ -351,6 +346,8 @@ const dailyForecast = (proxy, lat, lon) => {
         setDaily(dailyInfo); 
         showHourlyForecast(GLOBALSTATE.measure); 
         
+        console.log("DAILY FORECAST", data); 
+
     }).catch(error => console.log(error));  
 };
 
@@ -370,6 +367,8 @@ const weeklyForecastWeather = (proxy, lat, lon) => {
 
         setWeekly(weekInfo); 
         showWeeklyForecast(weekInfo); 
+
+        console.log("WEEKLY FORECAST", data); 
 
     }).catch(error => console.log(error)); 
 }; 
@@ -398,6 +397,7 @@ const callWeatherData = (city, state) => {
     }).catch(error => console.log(error)); 
 };
 
+// if track current location is given accessed, then generate data for the current location as requested 
 const successCallback = (pos) => {
     const proxy = "https://cors-anywhere.herokuapp.com/";
 
@@ -429,6 +429,7 @@ const getCurrentLocation = () => {
     const currentLocationElement = document.querySelector(".fa-location-dot"); 
     currentLocationElement.addEventListener("click", () => {
         navigator.geolocation.getCurrentPosition(successCallback, (err) => console.log(err)); 
+        console.log("requested current location...");  
     })
 }; 
 
@@ -437,7 +438,7 @@ const searchLocation = () => {
     const formElement = document.querySelector('.inputWrapper'); 
 
     formElement.addEventListener('submit', (e) => {
-        const locationValue = document.querySelector(".addLocation").value.trim(); 
+        const locationValue = document.querySelector(".weather-addLocation").value.trim(); 
         let city = ""; let state = ""; 
 
         if (locationValue.indexOf(",") !== -1) {
@@ -460,10 +461,13 @@ const searchLocation = () => {
         clear(); 
 
         callWeatherData(GLOBALSTATE.pair["city"], GLOBALSTATE.pair["state"]); 
-        document.querySelector(".addLocation").value = ""; 
+        document.querySelector(".weather-addLocation").value = ""; 
+
+        console.log("searched for location"); 
     }); 
 }; 
 
+// to switch to fahrenheit or celsius
 const switchMetrics = () => {
     const fahrenheitElement = document.querySelector(".wi-fahrenheit");
     const celsiusElement    = document.querySelector(".wi-celsius"); 
@@ -474,6 +478,8 @@ const switchMetrics = () => {
 
             clear(); 
             callWeatherData(GLOBALSTATE.pair["city"], GLOBALSTATE.pair["state"]); 
+
+            console.log("switched to fahrenheit");
         }
     }); 
 
@@ -483,10 +489,13 @@ const switchMetrics = () => {
 
             clear(); 
             callWeatherData(GLOBALSTATE.pair["city"], GLOBALSTATE.pair["state"]); 
+
+            console.log("switched to celsius"); 
         }
     }); 
 }; 
 
+// testing purposes... 
 const mock = () => {
     const description = todayWeather.weather[0].description; 
     const iconElement = document.querySelector(".currentTempInfo i"); 
@@ -503,14 +512,18 @@ const mock = () => {
     showWeeklyForecast(weekForecast); 
     switchMetrics(); 
 }; 
- 
+
+// to initialize functionality 
 const init = () => {
     searchLocation(); 
     getCurrentLocation(); 
 }
 
-mock(); 
-init(); 
+if (GLOBALSTATE.relPath === "weather.html") {
+    mock();
+    init(); 
+}
 
+console.log("NOW IN", GLOBALSTATE.relPath); 
 
 
