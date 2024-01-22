@@ -375,10 +375,9 @@ const weeklyForecastWeather = (proxy, lat, lon) => {
 
 // initializes data call for weather board and loads it onto the UI of the specific town requested 
 const callWeatherData = (city, state) => {
-    const proxy = "https://cors-anywhere.herokuapp.com/";
     const locEndpoint = `http://api.openweathermap.org/geo/1.0/direct?q=${city}, ${state},US&appid=${api_key}`;
 
-    fetch(proxy + locEndpoint, {
+    fetch(GLOBALSTATE.proxy + locEndpoint, {
         method: 'GET', 
         headers: {
             'Content-Type': 'application/json', 
@@ -390,9 +389,9 @@ const callWeatherData = (city, state) => {
         const lon = data[0].lon; 
 
         // request data for specific statistics 
-        currentWeather(proxy, lat, lon, city); 
-        dailyForecast(proxy, lat, lon); 
-        weeklyForecastWeather(proxy, lat, lon); 
+        currentWeather(GLOBALSTATE.proxy, lat, lon, city); 
+        dailyForecast(GLOBALSTATE.proxy, lat, lon); 
+        weeklyForecastWeather(GLOBALSTATE.proxy, lat, lon); 
 
     }).catch(error => console.log(error)); 
 };
