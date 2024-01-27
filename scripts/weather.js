@@ -5,7 +5,7 @@ import { GLOBALSTATE } from "./globalstate.js";
 const Days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // sets up the icon representing the weather 
-const setIcon = (iconElement, weather) => { 
+export const setIcon = (iconElement, weather) => { 
     switch (weather) {
         case "clear sky": 
             iconElement.className   = "wi wi-day-sunny";
