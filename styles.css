@@ -153,13 +153,13 @@ a {
 
 .leftLocationElementSection {
     height: 100%; 
-    width: 80%; 
+    width: 30%; 
     justify-content: space-between;
     align-items: center;
 }
 
 .leftLocationElementSection h1 {
-    font-size: 2.5rem; 
+    font-size: 4rem; 
 }
 
 .leftLocationElementSection i {

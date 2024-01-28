@@ -47,6 +47,7 @@ const loadPage = () => {
                 
                 getLocation(city, state) 
                 .then((res) => {
+                    console.log("HERE2"); 
                     const rawTime         = res.currentTime.toLocaleTimeString(); 
                     const rawTimeLength   = rawTime.length; 
                     const parsedTime      = (rawTime.length % 2 === 0) ? 
@@ -167,7 +168,8 @@ const getCurrentWeather = (lat, lon) => {
 const addToDatabase = (city, state) => {
     const locationEndpoint = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${state}, US&appid=${api_key}`; 
     // fetch location
-    fetch(GLOBALSTATE.proxy + locationEndpoint, {
+
+    return new Promise((resolve) => {fetch(GLOBALSTATE.proxy + locationEndpoint, {
         method: "GET",
         headers: {
             "Content-Type": "application/json", 
@@ -178,20 +180,28 @@ const addToDatabase = (city, state) => {
         const lat = data[0].lat; 
         const lon = data[0].lon; 
         // fetch currentWeatherData to initialize the document within the collection of the firestore database 
-        getCurrentWeather(lat, lon)
-            .then((currentWeatherData) => {
-                // add to db 
-                GLOBALSTATE.db.add({
-                    city: city, 
-                    state: state, 
-                    latitude: lat, 
-                    longtitude: lon, 
-                    currentWeather: currentWeatherData
-                })
-                .then(res => console.log("WRITTEN TO", res.id))
-                .catch(err => console.error("ERROR", err)); 
-            }).catch((err) => console.log(err)); 
-    }).catch((err) => console.log(err)); 
+        return new Promise((resolve) => { 
+            getCurrentWeather(lat, lon)
+                .then((currentWeatherData) => {
+                    // add to db 
+                    GLOBALSTATE.db.add({
+                        city: city, 
+                        state: state, 
+                        latitude: lat, 
+                        longtitude: lon, 
+                        currentWeather: currentWeatherData
+                    })
+                    .then(res => {
+                        console.log("WRITTEN TO", res.id);
+                        return new Promise((resolve) => resolve(1)); 
+                    })
+                    .catch(err => console.error("ERROR", err)); 
+                }).catch((err) => console.log(err)); 
+            resolve(1);
+            })
+        }).catch((err) => console.log(err)); 
+        resolve(1); 
+    })
 }; 
 
 // store it within the localStorage and because storage updates, then reload the DOM 
@@ -241,9 +251,9 @@ const inputLocation = (formClassname, inputClassname) => {
             // once parsed use the data to add it to the data 
             // if empty then add otherwise do nothing since it is already within the database
             doesLocationExist(city, state)
-            .then((res) => {
+            .then(async(res) => {
                 if (res) {
-                    addToDatabase(city, state); 
+                    await addToDatabase(city, state); 
                     saveLocations(city, state); 
                 } else console.log("already exists"); 
             })
@@ -274,6 +284,60 @@ const addLocation = () => {
     } else inputLocation(".main-searchWeatherForm", ".main-searchWeatherInput"); 
 }; 
 
+const deleteFromDatabase = (city, state) => {
+    const query = GLOBALSTATE.db
+                    .where("city", "==", city)
+                    .where("state", "==", state); 
+
+    query.get()
+        .then((data) => {
+            data.forEach((res) => {
+                res.ref.delete(); 
+                console.log(`Location ${city}, ${state} successfully deleted.`);  
+            })
+        })
+        .catch((err) => console.log(err)); 
+}; 
+
+const deleteFromLocalStorage = (city, state) => {
+    const locationsStorage = getLocationStorage(); 
+
+    const newLocationsStorage = 
+        locationsStorage.filter((location) => {
+            const locationDOMElement  = new DOMParser().parseFromString(location, "text/xml");
+            const locationTextContent = locationDOMElement.firstChild.textContent; 
+            const cityText = locationTextContent.split(",")[0].trim();
+            const stateText = locationTextContent.split(",")[1].trim();
+
+            return city !== cityText && state !== stateText; 
+        });
+
+    GLOBALSTATE.locationStorage.setItem("locations", JSON.stringify(newLocationsStorage));
+};
+
+const deleteLocation = () => {
+    const deleteIconElement = document.querySelector(".leftLocationElementSection i"); 
+
+    deleteIconElement.addEventListener("click", () => {
+        const location = deleteIconElement
+                            .parentElement
+                            .parentElement
+                            .firstChild
+                            .querySelector(":nth-child(2)")
+                            .querySelector(":nth-child(1)")
+                            .textContent;
+                            
+        const parsedLocation = location.split(","); 
+        const city           = parsedLocation[0].trim(); 
+        const state          = parsedLocation[1].trim();  
+        
+        deleteFromDatabase(city, state);
+        deleteFromLocalStorage(city, state);
+        GLOBALSTATE.locations -= 1; 
+        loadPage(); 
+    });
+};  
+
 // to make sure if there are locations the accurate number of locations are 
 // accounted for within the db for when they first load into the UI 
 const countLocations = () => {
@@ -289,9 +353,12 @@ window.addEventListener("load", () => {
         if (!GLOBALSTATE.locations) {
             loadPage(); 
             addLocation(); 
+            deleteLocation(); 
         } else {
             await loadPage(); 
-            addLocation(); 
+            addLocation();
+            deleteLocation();  
         }
+        console.log(GLOBALSTATE.locations); 
     }) 
 });
