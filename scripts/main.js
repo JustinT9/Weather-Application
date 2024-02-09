@@ -239,24 +239,29 @@ const inputLocation = (formClassname, inputClassname) => {
     const formElement = document.querySelector(formClassname); 
     formElement.addEventListener("submit", (e) => {
         e.preventDefault(); 
-        const locationElement = document.querySelector(inputClassname); 
+        const locationElement = document.querySelector(inputClassname).value.trim(); 
         // parsing matters now with the user input with location 
         // if not City, State format 
-        if (locationElement.value.indexOf(",") === -1) {
-            
+        let city = ""; let state = ""; 
+        if (locationElement.indexOf(",") === -1) {
+            locationElement.split(" ").forEach((word, idx) => {
+                if (idx !== locationElement.split(" ").length-1) city += `${word} `;
+            }); 
+            city = city.trim(); 
+            state = locationElement.split(" ")[locationElement.split(" ").length-1]; 
         } else {
             const parsedLocation = locationElement.value.split(","); 
-            const city           = parsedLocation[0]; 
-            const state          = parsedLocation[1].trim(); 
+            city = parsedLocation[0]; 
+            state = parsedLocation[1].trim(); 
             // once parsed use the data to add it to the data 
             // if empty then add otherwise do nothing since it is already within the database
             doesLocationExist(city, state)
-            .then(async(res) => {
-                if (res) {
-                    await addToDatabase(city, state); 
-                    saveLocations(city, state); 
-                } else console.log("already exists"); 
-            })
+                .then(async(res) => {
+                    if (res) {
+                        await addToDatabase(city, state); 
+                        saveLocations(city, state); 
+                    } else console.log("already exists"); 
+                })
         } locationElement.value = ""; 
     })
 };
@@ -353,11 +358,11 @@ window.addEventListener("load", () => {
         if (!GLOBALSTATE.locations) {
             loadPage(); 
             addLocation(); 
-            deleteLocation(); 
+            // deleteLocation(); 
         } else {
             await loadPage(); 
             addLocation();
-            deleteLocation();  
+            // deleteLocation();  
         }
         console.log(GLOBALSTATE.locations); 
     }) 
