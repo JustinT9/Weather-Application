@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css" /> 
-    <link rel="stylesheet" href="./font/weather-icons.min.css" />
-    <link rel="stylesheet" href="./assets/css/fontawesome.css" />
-    <link rel="stylesheet" href="./assets/css/brands.css" />
-    <link rel="stylesheet" href="./assets/css/solid.css" /> 
+    <link rel="stylesheet" href="../styles.css" /> 
+    <link rel="stylesheet" href="../font/weather-icons.min.css" />
+    <link rel="stylesheet" href="../assets/css/fontawesome.css" />
+    <link rel="stylesheet" href="../assets/css/brands.css" />
+    <link rel="stylesheet" href="../assets/css/solid.css" /> 
     <title>Weather</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,11 +23,11 @@
             </a>
             <i id="mapMenu" class="fa-regular fa-map weatherMenu"></i>
             <i class="fa-regular fa-gear weatherMenu"></i>
-        </div>
-
-        <div class="locations">
+            <i class="fa-solid fa-location-dot weatherMenu"></i>
         </div>
     </div>
-    <script type="module" src="scripts/script.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script type="module" src="../scripts/main.js"></script> 
 </body>
 </html>
