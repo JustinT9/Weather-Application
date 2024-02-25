@@ -8,27 +8,27 @@ const Days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 export const setIcon = (iconElement, weather) => { 
     switch (weather) {
         case "clear sky": 
-            iconElement.className   = "wi wi-day-sunny";
+            iconElement.className = "wi wi-day-sunny";
             iconElement.style.color = "yellow";  
             break; 
         case "sky is clear":
-            iconElement.className   = "wi wi-day-sunny"; 
+            iconElement.className = "wi wi-day-sunny"; 
             iconElement.style.color = "yellow"; 
             break; 
         case "few clouds": 
-            iconElement.className   = "wi wi-day-cloudy"; 
+            iconElement.className = "wi wi-day-cloudy"; 
             iconElement.style.color = "#c7c4bf"; 
             break; 
         case "scattered clouds": 
-            iconElement.className   = "wi wi-cloud"; 
+            iconElement.className = "wi wi-cloud"; 
             iconElement.style.color = "#c7c4bf"; 
             break; 
         case "broken clouds": 
-            iconElement.className   = "wi wi-cloudy"; 
+            iconElement.className = "wi wi-cloudy"; 
             iconElement.style.color = "#c7c4bf"; 
             break; 
         case "overcast clouds": 
-            iconElement.className   = "wi wi-cloudy"; 
+            iconElement.className = "wi wi-cloudy"; 
             iconElement.style.color = "#c7c4bf"; 
             break; 
         case "shower rain":
@@ -63,11 +63,10 @@ export const setIcon = (iconElement, weather) => {
 // sets up time and location of the weather 
 const setInfo = (city) => {
     const date = new Date(Date.now()); 
-    const locElement  = document.querySelector('.currentGeo h1'); 
+    const locElement = document.querySelector('.currentGeo h1'); 
     const dateElement = document.querySelector('.currentGeo h3'); 
     city.split(" ").forEach((word, idx) => {
         if (idx === 0) locElement.textContent = ""; 
-
         locElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
     })
     dateElement.textContent = (date.toLocaleTimeString().length % 2 === 0) ? 
@@ -79,7 +78,7 @@ const setInfo = (city) => {
 
 // sets up main stats regarding today's weather 
 const setTemp = (metric, temp, maxTemp, minTemp) => {
-    const tempElement   = document.querySelector('.tempNum h1'); 
+    const tempElement = document.querySelector('.tempNum h1'); 
     const minMaxElement = document.querySelector('.tempNum h6'); 
 
     (metric === "imperial") ? 
@@ -94,37 +93,36 @@ const setTemp = (metric, temp, maxTemp, minTemp) => {
  
 // sets up additional climate statistics for the current day 
 const setStats = (type, windSpeed, data, humidity, cloudiness) => {  
-    const windElement     = document.querySelector(".windSpeed"); 
-    const rainElement     = document.querySelector('.rainVolume'); 
+    const windElement = document.querySelector(".windSpeed"); 
+    const rainElement = document.querySelector('.rainVolume'); 
     const humidityElement = document.querySelector(".humidity");
-    const precipitation   = (data.rain ? data.rain : (data.snow ? data.snow : null)); 
-    const cloudyElement   = document.querySelector(".cloudiness"); 
+    const precipitation = (data.rain ? data.rain : (data.snow ? data.snow : null)); 
+    const cloudyElement = document.querySelector(".cloudiness"); 
 
-    windElement.textContent     = `${Math.round(windSpeed)} mph`; 
+    windElement.textContent = `${Math.round(windSpeed)} mph`; 
     humidityElement.textContent = `${humidity}%`; 
-    rainElement.textContent     = ((type === "daily" && precipitation) ? `${precipitation["1h"]}mm` : 
-                                   ((type === "week" && precipitation) ? `${data.rain} mm` : `0 mm`));
-    cloudyElement.textContent   = `${cloudiness}%`; 
+    rainElement.textContent = ((type === "daily" && precipitation) ? `${precipitation["1h"]}mm` : 
+                            ((type === "week" && precipitation) ? `${data.rain} mm` : `0 mm`));
+    cloudyElement.textContent = `${cloudiness}%`; 
 }; 
 
 // sets up climate highlights 
 const setHighlights = (feelsLike, visibility, sunriseTime, sunsetTime) => {
     const sunrise = new Date(sunriseTime * 1000).toLocaleTimeString(); 
-    const sunset  = new Date(sunsetTime * 1000).toLocaleTimeString(); 
-
-    const feelsElement   = document.querySelector(".feelslike h4"); 
+    const sunset = new Date(sunsetTime * 1000).toLocaleTimeString(); 
+    const feelsElement = document.querySelector(".feelslike h4"); 
     const visibleElement = document.querySelector(".visible h4");  
     const sunriseElement = document.querySelector(".sunrise h4"); 
-    const sunsetElement  = document.querySelector(".sunset h4"); 
+    const sunsetElement = document.querySelector(".sunset h4"); 
 
-    feelsElement.textContent    = `${Math.round(feelsLike)}` + "\u00b0"; 
+    feelsElement.textContent = `${Math.round(feelsLike)}` + "\u00b0"; 
     (visibility === "???") ? 
     (visibleElement.textContent = "???") : 
     (visibleElement.textContent = `${((visibility / 1000) / 1.609).toFixed(1)} mi`); 
-    sunriseElement.textContent  = (sunrise.length % 2 === 0) ? 
+    sunriseElement.textContent = (sunrise.length % 2 === 0) ? 
     (`${sunrise.substring(0, 4)} ${sunrise.substring(8, sunrise.length)}`) : 
     (`${sunrise.substring(0, 5)} ${sunrise.substring(9, sunrise.length)}`);
-    sunsetElement.textContent   = (sunset.length % 2 === 0) ? 
+    sunsetElement.textContent = (sunset.length % 2 === 0) ? 
     (`${sunset.substring(0, 4)} ${sunset.substring(8, sunset.length)}`) : 
     (`${sunset.substring(0, 5)} ${sunset.substring(9, sunset.length)}`); 
 }; 
@@ -135,18 +133,17 @@ const setDaily = (dailyInfo) => {
 
     dailyInfo.forEach((info, i) => {
         const hourlyForecast = document.createElement('div'); 
-        const iconElement    = document.createElement('i'); 
-        const timeElement    = document.createElement('h4'); 
-        const tempElement    = document.createElement('h4'); 
-        const time           = new Date(info.dt * 1000); 
-        const description    = info.weather[0].description; 
+        const iconElement = document.createElement('i'); 
+        const timeElement = document.createElement('h4'); 
+        const tempElement = document.createElement('h4'); 
+        const time = new Date(info.dt * 1000); 
+        const description = info.weather[0].description; 
 
         setIcon(iconElement, description); 
         hourlyForecast.className = "hourlyForecast"; 
-        if (i === 0) {
-            timeElement.textContent = "Now"; 
-        } else {
-            timeElement.textContent  = (time.toLocaleTimeString().length % 2 === 0) ? 
+        if (i === 0) timeElement.textContent = "Now"; 
+        else {
+            timeElement.textContent = (time.toLocaleTimeString().length % 2 === 0) ? 
             (`${time.toLocaleTimeString().substring(0, 4)} 
             ${time.toLocaleTimeString().substring(8, time.toLocaleTimeString().length)}`) : 
             (`${time.toLocaleTimeString().substring(0, 5)} 
@@ -164,14 +161,14 @@ const setDaily = (dailyInfo) => {
 const setWeekly = (weekInfo) => {
     const forecastElement = document.querySelector(".forecastWeather"); 
     weekInfo.forEach((daily, idx) => {
-        const container   = document.createElement("div");
-        const icon        = document.createElement("i"); 
-        const day         = document.createElement("h4"); 
-        const temp        = document.createElement("h4");
+        const container = document.createElement("div");
+        const icon = document.createElement("i"); 
+        const day = document.createElement("h4"); 
+        const temp = document.createElement("h4");
         const description = daily.weather[0].description; 
 
         container.className = "forecastDay"; 
-        temp.className      = "forecastTemp"; 
+        temp.className = "forecastTemp"; 
         setIcon(icon, description); 
         (idx === 0) ? day.textContent = "Today" :  
         (day.textContent = `${Days[new Date(daily.dt * 1000).getDay()]}`);
@@ -189,14 +186,14 @@ const showHourlyForecast = (metric) => {
     dailyContainer.addEventListener("click", () => {
         dailyContainer.childNodes.forEach((forecast) => {
             forecast.addEventListener("click", () => {
-                const date           = new Date(Date.now()); 
-                const tempElement    = document.querySelector(".tempNum h1"); 
-                const dateElement    = document.querySelector(".currentGeo h3");
-                const labelElement   = document.querySelector(".otherStats h4"); 
-                const iconElement    = document.querySelector(".currentTempInfo i");
+                const date = new Date(Date.now()); 
+                const tempElement = document.querySelector(".tempNum h1"); 
+                const dateElement = document.querySelector(".currentGeo h3");
+                const labelElement = document.querySelector(".otherStats h4"); 
+                const iconElement = document.querySelector(".currentTempInfo i");
                 const newTempElement = forecast.childNodes[2].textContent; 
 
-                iconElement.className   = `${forecast.childNodes[1].className} weather-icon`;
+                iconElement.className = `${forecast.childNodes[1].className} weather-icon`;
                 iconElement.style.color = forecast.childNodes[1].style.color; 
                 (metric === "imperial") ? 
                 tempElement.textContent = newTempElement + "F" : 
@@ -222,8 +219,8 @@ const showHourlyForecast = (metric) => {
 }; 
 
 const weeklyForecastTodayHelper = (date, flag, Days, today, labelElement, dayElement) => {
-    labelElement.textContent  = "Today's Highlights"; 
-    dayElement.textContent    = (date.toLocaleTimeString().length % 2 === 0) ? 
+    labelElement.textContent = "Today's Highlights"; 
+    dayElement.textContent = (date.toLocaleTimeString().length % 2 === 0) ? 
     (`${Days[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
     ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
     (`${Days[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
@@ -234,8 +231,8 @@ const weeklyForecastTodayHelper = (date, flag, Days, today, labelElement, dayEle
 }; 
 
 const weeklyForecastOtherHelper = (forecast, i, flag, data, min, max, dayTitle, labelElement, dayElement) => {
-    labelElement.textContent  = `${dayTitle}'s Highlights`; 
-    dayElement.textContent    = forecast.childNodes[0].textContent; 
+    labelElement.textContent = `${dayTitle}'s Highlights`; 
+    dayElement.textContent = forecast.childNodes[0].textContent; 
     setTemp(GLOBALSTATE.measure, parseInt(max), parseInt(max), parseInt(min));  
     setStats(flag, data[i-1].speed, data[i-1], data[i-1].humidity, data[i-1].clouds); 
     setHighlights(Math.round((data[i-1].feels_like["day"] + 
@@ -247,8 +244,8 @@ const weeklyForecastOtherHelper = (forecast, i, flag, data, min, max, dayTitle, 
 const showWeeklyForecast = (data) => {
     const forecastElement = document.querySelector(".forecastWeather"); 
     forecastElement.addEventListener("click", () => {
-        const dayElement   = document.querySelector(".currentGeo h3"); 
-        const iconElement  = document.querySelector(".currentTempInfo i");  
+        const dayElement = document.querySelector(".currentGeo h3"); 
+        const iconElement = document.querySelector(".currentTempInfo i");  
         const labelElement = document.querySelector(".otherStats h4");
         
         forecastElement.childNodes.forEach((forecast, i) => {
@@ -263,7 +260,7 @@ const showWeeklyForecast = (data) => {
                     weeklyForecastOtherHelper(forecast, i, GLOBALSTATE.flag, data, min, max, 
                     forecast.childNodes[0].textContent, labelElement, dayElement); 
                 }
-                iconElement.className   = `${forecast.childNodes[1].className} weather-icon`;   
+                iconElement.className = `${forecast.childNodes[1].className} weather-icon`;   
                 iconElement.style.color = forecast.childNodes[1].style.color; 
             }); 
         }); 
@@ -288,10 +285,9 @@ const currentWeather = (proxy, lat, lon, city) => {
         headers: {
             'Content-Type': 'application/json',
         }
-    }).then(res => {
-        return res.json(); 
-
-    }).then(data => { 
+    })
+    .then(res => res.json())
+    .then(data => { 
         const description = data.weather[0].description; 
         const iconElement = document.querySelector(".currentTempInfo i"); 
 
@@ -303,7 +299,8 @@ const currentWeather = (proxy, lat, lon, city) => {
         iconElement.className = `${iconElement.className} weather-icon`; 
         GLOBALSTATE.today = data; 
         console.log("CURRENT WEATHER", data); 
-    }).catch(error => console.log(error)); 
+    })
+    .catch(error => console.log(error)); 
 };
 
 // requests data from openweatherAPI for forecast of today's weather for each hour 
@@ -314,15 +311,15 @@ const dailyForecast = (proxy, lat, lon) => {
         headers: {
             "Content-Type": "application/json", 
         }
-    }).then(res => {
-        return res.json(); 
-    }).then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
         const dailyInfo = data.list;
-
         setDaily(dailyInfo); 
         showHourlyForecast(GLOBALSTATE.measure); 
         console.log("DAILY FORECAST", data); 
-    }).catch(error => console.log(error));  
+    })
+    .catch(error => console.log(error));  
 };
 
 // requests data from openweatherAPI for forecast of this week's weather 
@@ -334,15 +331,15 @@ const weeklyForecastWeather = (proxy, lat, lon) => {
         headers: {
             'Content-Type': 'application/json', 
             }
-        }).then(res => {
-            return res.json(); 
-    }).then(data => {
+        })
+    .then(res => res.json())
+    .then(data => {
         const weekInfo = data.list; 
         setWeekly(weekInfo); 
         showWeeklyForecast(weekInfo); 
         console.log("WEEKLY FORECAST", data); 
-
-    }).catch(error => console.log(error)); 
+    })
+    .catch(error => console.log(error)); 
 }; 
 
 // initializes data call for weather board and loads it onto the UI of the specific town requested 
@@ -353,16 +350,17 @@ const callWeatherData = (city, state) => {
         headers: {
             'Content-Type': 'application/json', 
         }
-    }).then(res => {
-        return res.json(); 
-    }).then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
         const lat = data[0].lat; 
         const lon = data[0].lon; 
         // request data for specific statistics 
         currentWeather(GLOBALSTATE.proxy, lat, lon, city); 
         dailyForecast(GLOBALSTATE.proxy, lat, lon); 
         weeklyForecastWeather(GLOBALSTATE.proxy, lat, lon); 
-    }).catch(error => console.log(error)); 
+    })
+    .catch(error => console.log(error)); 
 };
 
 // if track current location is given accessed, then generate data for the current location as requested 
@@ -376,15 +374,16 @@ const successCallback = (pos) => {
         headers: {
             "Content-type": "application/json", 
         }
-    }).then(res => {
-        return res.json(); 
-    }).then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
         clear();
         GLOBALSTATE.pair = {"city": data[0].name, "state": data[0].state}; 
         currentWeather(proxy, lat, lon, data[0].name); 
         dailyForecast(proxy, lat, lon); 
         weeklyForecastWeather(proxy, lat, lon); 
-    }).catch(error => console.log(error)); 
+    })
+    .catch(error => console.log(error)); 
 }; 
 
 const getCurrentLocation = () => {
@@ -433,7 +432,6 @@ const switchMetrics = () => {
             console.log("switched to fahrenheit");
         }
     }); 
-
     celsiusElement.addEventListener("click", () => {
         if (GLOBALSTATE.measure === "imperial") {
             GLOBALSTATE.measure = "metric"; 
