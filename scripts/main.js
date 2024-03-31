@@ -1,14 +1,180 @@
-import { api_key } from "./config.js";
-import { firebaseApp } from "./config.js"; 
-import { GLOBALSTATE } from "./globalstate.js";
-import { setIcon } from "./weather.js";
-import { todayWeather } from "./mockdata.js";
+import { STATE, GLOBALSTATE, days } from "./state.js";
+import { requestCurrentCoordinates, requestCurrentWeather } from "./request.js";
+import { 
+    setIcon, 
+    setStats, 
+    getLocation,
+    getLocationStorage, 
+    doesLocationExist, 
+    countLocations, 
+    deleteFromDatabase, 
+    deleteFromLocalStorage
+} from "./helper.js";
 
-const loadWeather = () => {
+import { todayForecast, todayWeather, weekForecast } from "./mockdata.js";
+
+const loadWeather = (locationElement) => {
+    locationElement.addEventListener("click", () => {
+        const [city, state] = locationElement
+                        .firstChild
+                        .querySelector(":nth-child(2)")
+                        .firstChild
+                        .textContent
+                        .split(",");
+        const currentForecast = document.querySelector(".weatherContainerCurrentForecast");
+        const futureForecast = document.querySelector(".weatherContainerFutureForecast"); 
+
+        const cityElement = document.createElement("h1"); 
+        const timeElement = document.createElement("h3"); 
+        const iconElement = document.createElement("i");
+        const tempNumElement = document.createElement("div"); 
+
+        getLocation(city.trim(), state.trim())
+            .then(res => {
+                    console.log(res);
+                    cityElement.textContent = `${city}`; 
+                    timeElement.textContent = (res.currentTime.toLocaleTimeString().length % 2 === 0) ? 
+                    (`${days[res.currentTime.getDay()]} ${res.currentTime.toLocaleTimeString().substring(0, 4)} 
+                    ${res.currentTime.toLocaleTimeString().substring(8, res.currentTime.toLocaleTimeString().length)}`) : 
+                    (`${days[res.currentTime.getDay()]} ${res.currentTime.toLocaleTimeString().substring(0, 5)} 
+                    ${res.currentTime.toLocaleTimeString().substring(9, res.currentTime.toLocaleTimeString().length)}`);
+                    setIcon(iconElement, res.weatherCondition);
+
+                    const currentTempElement = document.createElement("h1");
+                    const currentHighLowElement = document.createElement("h6");
+
+                    (GLOBALSTATE.measure === "imperial") ? 
+                    currentTempElement.textContent = Math.round(res.currentTemperature) + "\u00b0" + "F": 
+                    currentTempElement.textContent = Math.round(res.currentTemperature) + "\u00b0" + "C";
+                    currentHighLowElement.textContent = `${Math.round(res.highLowTemperature.hi)}` + 
+                    "\u00b0" + " / " + `${Math.round(res.highLowTemperature.low)}` + "\u00b0"; 
+                    tempNumElement.className = "weatherCurrentTempNums"; 
+                    tempNumElement.appendChild(currentTempElement);
+                    tempNumElement.appendChild(currentHighLowElement); 
+
+                    setStats("daily", 
+                        res.currentTempStats.wind, 
+                        res.currentTempStats.rain, 
+                        res.currentTempStats.humidity, 
+                        res.currentTempStats.clouds
+                    ); 
+                }
+            );
+        const currentWeatherLocationInfo = document.querySelector(".weatherCurrentInfoGeo");
+        currentWeatherLocationInfo.innerHTML = '';
+        currentWeatherLocationInfo.appendChild(cityElement);
+        currentWeatherLocationInfo.appendChild(timeElement);
+
+        const currentWeatherTempInfo = document.querySelector('.weatherCurrentTempInfo');
+        currentWeatherTempInfo.innerHTML = '';
+        currentWeatherTempInfo.appendChild(iconElement);
+        currentWeatherTempInfo.appendChild(tempNumElement); 
+
+        locationElement.style.backgroundColor = "#cecccc";
+        if (GLOBALSTATE.currentLocationHover) GLOBALSTATE.currentLocationHover.style.backgroundColor = "#EEEEEE";
+        GLOBALSTATE.currentLocationHover = locationElement; 
+    })
+}; 
+
+const createAdditionalStatsContainer = (outerContainer) => {
+    const windSpeedContainer = document.createElement("div");
+    const rainVolumeContainer = document.createElement("div");
+    const humidityContainer = document.createElement("div");
+    const cloudinessContainer = document.createElement("div");
+
+    windSpeedContainer.className = "weatherCurrentClimateContainers";
+    rainVolumeContainer.className = "weatherCurrentClimateContainers";
+    humidityContainer.className = "weatherCurrentClimateContainers";
+    cloudinessContainer.className = "weatherCurrentClimateContainers";
+
+    const windIcon = document.createElement("div"); 
+    const rainIcon = document.createElement("div");
+    const humidIcon = document.createElement("div");
+    const cloudyIcon = document.createElement("div"); 
+
+    windIcon.classList.add("wi", "wi-windy", "climate-icon");
+    rainIcon.classList.add("wi", "wi-rain", "climate-icon");
+    humidIcon.classList.add("wi", "wi-humidity", "climate-icon");
+    cloudyIcon.classList.add("wi", "wi-cloudy", "climate-icon");
+
+    const windNum = document.createElement("h6");
+    const rainNum = document.createElement("h6");
+    const humidNum = document.createElement("h6");
+    const cloudyNum = document.createElement("h6");
+
+    windNum.className = "windSpeed";
+    rainNum.className = "rainVolume";
+    humidNum.className = "humidity";
+    cloudyNum.className = "cloudiness"; 
+
+    windSpeedContainer.appendChild(windIcon); 
+    windSpeedContainer.appendChild(windNum)
+    rainVolumeContainer.appendChild(rainIcon);
+    rainVolumeContainer.appendChild(rainNum);
+    humidityContainer.appendChild(humidIcon); 
+    humidityContainer.appendChild(humidNum);
+    cloudinessContainer.appendChild(cloudyIcon);
+    cloudinessContainer.appendChild(cloudyNum); 
+
+    outerContainer.appendChild(windSpeedContainer);
+    outerContainer.appendChild(rainVolumeContainer);
+    outerContainer.appendChild(humidityContainer); 
+    outerContainer.appendChild(cloudinessContainer); 
+};
+
+const createWeatherContainer = () => {
+    const weatherContainer = document.querySelector(".weatherContainer");
+
+    if (!weatherContainer.childNodes.length) {
+        const currentWeatherInfoSection = document.createElement("div");
+        const currentWeatherForecast = document.createElement("div"); 
+        const futureWeatherForecast = document.createElement("div"); 
+    
+        currentWeatherInfoSection.className = "weatherContainerInfoSection";
+        currentWeatherForecast.className = "weatherContainerCurrentForecast";
+        futureWeatherForecast.className = "weatherContainerFutureForecast";
+    
+        const currentHeaderInfo = document.createElement("div"); 
+        const currentLocationInfo = document.createElement("div"); 
+        
+        currentHeaderInfo.className = "weatherCurrentInfoHeader";
+        currentLocationInfo.className = "weatherCurrentInfoGeo";
+        currentHeaderInfo.appendChild(currentLocationInfo);
+        currentWeatherInfoSection.appendChild(currentHeaderInfo);
+
+        const currentTempInfo = document.createElement("div"); 
+        currentTempInfo.className = "weatherCurrentTempInfo";
+        currentWeatherInfoSection.appendChild(currentTempInfo);
+
+        const currentAdditionalInfo = document.createElement("div"); 
+        currentAdditionalInfo.className = "weatherCurrentAdditionalInfo"; 
+        createAdditionalStatsContainer(currentAdditionalInfo); 
+        currentWeatherInfoSection.appendChild(currentAdditionalInfo);
+    
+        weatherContainer.appendChild(currentWeatherInfoSection); 
+        weatherContainer.appendChild(currentWeatherForecast);
+        weatherContainer.appendChild(futureWeatherForecast);
+    }
+    console.log(weatherContainer);
 
 }; 
 
-const createLocationContainer = (res, locationContainer, city, state) => {
+const createMainContainers = (locationContainer, weatherContainer) => {
+    const searchWeatherForm = document.createElement("form"); 
+    const searchWeatherInput = document.createElement("input"); 
+
+    locationContainer.className = 'locationContainer'; 
+    weatherContainer.className = 'weatherContainer';
+    searchWeatherForm.className = 'main-searchWeatherForm'; 
+    searchWeatherInput.className = 'main-searchWeatherInput';
+    searchWeatherInput.placeholder = 'City, State...';  
+    searchWeatherForm.appendChild(searchWeatherInput); 
+    locationContainer.appendChild(searchWeatherForm);
+
+    return new Promise((resolve) => resolve(1)); 
+}; 
+
+const createLocationContainerElement = (res, locationContainer, city, state) => {
     const rawTime = res.currentTime.toLocaleTimeString(); 
     const rawTimeLength = rawTime.length; 
     const parsedTime = (rawTime.length % 2 === 0) ? 
@@ -31,11 +197,11 @@ const createLocationContainer = (res, locationContainer, city, state) => {
     temperatureTextElement.textContent = (GLOBALSTATE.measure === "imperial") ? 
     temperatureTextElement.textContent = `${temperature}` + "\u00b0" + "F" : 
     temperatureTextElement.textContent = `${temperature}` + "\u00b0" + "C";
-    deleteIcon.className = "fa-solid fa-xmark"; 
-    locationElementContainer.className = "locationElement"; 
-    rightLocationElementSection.className = "rightLocationElementSection"; 
-    leftLocationElementSection.className = "leftLocationElementSection";  
-    rightLocationElementSectionText.className = "rightLocationsElementSectionText";  
+    deleteIcon.className = 'fa-solid fa-xmark'; 
+    locationElementContainer.className = 'locationElement'; 
+    rightLocationElementSection.className = 'rightLocationElementSection'; 
+    leftLocationElementSection.className = 'leftLocationElementSection';  
+    rightLocationElementSectionText.className = 'rightLocationsElementSectionText';  
 
     rightLocationElementSectionText.appendChild(locationTextElement); 
     rightLocationElementSectionText.appendChild(timeTextElement); 
@@ -46,9 +212,28 @@ const createLocationContainer = (res, locationContainer, city, state) => {
     locationElementContainer.appendChild(rightLocationElementSection); 
     locationElementContainer.appendChild(leftLocationElementSection); 
     locationContainer.appendChild(locationElementContainer); 
+
+    addDeleteLocationEvent(deleteIcon); 
+    loadWeather(locationElementContainer); 
 }; 
 
-const loadPage = () => {
+const addLocationElements = (location, container, locationContainer, weatherContainer) => {
+    const locationElement = new DOMParser().parseFromString(location, "text/xml").firstChild;
+    const city = locationElement.textContent.split(",")[0].trim(); 
+    const state = locationElement.textContent.split(",")[1].trim(); 
+    
+    return getLocation(city, state)
+        .then(res => {
+            createLocationContainerElement(res, locationContainer, city, state); 
+            container.appendChild(locationContainer); 
+            container.appendChild(weatherContainer);
+            createWeatherContainer();   
+            return new Promise(resolve => resolve(1)); 
+        })
+        .catch(err => console.log(err)); 
+}; 
+
+const loadPage = async() => {
     const container = document.querySelector(".container"); 
     if (!GLOBALSTATE.locations) {
         const initContainer = document.createElement("div"); 
@@ -59,103 +244,55 @@ const loadPage = () => {
         btn.innerHTML = "<i class='fa-solid fa-plus addIcon'></i>Add Location"; 
         initContainer.appendChild(btn); 
         container.appendChild(initContainer);    
-
+        GLOBALSTATE.status = STATE.initialLoad; 
+        
         return new Promise(resolve => resolve(1)); 
     } else if (GLOBALSTATE.locations === 1) {    
         const locationContainer = document.createElement("div"); 
         const weatherContainer = document.createElement("div"); 
-        const searchWeatherForm = document.createElement("form"); 
-        const searchWeatherInput = document.createElement("input"); 
         const locationDOMElements = getLocationStorage(); 
-
-        locationContainer.className = "locationContainer"; 
-        weatherContainer.className = "weatherContainer"
-        searchWeatherForm.className = "main-searchWeatherForm"; 
-        searchWeatherInput.className = "main-searchWeatherInput";
-        searchWeatherInput.placeholder = "City, State...";  
-        searchWeatherForm.appendChild(searchWeatherInput); 
-        locationContainer.appendChild(searchWeatherForm);
+        
+        await createMainContainers(locationContainer, weatherContainer);
         // must return Promise so it can wait upon this operation to complete synchronously
-        return new Promise(resolve => {
-            const locationElement = new DOMParser().parseFromString(locationDOMElements[0], "text/xml").firstChild;
-            const city = locationElement.textContent.split(",")[0].trim(); 
-            const state = locationElement.textContent.split(",")[1].trim(); 
-            getLocation(city, state) 
-            .then(res => {
-                createLocationContainer(res, locationContainer, city, state); 
-                container.appendChild(locationContainer);
-                container.appendChild(weatherContainer);
-                resolve(1);  
-            })
-            .catch(err => console.log(err));  
+        return new Promise(async resolve => {
+            await addLocationElements(locationDOMElements[0], container, locationContainer, weatherContainer); 
+            resolve(1); 
         });
-    } else {
-        const locationContainer = document.querySelector(".locationContainer");
+    } else if (GLOBALSTATE.status != STATE.DELETE) {
         const locationDOMElements = getLocationStorage(); 
-
-        return new Promise(resolve => {
-            const lastIdx = locationDOMElements.length-1; 
-            const locationElement = new DOMParser().parseFromString(locationDOMElements[lastIdx], "text/xml").firstChild;
-            const city = locationElement.textContent.split(",")[0].trim(); 
-            const state = locationElement.textContent.split(",")[1].trim(); 
-            getLocation(city, state) 
-            .then(res => {
-                createLocationContainer(res, locationContainer, city, state); 
-                resolve(1); 
-            })
-            .catch(err => console.log(err)); 
-        }); 
+        const isLocationContainer = document.querySelector(".locationContainer"); 
+        if (isLocationContainer) {
+            const locationContainer = isLocationContainer; 
+            return new Promise(resolve => {
+                const lastIdx = locationDOMElements.length-1; 
+                const locationElement = new DOMParser().parseFromString(locationDOMElements[lastIdx], "text/xml").firstChild;
+                const city = locationElement.textContent.split(",")[0].trim(); 
+                const state = locationElement.textContent.split(",")[1].trim(); 
+                getLocation(city, state) 
+                .then(res => {
+                    createLocationContainerElement(res, locationContainer, city, state);
+                    resolve(1); 
+                })
+                .catch(err => console.log(err)); 
+            }); 
+        // if reloaded then you have to retrieve the locationContainer from the localStorage as it is not saved 
+        // when first loading into the page if there is stuff stored within localStorage 
+        } else {
+            const locationContainer = document.createElement("div"); 
+            const weatherContainer = document.createElement("div"); 
+            createMainContainers(locationContainer, weatherContainer);
+            return new Promise(resolve => {
+                locationDOMElements.forEach(async loc => {
+                    await addLocationElements(loc, container, locationContainer, weatherContainer); 
+                    resolve(1); 
+                }); 
+            }); 
+        } 
     }
 };
 
-// verify if the location exists within the database or not by querying the fields 
-const doesLocationExist = (city, state) => {
-    const query = GLOBALSTATE.db
-        .where("city", "==", city)
-        .where("state", "==", state);
-    // return the booleans and return that promise which will be called through another with this function 
-    return query
-        .get()
-        .then(doc => doc.empty)
-        .catch(err => console.log(err));        
-}; 
-
-// helper function to retrieve data about a location to display 
-const getLocation = (city, state) => {
-    const query = GLOBALSTATE.db 
-        .where("city", "==", city)
-        .where("state", "==", state); 
-
-    return query
-        .get() 
-        .then(res => {
-            const currentTime = new Date(); 
-            const weatherCondition = res.docs[0].data().currentWeather.weather[0].description;
-            const currentTemperature = res.docs[0].data().currentWeather.main.temp;  
-            return { 
-                currentTime: currentTime, 
-                weatherCondition: weatherCondition,
-                currentTemperature: currentTemperature, 
-            }; 
-        })
-        .catch(err => console.log(err)); 
-}; 
-
-const getLocationStorage = () => {
-    let allLocations; 
-    if (GLOBALSTATE.locationStorage.getItem("locations") === null) allLocations = []; 
-    else allLocations = JSON.parse(GLOBALSTATE.locationStorage.getItem("locations"));
-    return allLocations; 
-}
-
 const getCurrentWeather = (lat, lon) => {
-    const weatherEndpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=${GLOBALSTATE.measure}`;
-    return fetch(GLOBALSTATE.proxy + weatherEndpoint, {
-        method: "GET", 
-        headers: {
-            "Content-Type": "application/json", 
-        }
-    })
+    requestCurrentWeather(lat, lon)
     .then(res => res.json())
     .then(data => data)
     .catch(err => console.log(err)); 
@@ -173,36 +310,41 @@ const getCurrentWeather = (lat, lon) => {
     weeklyForecast: openweatherAPI json 
 */
 const addToDatabase = (city, state) => {
-    const locationEndpoint = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${state}, US&appid=${api_key}`; 
     // fetch location
     return new Promise(resolve => {
-        fetch(GLOBALSTATE.proxy + locationEndpoint, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json", 
-            }
+        // requestCurrentCoordinates(city, state)
+        // .then(res => res.json(); console.log(res.json()); )
+        // .then(data => { return { lat: data[0].lat, lon: data[0].lon } }) 
+        // // fetch currentWeatherData to initialize the document within the collection of the firestore database 
+        // .then(coords => getCurrentWeather(coords.lat, coords.lat))
+        // .then(currentWeatherData => {
+        //     const lat = currentWeatherData.coord.lat; 
+        //     const lon = currentWeatherData.coord.lon;
+        //     return GLOBALSTATE.db.add({
+        //         city: city, 
+        //         state: state, 
+        //         latitude: lat, 
+        //         longtitude: lon, 
+        //         currentWeather: currentWeatherData, 
+        //     })
+        // })
+        // .then(res => { 
+        //     console.log("WRITTEN TO", res.id)
+        //     resolve(1); 
+        // })
+        // .catch(err => console.log(err)); 
+        GLOBALSTATE.db.add({
+            city: city,
+            state: state,
+            latitude: todayWeather.coord.lat, 
+            longtitude: todayWeather.coord.lon, 
+            currentWeather: todayWeather,
+            currentForecast: todayForecast, 
+            futureForecast: weekForecast 
         })
-        .then(res => res.json())
-        .then(data => { return { lat: data[0].lat, lon: data[0].lon } }) 
-        // fetch currentWeatherData to initialize the document within the collection of the firestore database 
-        .then(coords => getCurrentWeather(coords.lat, coords.lat))
-        .then(currentWeatherData => {
-            const lat = currentWeatherData.coord.lat; 
-            const lon = currentWeatherData.coord.lon;
-            return GLOBALSTATE.db.add({
-                city: city, 
-                state: state, 
-                latitude: lat, 
-                longtitude: lon, 
-                currentWeather: currentWeatherData, 
-            })
-        })
-        .then(res => { 
-            console.log("WRITTEN TO", res.id)
-            resolve(1); 
-        })
-        .catch(err => console.log(err)); 
-        })
+        resolve(1);
+
+    })
 }; 
 
 // store it within the localStorage and because storage updates, then reload the DOM 
@@ -211,7 +353,7 @@ const saveLocations = async(city, state) => {
         const initContainer   = document.querySelector(".initialLocationContainer"); 
         const locationElement = document.createElement("div"); 
         // styling 
-        locationElement.className   = "locationsElement"; 
+        locationElement.className   = "locationElement"; 
         locationElement.textContent = `${city}, ${state}`; 
         // delete the old UI and add the new UI for the locations being existent 
         initContainer.remove(); 
@@ -220,19 +362,21 @@ const saveLocations = async(city, state) => {
         allLocations.push(locationElement.outerHTML); 
         GLOBALSTATE.locationStorage.setItem("locations", JSON.stringify(allLocations)); 
         GLOBALSTATE.locations += 1; 
-        await loadPage();   
+        GLOBALSTATE.status = STATE.ADD; 
+        await loadPage();
         setTimeout(() => {
             location.reload(); 
-        }, 200)
-    } else {
+        }, 150)
+    } else { 
         const locationElement = document.createElement("div"); 
-        locationElement.className = "locationsElement"; 
+        locationElement.className = "locationElement"; 
         locationElement.textContent = `${city}, ${state}`;
 
         const allLocations = getLocationStorage(); 
         allLocations.push(locationElement.outerHTML); 
         GLOBALSTATE.locationStorage.setItem("locations", JSON.stringify(allLocations)); 
         GLOBALSTATE.locations += 1; 
+        GLOBALSTATE.status = STATE.ADD; 
         loadPage(); 
     }
 }; 
@@ -244,7 +388,7 @@ const inputLocation = (formClassname, inputClassname) => {
         e.preventDefault(); 
         const locationElement = document.querySelector(inputClassname); 
         const parsedLocationElement = locationElement.value.trim();
-        console.log(parsedLocationElement);  
+          
         // parsing matters now with the user input with location 
         // if not City, State format 
         let city = ""; let state = ""; 
@@ -279,10 +423,10 @@ const addLocation = () => {
         // click on the add btn to input the first location 
         btnElement.addEventListener("click", async() => {
             const parentElement = document.querySelector(".initialLocationContainer");  
-            const formElement   = document.createElement("form"); 
-            const inputElement  = document.createElement("input");
-            formElement.className    = "main-inputWrapper"; 
-            inputElement.className   = "main-inputLocation"; 
+            const formElement = document.createElement("form"); 
+            const inputElement = document.createElement("input");
+            formElement.className = "main-inputWrapper"; 
+            inputElement.className = "main-inputLocation"; 
             inputElement.placeholder = "City, State..."; 
             btnElement.remove();
             formElement.appendChild(inputElement); 
@@ -297,92 +441,44 @@ const addLocation = () => {
     }; 
 }; 
 
-const deleteFromDatabase = (city, state) => {
-    const query = GLOBALSTATE.db
-                    .where("city", "==", city)
-                    .where("state", "==", state); 
-
-    query
-        .get()
-        .then(data => {
-            data.forEach(res => {
-                res.ref.delete(); 
-                console.log(`Location ${city}, ${state} successfully deleted.`);  
-            })
-        })
-        .catch(err => console.log(err)); 
-}; 
-
-const deleteFromLocalStorage = (city, state) => {
-    const locationsStorage = getLocationStorage(); 
-
-    const newLocationsStorage = 
-        locationsStorage.filter((location) => {
-            const locationDOMElement  = new DOMParser().parseFromString(location, "text/xml");
-            const locationTextContent = locationDOMElement.firstChild.textContent; 
-            const cityText = locationTextContent.split(",")[0].trim();
-            const stateText = locationTextContent.split(",")[1].trim();
-            return city !== cityText && state !== stateText; 
-        });
-    GLOBALSTATE.locationStorage.setItem("locations", JSON.stringify(newLocationsStorage));
-};
-
-const deleteLocation = () => {
-    const deleteIconElement = document.querySelector(".leftLocationElementSection i"); 
-
-    deleteIconElement.addEventListener("click", () => {
-        const location = deleteIconElement
+const addDeleteLocationEvent = (delIconElement) => {
+    delIconElement.addEventListener("click", () => {
+        const [city, state] = delIconElement
                             .parentElement
                             .parentElement
                             .firstChild
                             .querySelector(":nth-child(2)")
                             .querySelector(":nth-child(1)")
-                            .textContent;
-                            
-        const parsedLocation = location.split(","); 
-        const city = parsedLocation[0].trim(); 
-        const state = parsedLocation[1].trim();  
-        
-        deleteFromDatabase(city, state);
-        deleteFromLocalStorage(city, state);
+                            .textContent
+                            .split(",");
+        deleteFromDatabase(city.trim(), state.trim()); 
+        deleteFromLocalStorage(city.trim(), state.trim()); 
         GLOBALSTATE.locations -= 1; 
-        loadPage(); 
-    });
-};  
+        GLOBALSTATE.status = STATE.DELETE; 
 
-// to make sure if there are locations the accurate number of locations are 
-// accounted for within the db for when they first load into the UI 
-const countLocations = () => {
-    return firebaseApp
-        .firestore()
-        .collection("locations")
-        .get()
-        .then(res => res.docs.length); 
-}; 
+        if (!GLOBALSTATE.locations) {
+            const locationContainer = document.querySelector(".locationContainer");
+            const weatherContainer = document.querySelector(".weatherContainer"); 
 
-const reloadPage = () => {
-    return new Promise(resolve => {
-        if (GLOBALSTATE.locations && !GLOBALSTATE.locationStorage.getItem("reloaded")) {
-            GLOBALSTATE.locationStorage.setItem("reloaded", true); 
-            location.reload(); 
-            console.log("reloaded"); 
-            resolve(1);
+            locationContainer.remove();
+            weatherContainer.remove(); 
+            loadPage(); 
+            addLocation();
         }
+
     })
-}; 
+};  
 
 window.addEventListener("DOMContentLoaded", () => {
     countLocations()
         .then(async(res) => {
-            GLOBALSTATE.locations = res; 
+            GLOBALSTATE.locations = res;
             if (!GLOBALSTATE.locations) {
                 loadPage();
                 addLocation();
-                // deleteLocation();
             } else {
                 await loadPage(); 
                 addLocation();
-                // deleteLocation();  
             }
         }) 
     }
