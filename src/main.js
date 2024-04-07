@@ -1,5 +1,10 @@
 import { STATE, GLOBALSTATE, days } from "./state.js";
-import { requestCurrentCoordinates, requestCurrentWeather } from "./request.js";
+import { 
+    requestCurrentCoordinates, 
+    requestCurrentWeather, 
+    requestCurrentForecast, 
+    requestFutureForecast
+} from "./request.js";
 import { 
     setIcon, 
     setStats, 
@@ -10,8 +15,72 @@ import {
     deleteFromDatabase, 
     deleteFromLocalStorage
 } from "./helper.js";
-
 import { todayForecast, todayWeather, weekForecast } from "./mockdata.js";
+
+const loadCurrentForecast = (currentForecast, currentForecastContainer) => {
+    console.log(currentForecast); 
+    const forecast = currentForecast.slice(0, 4); 
+    currentForecastContainer.innerHTML = ""; 
+    forecast.forEach((f, idx) => {
+        const timeElement = document.createElement("h4"); 
+        const currentTime = new Date(f.dt * 1000)
+                                .toLocaleString("en-US", "America/New York")
+                                .split(",")[1]
+                                .split(":");         
+        const timeSuffix = currentTime[2].split(" ")[1]; 
+        const timeDisplay = `${currentTime[0].trim()}:${currentTime[1].trim()} ${timeSuffix}`; 
+        timeElement.textContent = idx === 0 ? "Now" : timeDisplay; 
+
+        const iconElement = document.createElement("i");
+        const weatherDescription = f.weather[0].description; 
+        setIcon(iconElement, weatherDescription); 
+
+        const tempElement = document.createElement("h4"); 
+        const tempNum = f.main.temp; 
+        tempElement.textContent = `${Math.round(tempNum)}\u00b0`; 
+
+        const forecastContainer = document.createElement("div"); 
+        forecastContainer.className = "hourlyForecast"; 
+        forecastContainer.appendChild(timeElement); 
+        forecastContainer.appendChild(iconElement); 
+        forecastContainer.appendChild(tempElement); 
+
+        currentForecastContainer.appendChild(forecastContainer);
+    }); 
+}; 
+
+const loadFutureForecast = (futureForecast, futureForecastContainer) => {    
+    console.log(futureForecast); 
+    const forecast = futureForecast.slice(0, 3); 
+    futureForecastContainer.innerHTML = ""; 
+
+    forecast.forEach((f, idx) => {
+        console.log(f); 
+
+        const dayElement = document.createElement("h4"); 
+        const currentDay = days[new Date(f.dt * 1000).getDay()]; 
+        dayElement.className = "dayContent"; 
+        dayElement.textContent = idx === 0 ? "Today" : currentDay;
+        
+        const iconElement = document.createElement("i");
+        const weatherDescription = f.weather[0].description; 
+        setIcon(iconElement, weatherDescription); 
+
+        const highLowElement = document.createElement("h4"); 
+        const highTemp = f.temp.max; 
+        const lowTemp = f.temp.min; 
+        highLowElement.className = "highLowTemp"; 
+        highLowElement.textContent = `${Math.round(highTemp)}\u00b0 / ${Math.round(lowTemp)}\u00b0`; 
+
+        const forecastContainer = document.createElement("div");
+        forecastContainer.className = "forecastDay"; 
+        forecastContainer.appendChild(dayElement); 
+        forecastContainer.appendChild(iconElement);
+        forecastContainer.appendChild(highLowElement); 
+
+        futureForecastContainer.appendChild(forecastContainer); 
+    });
+}; 
 
 const loadWeather = (locationElement) => {
     locationElement.addEventListener("click", () => {
@@ -31,7 +100,6 @@ const loadWeather = (locationElement) => {
 
         getLocation(city.trim(), state.trim())
             .then(res => {
-                    console.log(res);
                     cityElement.textContent = `${city}`; 
                     timeElement.textContent = (res.currentTime.toLocaleTimeString().length % 2 === 0) ? 
                     (`${days[res.currentTime.getDay()]} ${res.currentTime.toLocaleTimeString().substring(0, 4)} 
@@ -39,6 +107,19 @@ const loadWeather = (locationElement) => {
                     (`${days[res.currentTime.getDay()]} ${res.currentTime.toLocaleTimeString().substring(0, 5)} 
                     ${res.currentTime.toLocaleTimeString().substring(9, res.currentTime.toLocaleTimeString().length)}`);
                     setIcon(iconElement, res.weatherCondition);
+
+                    const currentWeatherMetrics = document.querySelector(".weatherCurrentMetrics");
+                    const fahrenheitIcon = document.createElement("i"); 
+                    const celsiusIcon = document.createElement("i"); 
+                    const delimiterText = document.createElement("h5");
+                    currentWeatherMetrics.innerHTML = ""; 
+                    delimiterText.textContent = " | "; 
+                    currentWeatherMetrics.appendChild(fahrenheitIcon); 
+                    currentWeatherMetrics.appendChild(delimiterText);
+                    currentWeatherMetrics.appendChild(celsiusIcon); 
+
+                    fahrenheitIcon.classList.add("wi", "wi-fahrenheit", "metric-icon"); 
+                    celsiusIcon.classList.add("wi", "wi-celsius", "metric-icon");                     
 
                     const currentTempElement = document.createElement("h1");
                     const currentHighLowElement = document.createElement("h6");
@@ -52,12 +133,16 @@ const loadWeather = (locationElement) => {
                     tempNumElement.appendChild(currentTempElement);
                     tempNumElement.appendChild(currentHighLowElement); 
 
+                    createAdditionalStatsContainer(); 
                     setStats("daily", 
                         res.currentTempStats.wind, 
                         res.currentTempStats.rain, 
                         res.currentTempStats.humidity, 
                         res.currentTempStats.clouds
                     ); 
+ 
+                    loadCurrentForecast(res.currentForecastStats.list, currentForecast);
+                    loadFutureForecast(res.futureForecastStats.list, futureForecast); 
                 }
             );
         const currentWeatherLocationInfo = document.querySelector(".weatherCurrentInfoGeo");
@@ -76,7 +161,10 @@ const loadWeather = (locationElement) => {
     })
 }; 
 
-const createAdditionalStatsContainer = (outerContainer) => {
+const createAdditionalStatsContainer = () => {
+    const outerContainer = document.querySelector(".weatherCurrentAdditionalInfo");
+    outerContainer.innerHTML = ""; 
+
     const windSpeedContainer = document.createElement("div");
     const rainVolumeContainer = document.createElement("div");
     const humidityContainer = document.createElement("div");
@@ -136,10 +224,13 @@ const createWeatherContainer = () => {
     
         const currentHeaderInfo = document.createElement("div"); 
         const currentLocationInfo = document.createElement("div"); 
+        const currentMetricSelector = document.createElement("div"); 
         
         currentHeaderInfo.className = "weatherCurrentInfoHeader";
         currentLocationInfo.className = "weatherCurrentInfoGeo";
+        currentMetricSelector.className = "weatherCurrentMetrics"; 
         currentHeaderInfo.appendChild(currentLocationInfo);
+        currentHeaderInfo.appendChild(currentMetricSelector); 
         currentWeatherInfoSection.appendChild(currentHeaderInfo);
 
         const currentTempInfo = document.createElement("div"); 
@@ -148,7 +239,6 @@ const createWeatherContainer = () => {
 
         const currentAdditionalInfo = document.createElement("div"); 
         currentAdditionalInfo.className = "weatherCurrentAdditionalInfo"; 
-        createAdditionalStatsContainer(currentAdditionalInfo); 
         currentWeatherInfoSection.appendChild(currentAdditionalInfo);
     
         weatherContainer.appendChild(currentWeatherInfoSection); 
@@ -291,13 +381,6 @@ const loadPage = async() => {
     }
 };
 
-const getCurrentWeather = (lat, lon) => {
-    requestCurrentWeather(lat, lon)
-    .then(res => res.json())
-    .then(data => data)
-    .catch(err => console.log(err)); 
-}; 
-
 /*
     =======Schema=======
     whenFetched: date 
@@ -312,38 +395,28 @@ const getCurrentWeather = (lat, lon) => {
 const addToDatabase = (city, state) => {
     // fetch location
     return new Promise(resolve => {
-        // requestCurrentCoordinates(city, state)
-        // .then(res => res.json(); console.log(res.json()); )
-        // .then(data => { return { lat: data[0].lat, lon: data[0].lon } }) 
-        // // fetch currentWeatherData to initialize the document within the collection of the firestore database 
-        // .then(coords => getCurrentWeather(coords.lat, coords.lat))
-        // .then(currentWeatherData => {
-        //     const lat = currentWeatherData.coord.lat; 
-        //     const lon = currentWeatherData.coord.lon;
-        //     return GLOBALSTATE.db.add({
-        //         city: city, 
-        //         state: state, 
-        //         latitude: lat, 
-        //         longtitude: lon, 
-        //         currentWeather: currentWeatherData, 
-        //     })
-        // })
-        // .then(res => { 
-        //     console.log("WRITTEN TO", res.id)
-        //     resolve(1); 
-        // })
-        // .catch(err => console.log(err)); 
-        GLOBALSTATE.db.add({
-            city: city,
-            state: state,
-            latitude: todayWeather.coord.lat, 
-            longtitude: todayWeather.coord.lon, 
-            currentWeather: todayWeather,
-            currentForecast: todayForecast, 
-            futureForecast: weekForecast 
-        })
-        resolve(1);
+        requestCurrentCoordinates(city, state)
+        .then(res => res.json())
+        .then(data => { return { lat: data[0].lat, lon: data[0].lon } }) 
+        // fetch currentWeatherData to initialize the document within the collection of the firestore database 
+        .then(async coords => {
+            const currentWeather = await requestCurrentWeather(coords.lat, coords.lon).then(res => res.json());
+            const currentForecast = await requestCurrentForecast(coords.lat, coords.lon).then(res => res.json());
+            const futureForecast = await requestFutureForecast(coords.lat, coords.lon).then(res => res.json()); 
+            
+            GLOBALSTATE.db.add({
+                city: city,
+                state: state,
+                latitude: currentWeather.coord.lat, 
+                longtitude: currentWeather.coord.lon, 
+                currentWeather: currentWeather,
+                currentForecast: currentForecast, 
+                futureForecast: futureForecast 
+            })
 
+            resolve(1); 
+        })
+        .catch(err => console.log(err)); 
     })
 }; 
 

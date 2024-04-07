@@ -265,9 +265,9 @@ const callWeatherData = (city, state) => {
         const lat = data[0].lat; 
         const lon = data[0].lon; 
         // request data for specific statistics 
-        currentWeather(GLOBALSTATE.proxy, lat, lon, city); 
-        dailyForecast(GLOBALSTATE.proxy, lat, lon); 
-        weeklyForecastWeather(GLOBALSTATE.proxy, lat, lon); 
+        currentWeather(lat, lon, city); 
+        dailyForecast(lat, lon); 
+        weeklyForecastWeather(lat, lon); 
     })
     .catch(error => console.log(error)); 
 };
@@ -281,9 +281,9 @@ const successCallback = (pos) => {
     .then(data => {
         clear();
         GLOBALSTATE.pair = {"city": data[0].name, "state": data[0].state}; 
-        currentWeather(GLOBALSTATE.proxy, lat, lon, data[0].name); 
-        dailyForecast(GLOBALSTATE.proxy, lat, lon); 
-        weeklyForecastWeather(GLOBALSTATE.proxy, lat, lon); 
+        currentWeather(lat, lon, data[0].name); 
+        dailyForecast(lat, lon); 
+        weeklyForecastWeather(lat, lon); 
     })
     .catch(error => console.log(error)); 
 }; 
@@ -325,7 +325,7 @@ const searchLocation = () => {
 // to switch to fahrenheit or celsius
 const switchMetrics = () => {
     const fahrenheitElement = document.querySelector(".wi-fahrenheit");
-    const celsiusElement    = document.querySelector(".wi-celsius"); 
+    const celsiusElement = document.querySelector(".wi-celsius"); 
     fahrenheitElement.addEventListener("click", () => {
         if (GLOBALSTATE.measure === "metric") {
             GLOBALSTATE.measure = "imperial";
