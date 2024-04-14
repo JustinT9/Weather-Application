@@ -212,7 +212,7 @@ class WeatherMenuDisplay {
                     const state = locationElement.textContent.split(",")[1].trim(); 
                     LocationQuery.getLocation(city, state)
                     .then(res => {
-                        WeatherMenuDisplay.createLocationContainerElement(res, locationContainer, city, state);
+                        WeatherMenuDisplay.createLocationContainer(res, locationContainer, city, state);
                         resolve(1); 
                     })
                     .catch(err => console.log(err)); 

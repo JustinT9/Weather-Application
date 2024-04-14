@@ -83,9 +83,9 @@ class WeatherPage {
 
                     if (forecast.childNodes[0].textContent === "Today") {
                         const date = new Date(Date.now());                                                                                       
-                        Weather.weeklyForecastTodayUtil(date, State.flag, State.currentWeather, labelElement, dayElement);
+                        WeatherPage.weeklyForecastTodayUtil(date, State.flag, State.currentWeather, labelElement, dayElement);
                     } else {
-                        Weather.weeklyForecastOtherUtil(forecast, idx, State.flag, data, min, max, 
+                        WeatherPage.weeklyForecastOtherUtil(forecast, idx, State.flag, data, min, max, 
                         forecast.childNodes[0].textContent, labelElement, dayElement); 
                     }
                     iconElement.className = `${forecast.childNodes[1].className} weather-icon`;   
@@ -123,7 +123,7 @@ class WeatherPage {
         .then(data => {
             const dailyInfo = data.list;
             Utilities.setDaily(dailyInfo); 
-            Weather.displayHourlyForecast(State.metric); 
+            WeatherPage.displayHourlyForecast(State.metric); 
             console.log("DAILY FORECAST:", data); 
         })
         .catch(error => console.log(error));  
@@ -136,7 +136,7 @@ class WeatherPage {
         .then(data => {
             const weekInfo = data.list; 
             Utilities.setWeekly(weekInfo); 
-            Weather.displayWeeklyForecast(weekInfo); 
+            WeatherPage.displayWeeklyForecast(weekInfo); 
             console.log("WEEKLY FORECAST:", data); 
         })
         .catch(error => console.log(error)); 
@@ -150,9 +150,9 @@ class WeatherPage {
             const lat = data[0].lat; 
             const lon = data[0].lon; 
             // request data for specific statistics 
-            Weather.currentWeather(lat, lon, city); 
-            Weather.dailyForecast(lat, lon); 
-            Weather.weeklyForecastWeather(lat, lon); 
+            WeatherPage.currentWeather(lat, lon, city); 
+            WeatherPage.dailyForecast(lat, lon); 
+            WeatherPage.weeklyForecastWeather(lat, lon); 
         })
         .catch(error => console.log(error)); 
     };
@@ -166,9 +166,9 @@ class WeatherPage {
         .then(data => {
             Utilities.clear();
             State.cityStatePair = {"city": data[0].name, "state": data[0].state}; 
-            Weather.currentWeather(lat, lon, data[0].name); 
-            Weather.dailyForecast(lat, lon); 
-            Weather.weeklyForecastWeather(lat, lon); 
+            WeatherPage.currentWeather(lat, lon, data[0].name); 
+            WeatherPage.dailyForecast(lat, lon); 
+            WeatherPage.weeklyForecastWeather(lat, lon); 
         })
         .catch(error => console.log(error)); 
     }; 
@@ -176,7 +176,7 @@ class WeatherPage {
     static getCurrentLocation = () => {
         const currentLocationElement = document.querySelector(".fa-location-dot"); 
         currentLocationElement.addEventListener("click", () => {
-            navigator.geolocation.getCurrentPosition(Weather.successCallback, err => console.log(err)); 
+            navigator.geolocation.getCurrentPosition(WeatherPage.successCallback, err => console.log(err)); 
             console.log("requested current location...");  
         })
     }; 
@@ -201,7 +201,7 @@ class WeatherPage {
             }   
             e.preventDefault(); 
             Utilities.clear(); 
-            Weather.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
+            WeatherPage.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
             document.querySelector(".weather-addLocation").value = ""; 
             console.log("searched for location"); 
         }); 
@@ -215,7 +215,7 @@ class WeatherPage {
             if (State.metric === "metric") {
                 State.metric = "imperial";
                 Utilities.clear(); 
-                Weather.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
+                WeatherPage.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
                 console.log("switched to fahrenheit");
             }
         }); 
@@ -223,7 +223,7 @@ class WeatherPage {
             if (State.metric === "imperial") {
                 State.metric = "metric"; 
                 Utilities.clear(); 
-                Weather.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
+                WeatherPage.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
                 console.log("switched to celsius"); 
             }
         }); 
