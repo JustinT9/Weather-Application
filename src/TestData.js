@@ -42,7 +42,6 @@ const todayWeather = {
     "cod": 200
 }
 
-
 const todayForecast = [
     {
         "dt": 1700524800,
