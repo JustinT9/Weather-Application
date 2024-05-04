@@ -1,4 +1,4 @@
-import { firebaseApp } from "./config.js";
+import { firebaseApp } from "../../config.js";
 
 const applicationStates = {
     dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], 
@@ -10,6 +10,14 @@ const applicationStates = {
         ADD: 1, 
         DELETE: 2, 
     }), 
+    windElement: document.querySelector(".windSpeed"), 
+    rainElement: document.querySelector(".rainVolume"),  
+    humidityElement: document.querySelector(".humidity"),
+    cloudyElement: document.querySelector(".cloudiness"), 
+    feelsLikeElement: document.querySelector(".feelslike h4"),  
+    visibilityElement: document.querySelector(".visible h4"),   
+    sunriseElement: document.querySelector(".sunrise h4"),  
+    sunsetElement: document.querySelector(".sunset h4"), 
 };
 
 let applicationEffects = {
@@ -37,6 +45,14 @@ class State {
     static get cityStatePair() { return applicationEffects.cityStatePair; }
     static get flag() { return applicationEffects.flag; }
     static get currentWeather() { return applicationEffects.currentWeather; }
+    static get windElement() { return applicationStates.windElement; }
+    static get rainElement() { return applicationStates.rainElement; }
+    static get humidityElement() { return applicationStates.humidityElement; }
+    static get cloudyElement() { return applicationStates.cloudyElement; }
+    static get feelsLikeElement() { return applicationStates.feelsLikeElement; }
+    static get visibilityElement() { return applicationStates.visibilityElement; }
+    static get sunriseElement() { return applicationStates.sunriseElement; }
+    static get sunsetElement() { return applicationStates.sunsetElement; }
 
     static set locations(val) { applicationEffects.locations += val }
     static set metric(newMetric) { applicationEffects.metric = newMetric; }
