@@ -1,26 +1,30 @@
-import { State } from "./State.js";
-import { WeatherRequest } from "./WeatherRequest.js";
+import { State } from "../util/state.js";
+import { WeatherRequest } from "../util/WeatherRequest.js";
 import { 
     Utilities, 
     LocationQuery, 
     LocationStorage,
-} from "./Utilities.js";
-import { todayForecast, todayWeather, weekForecast } from "./TestData.js";
+} from "../util/Utilities.js";
+import { LocationMap } from "../map/WeatherMap.js";
 
 class WeatherMenuDisplay {
-    static createMainContainers = (locationContainer, weatherContainer) => {
+    static createMainContainers = (
+        locationContainer, 
+        weatherContainer
+    ) => {
         const searchWeatherForm = document.createElement("form"); 
         const searchWeatherInput = document.createElement("input"); 
     
-        locationContainer.className = 'locationContainer'; 
-        weatherContainer.className = 'weatherContainer';
-        searchWeatherForm.className = 'main-searchWeatherForm'; 
-        searchWeatherInput.className = 'main-searchWeatherInput';
-        searchWeatherInput.placeholder = 'City, State...';  
+        locationContainer.className = "locationContainer"; 
+        weatherContainer.className = "weatherContainer";
+        searchWeatherForm.className = "main-searchWeatherForm"; 
+        searchWeatherInput.className = "main-searchWeatherInput";
+        searchWeatherInput.placeholder = "City, State...";  
+
         searchWeatherForm.appendChild(searchWeatherInput); 
         locationContainer.appendChild(searchWeatherForm);
-    
-        return new Promise((resolve) => resolve(1)); 
+
+        return new Promise(resolve => resolve(1)); 
     }; 
 
     static createWeatherContainer = () => {
@@ -28,20 +32,23 @@ class WeatherMenuDisplay {
     
         if (!weatherContainer.childNodes.length) {
             const currentWeatherInfoSection = document.createElement("div");
-            const currentWeatherForecast = document.createElement("div"); 
-            const futureWeatherForecast = document.createElement("div"); 
-        
             currentWeatherInfoSection.className = "weatherContainerInfoSection";
+
+            const currentWeatherForecast = document.createElement("div"); 
             currentWeatherForecast.className = "weatherContainerCurrentForecast";
+
+            const futureWeatherForecast = document.createElement("div"); 
             futureWeatherForecast.className = "weatherContainerFutureForecast";
         
             const currentHeaderInfo = document.createElement("div"); 
-            const currentLocationInfo = document.createElement("div"); 
-            const currentMetricSelector = document.createElement("div"); 
-            
             currentHeaderInfo.className = "weatherCurrentInfoHeader";
+
+            const currentLocationInfo = document.createElement("div"); 
             currentLocationInfo.className = "weatherCurrentInfoGeo";
+
+            const currentMetricSelector = document.createElement("div"); 
             currentMetricSelector.className = "weatherCurrentMetrics"; 
+            
             currentHeaderInfo.appendChild(currentLocationInfo);
             currentHeaderInfo.appendChild(currentMetricSelector); 
             currentWeatherInfoSection.appendChild(currentHeaderInfo);
@@ -66,33 +73,39 @@ class WeatherMenuDisplay {
         outerContainer.innerHTML = ""; 
     
         const windSpeedContainer = document.createElement("div");
-        const rainVolumeContainer = document.createElement("div");
-        const humidityContainer = document.createElement("div");
-        const cloudinessContainer = document.createElement("div");
-    
         windSpeedContainer.className = "weatherCurrentClimateContainers";
+
+        const rainVolumeContainer = document.createElement("div");
         rainVolumeContainer.className = "weatherCurrentClimateContainers";
+
+        const humidityContainer = document.createElement("div");
         humidityContainer.className = "weatherCurrentClimateContainers";
+
+        const cloudinessContainer = document.createElement("div");
         cloudinessContainer.className = "weatherCurrentClimateContainers";
     
         const windIcon = document.createElement("div"); 
-        const rainIcon = document.createElement("div");
-        const humidIcon = document.createElement("div");
-        const cloudyIcon = document.createElement("div"); 
-    
         windIcon.classList.add("wi", "wi-windy", "climate-icon");
+
+        const rainIcon = document.createElement("div");
         rainIcon.classList.add("wi", "wi-rain", "climate-icon");
+
+        const humidIcon = document.createElement("div");
         humidIcon.classList.add("wi", "wi-humidity", "climate-icon");
+
+        const cloudyIcon = document.createElement("div"); 
         cloudyIcon.classList.add("wi", "wi-cloudy", "climate-icon");
-    
+        
         const windNum = document.createElement("h6");
-        const rainNum = document.createElement("h6");
-        const humidNum = document.createElement("h6");
-        const cloudyNum = document.createElement("h6");
-    
         windNum.className = "windSpeed";
+
+        const rainNum = document.createElement("h6");
         rainNum.className = "rainVolume";
+
+        const humidNum = document.createElement("h6");
         humidNum.className = "humidity";
+
+        const cloudyNum = document.createElement("h6");
         cloudyNum.className = "cloudiness"; 
     
         windSpeedContainer.appendChild(windIcon); 
@@ -110,42 +123,56 @@ class WeatherMenuDisplay {
         outerContainer.appendChild(cloudinessContainer); 
     };
 
-    static createLocationContainer = (res, locationContainer, city, state) => {
+    static createLocationContainer = (
+        res, 
+        locationContainer, 
+        city, 
+        state, 
+        locationClass, 
+        locationElementClass, 
+        rightLocationElementSectionClass, 
+        leftLocationElementSectionClass, 
+        rightLocationElementSectionTextClass, 
+    ) => {
         const rawTime = res.currentTime.toLocaleTimeString(); 
         const rawTimeLength = rawTime.length; 
-        const parsedTime = (rawTime.length % 2 === 0) ? 
+        const parsedTime = (rawTimeLength % 2 === 0) ? 
         (`${rawTime[0]}:${rawTime.substring(2, 4)} ${rawTime.substring(rawTimeLength-2, rawTimeLength)}`) : 
         (`${rawTime.substring(0, 2)}:${rawTime.substring(3, 5)} ${rawTime.substring(rawTimeLength-2, rawTimeLength)}`); 
     
-        const temperature = Math.round(res.currentTemperature); 
         const iconElement = document.createElement("i"); 
-        
         Utilities.setIcon(iconElement, res.weatherCondition);
         iconElement.className = `${iconElement.className}`;  
-    
-        const locationElementContainer = document.createElement("div"); 
-        const rightLocationElementSection = document.createElement("div"); 
-        const leftLocationElementSection = document.createElement("div"); 
-        const rightLocationElementSectionText = document.createElement("div");  
+      
         const locationTextElement = document.createElement("h2"); 
-        const timeTextElement = document.createElement("h4");         
-        const temperatureTextElement = document.createElement("h1");
-        const deleteIcon = document.createElement("i");       
-    
         locationTextElement.textContent = `${city}, ${state}`; 
+        
+        const timeTextElement = document.createElement("h4");       
         timeTextElement.textContent = `${parsedTime}`; 
+
+        const temperature = Math.round(res.currentTemperature);
+        const temperatureTextElement = document.createElement("h1");
         temperatureTextElement.textContent = (State.metric === "imperial") ? 
         temperatureTextElement.textContent = `${temperature}` + "\u00b0" + "F" : 
         temperatureTextElement.textContent = `${temperature}` + "\u00b0" + "C";
     
-        deleteIcon.className = 'fa-solid fa-xmark'; 
-        locationElementContainer.className = 'locationElement'; 
-        rightLocationElementSection.className = 'rightLocationElementSection'; 
-        leftLocationElementSection.className = 'leftLocationElementSection';  
-        rightLocationElementSectionText.className = 'rightLocationsElementSectionText';  
-    
+        const deleteIcon = document.createElement("i");        
+        deleteIcon.className = "fa-solid fa-xmark"; 
+        
+        const locationElementContainer = document.createElement("div"); 
+        locationElementContainer.className = locationElementClass; 
+
+        const rightLocationElementSection = document.createElement("div"); 
+        rightLocationElementSection.className = rightLocationElementSectionClass; 
+        
+        const leftLocationElementSection = document.createElement("div"); 
+        leftLocationElementSection.className = leftLocationElementSectionClass;
+        
+        const rightLocationElementSectionText = document.createElement("div");
+        rightLocationElementSectionText.className = rightLocationElementSectionTextClass;  
         rightLocationElementSectionText.appendChild(locationTextElement); 
         rightLocationElementSectionText.appendChild(timeTextElement); 
+
         rightLocationElementSection.appendChild(iconElement); 
         rightLocationElementSection.appendChild(rightLocationElementSectionText);                     
         leftLocationElementSection.appendChild(temperatureTextElement); 
@@ -154,19 +181,40 @@ class WeatherMenuDisplay {
         locationElementContainer.appendChild(leftLocationElementSection); 
         locationContainer.appendChild(locationElementContainer); 
     
-        LocationHandler.addDeleteLocationEvent(deleteIcon); 
-        WeatherMenuDisplay.displayWeather(locationElementContainer); 
+        LocationHandler.addDeleteLocationEvent(deleteIcon, locationClass); 
+        State.relPath === "WeatherMenu.html" && WeatherMenuDisplay.displayWeather(locationElementContainer); 
     }; 
 
-    static addLocationElement = (location, container, locationContainer, weatherContainer) => {
+    static addLocationElement = (
+        location, 
+        container, 
+        locationContainer, 
+        weatherContainer
+    ) => {
         const locationElement = new DOMParser().parseFromString(location, "text/xml").firstChild;
         const city = locationElement.textContent.split(",")[0].trim(); 
         const state = locationElement.textContent.split(",")[1].trim(); 
-        
+
         return LocationQuery
             .getLocation(city, state)
             .then(res => {
-                WeatherMenuDisplay.createLocationContainer(res, locationContainer, city, state); 
+                const locationClass = ".locationContainer"; 
+                const locationElementClass = "locationElement";
+                const rightLocationElementSectionClass = "rightLocationElementSection"; 
+                const leftLocationElementSectionClass = "leftLocationElementSection";  
+                const rightLocationElementSectionTextClass = "rightLocationElementSectionText"; 
+
+                WeatherMenuDisplay.createLocationContainer(
+                    res, 
+                    locationContainer, 
+                    city, 
+                    state, 
+                    locationClass, 
+                    locationElementClass, 
+                    rightLocationElementSectionClass, 
+                    leftLocationElementSectionClass, 
+                    rightLocationElementSectionTextClass 
+                ); 
                 container.appendChild(locationContainer); 
                 container.appendChild(weatherContainer);
                 WeatherMenuDisplay.createWeatherContainer();   
@@ -179,11 +227,12 @@ class WeatherMenuDisplay {
         const container = document.querySelector(".container"); 
         if (!State.locations) {
             const initContainer = document.createElement("div"); 
-            const btn = document.createElement("button"); 
-    
             initContainer.className = "initialLocationContainer"; 
+
+            const btn = document.createElement("button"); 
             btn.className = "main-addLocation";
             btn.innerHTML = "<i class='fa-solid fa-plus addIcon'></i>Add Location"; 
+
             initContainer.appendChild(btn); 
             container.appendChild(initContainer);    
             State.applicationStatus = State.pageStatus.INIT; 
@@ -200,7 +249,7 @@ class WeatherMenuDisplay {
                 await WeatherMenuDisplay.addLocationElement(locationDOMElements[0], container, locationContainer, weatherContainer); 
                 resolve(1); 
             });
-        } else if (State.applicationStatus != State.pageStatus.DELETE) {
+        } else if (State.applicationStatus !== State.pageStatus.DELETE) {
             const locationDOMElements = LocationStorage.getLocationStorage(); 
             const isLocationContainer = document.querySelector(".locationContainer"); 
             if (isLocationContainer) {
@@ -212,7 +261,22 @@ class WeatherMenuDisplay {
                     const state = locationElement.textContent.split(",")[1].trim(); 
                     LocationQuery.getLocation(city, state)
                     .then(res => {
-                        WeatherMenuDisplay.createLocationContainerElement(res, locationContainer, city, state);
+                        const locationClass = ".locationContainer"; 
+                        const locationElementClass = "locationElement";
+                        const rightLocationElementSectionClass = "rightLocationElementSection"; 
+                        const leftLocationElementSectionClass = "leftLocationElementSection";  
+                        const rightLocationElementSectionTextClass = "rightLocationElementSectionText"; 
+                        
+                        WeatherMenuDisplay.createLocationContainer(
+                            res, 
+                            locationContainer, 
+                            city, 
+                            state, 
+                            locationClass, locationElementClass, 
+                            rightLocationElementSectionClass, 
+                            leftLocationElementSectionClass, 
+                            rightLocationElementSectionTextClass
+                        );
                         resolve(1); 
                     })
                     .catch(err => console.log(err)); 
@@ -233,106 +297,68 @@ class WeatherMenuDisplay {
         }
     };
 
-    static displayWeatherUtil = (res, city, iconElement, cityElement, timeElement, tempNumElement) => {
-        cityElement.textContent = `${city}`; 
-        timeElement.textContent = (res.currentTime.toLocaleTimeString().length % 2 === 0) ? 
-        (`${State.dayNames[res.currentTime.getDay()]} ${res.currentTime.toLocaleTimeString().substring(0, 4)} 
-        ${res.currentTime.toLocaleTimeString().substring(8, res.currentTime.toLocaleTimeString().length)}`) : 
-        (`${State.dayNames[res.currentTime.getDay()]} ${res.currentTime.toLocaleTimeString().substring(0, 5)} 
-        ${res.currentTime.toLocaleTimeString().substring(9, res.currentTime.toLocaleTimeString().length)}`);
+    static displayCurrentForecast = (
+        currentForecast, 
+        currentForecastContainer
+    ) => {
+        const forecast = currentForecast.slice(0, 4); 
+        currentForecastContainer.innerHTML = ""; 
+        Utilities.setDaily(currentForecastContainer, forecast); 
+    }; 
+
+    static displayFutureForecast = (
+        futureForecast, 
+        futureForecastContainer
+    ) => {    
+        const forecast = futureForecast.slice(0, 3); 
+        futureForecastContainer.innerHTML = ""; 
+        Utilities.setWeekly(futureForecastContainer, forecast); 
+    }; 
+
+    static displayWeatherUtil = (
+        res, 
+        city, 
+        iconElement, 
+        cityElement, 
+        timeElement, 
+        tempNumElement
+    ) => {
+        Utilities.setInfo(cityElement, timeElement, city);
         Utilities.setIcon(iconElement, res.weatherCondition);
 
-        const currentWeatherMetrics = document.querySelector(".weatherCurrentMetrics");
         const fahrenheitIcon = document.createElement("i"); 
+        fahrenheitIcon.classList.add("wi", "wi-fahrenheit", "metric-icon"); 
+
         const celsiusIcon = document.createElement("i"); 
-        const delimiterText = document.createElement("h5");
-        currentWeatherMetrics.innerHTML = ""; 
+        celsiusIcon.classList.add("wi", "wi-celsius", "metric-icon");                     
+
+        const delimiterText = document.createElement("h5"); 
         delimiterText.textContent = " | "; 
+
+        const currentWeatherMetrics = document.querySelector(".weatherCurrentMetrics");
+        currentWeatherMetrics.innerHTML = "";
         currentWeatherMetrics.appendChild(fahrenheitIcon); 
         currentWeatherMetrics.appendChild(delimiterText);
         currentWeatherMetrics.appendChild(celsiusIcon); 
 
-        fahrenheitIcon.classList.add("wi", "wi-fahrenheit", "metric-icon"); 
-        celsiusIcon.classList.add("wi", "wi-celsius", "metric-icon");                     
-
         const currentTempElement = document.createElement("h1");
         const currentHighLowElement = document.createElement("h6");
-
-        (State.metric === "imperial") ? 
-        currentTempElement.textContent = Math.round(res.currentTemperature) + "\u00b0" + "F": 
-        currentTempElement.textContent = Math.round(res.currentTemperature) + "\u00b0" + "C";
-        currentHighLowElement.textContent = `${Math.round(res.highLowTemperature.hi)}` + 
-        "\u00b0" + " / " + `${Math.round(res.highLowTemperature.low)}` + "\u00b0"; 
+        Utilities.setTemp(
+            currentTempElement, 
+            currentHighLowElement, 
+            State.metric, 
+            res.currentTemperature, 
+            res.highLowTemperature.hi, 
+            res.highLowTemperature.low
+        );
         tempNumElement.className = "weatherCurrentTempNums"; 
         tempNumElement.appendChild(currentTempElement);
         tempNumElement.appendChild(currentHighLowElement); 
     }; 
 
-    static displayCurrentForecast = (currentForecast, currentForecastContainer) => {
-        const forecast = currentForecast.slice(0, 4); 
-        currentForecastContainer.innerHTML = ""; 
-        forecast.forEach((f, idx) => {
-            const timeElement = document.createElement("h4"); 
-            const currentTime = new Date(f.dt * 1000)
-                                    .toLocaleString("en-US", "America/New York")
-                                    .split(",")[1]
-                                    .split(":");         
-            const timeSuffix = currentTime[2].split(" ")[1]; 
-            const timeDisplay = `${currentTime[0].trim()}:${currentTime[1].trim()} ${timeSuffix}`; 
-            timeElement.textContent = idx === 0 ? "Now" : timeDisplay; 
-    
-            const iconElement = document.createElement("i");
-            const weatherDescription = f.weather[0].description; 
-            Utilities.setIcon(iconElement, weatherDescription); 
-    
-            const tempElement = document.createElement("h4"); 
-            const tempNum = f.main.temp; 
-            tempElement.textContent = `${Math.round(tempNum)}\u00b0`; 
-    
-            const forecastContainer = document.createElement("div"); 
-            forecastContainer.className = "hourlyForecast"; 
-            forecastContainer.appendChild(timeElement); 
-            forecastContainer.appendChild(iconElement); 
-            forecastContainer.appendChild(tempElement); 
-    
-            currentForecastContainer.appendChild(forecastContainer);
-        }); 
-        console.log(forecast); 
-    }; 
-
-    static displayFutureForecast = (futureForecast, futureForecastContainer) => {    
-        const forecast = futureForecast.slice(0, 3); 
-        futureForecastContainer.innerHTML = ""; 
-    
-        forecast.forEach((f, idx) => {
-            const dayElement = document.createElement("h4"); 
-            const currentDay = State.dayNames[new Date(f.dt * 1000).getDay()]; 
-            dayElement.className = "dayContent"; 
-            dayElement.textContent = idx === 0 ? "Today" : currentDay;
-            
-            const iconElement = document.createElement("i");
-            const weatherDescription = f.weather[0].description; 
-            Utilities.setIcon(iconElement, weatherDescription); 
-    
-            const highLowElement = document.createElement("h4"); 
-            const highTemp = f.temp.max; 
-            const lowTemp = f.temp.min; 
-            highLowElement.className = "highLowTemp"; 
-            highLowElement.textContent = `${Math.round(highTemp)}\u00b0 / ${Math.round(lowTemp)}\u00b0`; 
-    
-            const forecastContainer = document.createElement("div");
-            forecastContainer.className = "forecastDay"; 
-            forecastContainer.appendChild(dayElement); 
-            forecastContainer.appendChild(iconElement);
-            forecastContainer.appendChild(highLowElement); 
-            futureForecastContainer.appendChild(forecastContainer); 
-    
-            console.log(f); 
-        });
-        console.log(futureForecast); 
-    }; 
-
-    static displayWeather = (locationElement) => {
+    static displayWeather = (
+        locationElement
+    ) => {
         locationElement.addEventListener("click", () => {
             const [city, state] = locationElement
                             .firstChild
@@ -342,16 +368,33 @@ class WeatherMenuDisplay {
                             .split(",");
             const currentForecast = document.querySelector(".weatherContainerCurrentForecast");
             const futureForecast = document.querySelector(".weatherContainerFutureForecast"); 
+            const iconElement = document.createElement("i");
             const cityElement = document.createElement("h1"); 
             const timeElement = document.createElement("h3"); 
-            const iconElement = document.createElement("i");
             const tempNumElement = document.createElement("div"); 
     
             LocationQuery.getLocation(city.trim(), state.trim())
                 .then(res => {
-                    WeatherMenuDisplay.displayWeatherUtil(res, city, iconElement, cityElement, timeElement, tempNumElement);
+                    WeatherMenuDisplay.displayWeatherUtil(
+                        res,
+                        city, 
+                        iconElement, 
+                        cityElement, 
+                        timeElement, 
+                        tempNumElement
+                    );
                     WeatherMenuDisplay.createAdditionalStatsContainer(); 
-                    Utilities.setStats("daily", 
+
+                    const windElement = document.querySelector(".windSpeed"); 
+                    const rainElement = document.querySelector('.rainVolume'); 
+                    const humidityElement = document.querySelector(".humidity");
+                    const cloudyElement = document.querySelector(".cloudiness"); 
+                    Utilities.setStats(
+                        windElement, 
+                        rainElement, 
+                        humidityElement, 
+                        cloudyElement, 
+                        "daily", 
                         res.currentTempStats.wind, 
                         res.currentTempStats.rain, 
                         res.currentTempStats.humidity, 
@@ -379,18 +422,10 @@ class WeatherMenuDisplay {
 }; 
 
 class LocationHandler {
-    /*
-        =======Schema=======
-        whenFetched: date 
-        city: string 
-        state: string
-        latitude: int
-        longtitude: int  
-        currentWeather: openweatherAPI json 
-        dailyForecast: openweatherAPI json 
-        weeklyForecast: openweatherAPI json 
-    */
-    static addToDb = (city, state) => {
+    static addToDb = (
+        city, 
+        state
+    ) => {
         return new Promise(resolve => {
             WeatherRequest.requestCurrentCoordinates(city, state)
             .then(res => res.json())
@@ -417,25 +452,30 @@ class LocationHandler {
     }; 
 
     // store it within the localStorage and because storage updates, then reload the DOM 
-    static saveLocations = async(city, state) => {    
-        if (!State.locations) {
-            const initContainer = document.querySelector(".initialLocationContainer"); 
+    static saveLocations = async(
+        city, 
+        state
+    ) => {    
+        if (!State.locations) {            
             const locationElement = document.createElement("div"); 
-
             locationElement.className = "locationElement"; 
             locationElement.textContent = `${city}, ${state}`; 
             // delete the old UI and add the new UI for the locations being existent 
-            initContainer.remove(); 
+            State.relPath === "WeatherMenu.html" && 
+            document.querySelector(".initialLocationContainer").remove(); 
             // save it within local storage 
             const allLocations = LocationStorage.getLocationStorage(); 
             allLocations.push(locationElement.outerHTML); 
             State.locationStorage.setItem("locations", JSON.stringify(allLocations)); 
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 
-            await WeatherMenuDisplay.displayPage();
+            (State.relPath === "WeatherMenu.html" && 
+            await WeatherMenuDisplay.displayPage() && 
             setTimeout(() => {
                 location.reload(); 
-            }, 150)
+            }, 150)) || 
+            (State.relPath === "WeatherMap.html" && 
+            LocationMap.displayLocations()); 
         } else { 
             const locationElement = document.createElement("div"); 
             locationElement.className = "locationElement"; 
@@ -446,42 +486,39 @@ class LocationHandler {
             State.locationStorage.setItem("locations", JSON.stringify(allLocations)); 
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 
-            WeatherMenuDisplay.displayPage(); 
+            (State.relPath === "WeatherMenu.html" && 
+            WeatherMenuDisplay.displayPage()) || 
+            (State.relPath === "WeatherMap.html" && 
+            LocationMap.displayLocations()); 
         }
     }; 
 
     // now handle the input 
-    static inputLocation = (formClassname, inputClassname) => {
+    static inputLocation = (
+        formClassname, 
+        inputClassname
+    ) => {
         const formElement = document.querySelector(formClassname); 
         formElement.addEventListener("submit", (e) => { 
             e.preventDefault(); 
-            const locationElement = document.querySelector(inputClassname); 
-            const parsedLocationElement = locationElement.value.trim();
-            
+            const locationInput = document.querySelector(inputClassname);
             // parsing matters now with the user input with location 
             // if not City, State format 
-            let city = ""; let state = ""; 
-            if (parsedLocationElement.indexOf(",") === -1) {
-                parsedLocationElement.split(" ").forEach((word, idx) => {
-                    if (idx !== parsedLocationElement.split(" ").length-1) city += `${word} `;
-                }); 
-                city = city.trim(); 
-                state = parsedLocationElement.split(" ")[parsedLocationElement.split(" ").length-1]; 
-            } else {
-                const parsedLocation = parsedLocationElement.split(","); 
-                city = parsedLocation[0]; 
-                state = parsedLocation[1].trim(); 
-                // once parsed use the data to add it to the data 
-                // if empty then add otherwise do nothing since it is already within the database
-                LocationQuery.doesLocationExist(city, state)
-                    .then(async(res) => {
-                        if (res) {
-                            await LocationHandler.addToDb(city, state);
-                            LocationHandler.saveLocations(city, state); 
-                        } else console.log("already exists"); 
-                    })
-            } 
-            locationElement.value = ""; 
+            const parsedLocationInput = document.querySelector(inputClassname).value.trim();
+            Utilities.parseInput(parsedLocationInput); 
+          
+            // once parsed use the data to add it to the data 
+            // if empty then add otherwise do nothing since it is already within the database
+            const city = State.cityStatePair["city"]; 
+            const state = State.cityStatePair["state"];
+            LocationQuery.doesLocationExist(city, state)
+                .then(async(res) => {
+                    if (res) {
+                        await LocationHandler.addToDb(city, state);
+                        LocationHandler.saveLocations(city, state); 
+                    } else console.log("already exists"); 
+                })
+            locationInput.value = ""; 
         })
     };
 
@@ -491,16 +528,17 @@ class LocationHandler {
             const btnElement = document.querySelector(".main-addLocation");
     
             btnElement.addEventListener("click", async() => {
-                const parentElement = document.querySelector(".initialLocationContainer");  
                 const formElement = document.createElement("form"); 
-                const inputElement = document.createElement("input");
-    
                 formElement.className = "main-inputWrapper"; 
+
+                const inputElement = document.createElement("input");
                 inputElement.className = "main-inputLocation"; 
                 inputElement.placeholder = "City, State..."; 
     
                 btnElement.remove();
                 formElement.appendChild(inputElement); 
+
+                const parentElement = document.querySelector(".initialLocationContainer");  
                 parentElement.appendChild(formElement); 
                 // now handle the input 
                 LocationHandler.inputLocation("." + formElement.className, "." + inputElement.className);
@@ -512,7 +550,10 @@ class LocationHandler {
         }; 
     }; 
     
-    static addDeleteLocationEvent = (delIconElement) => {
+    static addDeleteLocationEvent = (
+        delIconElement, 
+        locationClass 
+    ) => {
         delIconElement.addEventListener("click", () => {
             const [city, state] = delIconElement
                                 .parentElement
@@ -523,16 +564,17 @@ class LocationHandler {
                                 .textContent
                                 .split(",");
             LocationQuery.deleteFromDatabase(city.trim(), state.trim()); 
-            LocationStorage.deleteFromLocalStorage(city.trim(), state.trim()); 
+            LocationStorage.deleteFromLocalStorage(city.trim(), state.trim(), locationClass); 
             State.applicationStatus = State.pageStatus.DELETE; 
             State.locations -= 1; 
     
-            if (!State.locations) {
+            if (State.relPath === "WeatherMenu.html" && !State.locations) {
                 const locationContainer = document.querySelector(".locationContainer");
-                const weatherContainer = document.querySelector(".weatherContainer"); 
-    
                 locationContainer.remove();
+
+                const weatherContainer = document.querySelector(".weatherContainer"); 
                 weatherContainer.remove(); 
+
                 WeatherMenuDisplay.displayPage(); 
                 LocationHandler.addLocation();
             }
@@ -540,6 +582,7 @@ class LocationHandler {
     };  
 }; 
 
+State.relPath === "WeatherMenu.html" && 
 window.addEventListener("DOMContentLoaded", () => {
     LocationQuery.countLocations()
         .then(async(res) => {
@@ -555,3 +598,8 @@ window.addEventListener("DOMContentLoaded", () => {
         }) 
     }
 ); 
+
+export { 
+    WeatherMenuDisplay, 
+    LocationHandler 
+}; 

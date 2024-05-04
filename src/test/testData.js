@@ -1,3 +1,7 @@
+import { State } from "../util/state.js";
+import { Utilities } from "../util/Utilities.js";
+import { WeatherPage } from "../page/WeatherPage.js"; 
+
 const todayWeather = {
     "coord": {
         "lon": -74.3899,
@@ -541,4 +545,60 @@ const weekForecast = [
     }
 ];
 
-export { todayWeather, todayForecast, weekForecast } ; 
+class testWeather {
+    static mockWeatherData() {
+        State.currentWeather = todayWeather; 
+        
+        const weatherDesc = todayWeather.weather[0].description; 
+        const iconElement = document.querySelector(".currentTempInfo i"); 
+        Utilities.setIcon(iconElement, weatherDesc); 
+        iconElement.className = `${iconElement.className} weather-icon`;
+        
+        const locationElement = document.querySelector(".currentGeo h1"); 
+        const dateElement = document.querySelector(".currentGeo h3");  
+        Utilities.setInfo(locationElement, dateElement, todayWeather.name);
+
+        const tempElement = document.querySelector('.tempNum h1'); 
+        const minMaxElement = document.querySelector('.tempNum h6'); 
+        Utilities.setTemp(
+            tempElement, 
+            minMaxElement, 
+            State.metric, 
+            todayWeather.main.temp, 
+            todayWeather.main.temp_max, 
+            todayWeather.main.temp_min
+        ); 
+        Utilities.setStats(
+            State.windElement, 
+            State.rainElement, 
+            State.humidityElement, 
+            State.cloudyElement, 
+            State.flag, 
+            todayWeather.wind.speed, 
+            todayWeather, 
+            todayWeather.main.humidity, 
+            todayWeather.clouds.all
+        ); 
+        Utilities.setHighlights(
+            State.feelsLikeElement, 
+            State.visibilityElement, 
+            State.sunriseElement, 
+            State.sunsetElement, 
+            todayWeather.main.feels_like, 
+            todayWeather.visibility, 
+            todayWeather.sys.sunrise, 
+            todayWeather.sys.sunset
+        );
+
+        const todayForecastElement = document.querySelector(".dailyForecast"); 
+        Utilities.setDaily(todayForecastElement, todayForecast); 
+
+        const futureForecastElement = document.querySelector(".forecastWeather"); 
+        Utilities.setWeekly(futureForecastElement, weekForecast);
+        WeatherPage.displayHourlyForecast(State.metric); 
+        WeatherPage.displayWeeklyForecast(weekForecast); 
+        WeatherPage.switchMetrics(); 
+    }; 
+}; 
+
+export { testWeather } ; 

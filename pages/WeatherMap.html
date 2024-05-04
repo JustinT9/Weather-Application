@@ -24,9 +24,16 @@
             <i class="fa-regular fa-gear weatherMenu"></i>
             <i class="fa-solid fa-location-dot weatherMenu"></i>
         </div>
+        <div class="weatherMapContainer">
+            <form class="weatherLocationForm">
+                <input class="weatherLocationInput" type="search" placeholder="City, State..." />
+            </form>
+            <div class="weatherMap"></div>
+        </div>
+        <div class="weatherMapLocations"></div>
     </div>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script type="module" src="../src/WeatherMap.js"></script> 
+    <script type="module" src="../src/map/WeatherMap.js"></script> 
 </body>
 </html>

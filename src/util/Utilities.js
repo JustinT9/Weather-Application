@@ -1,12 +1,13 @@
-import { firebaseApp } from "./config.js"; 
-import { State } from "./State.js";
-import { WeatherPage } from "./WeatherPage.js"
-import { todayWeather, todayForecast, weekForecast } from "./TestData.js";
+import { firebaseApp } from "../../config.js"; 
+import { State } from "./state.js";
 
 class Utilities { 
     // sets up the icon representing today's weather 
-    static setIcon = (iconElement, weather) => { 
-        switch (weather) {
+    static setIcon = (
+        iconElement, 
+        weatherDesc
+    ) => { 
+        switch (weatherDesc) {
             case "clear sky": 
                 iconElement.className = "wi wi-day-sunny";
                 iconElement.style.color = "yellow";  
@@ -61,14 +62,17 @@ class Utilities {
     };
 
     // sets up the time and location of today's weather 
-    static setInfo = (city) => {
-        const locElement = document.querySelector('.currentGeo h1'); 
-        const dateElement = document.querySelector('.currentGeo h3'); 
+    static setInfo = (
+        locationElement, 
+        dateElement, 
+        city
+    ) => {
         const date = new Date(Date.now()); 
         city.split(" ").forEach((word, idx) => {
-            if (idx === 0) locElement.textContent = ""; 
-            locElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
+            if (idx === 0) locationElement.textContent = ""; 
+            locationElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
         })
+
         dateElement.textContent = (date.toLocaleTimeString().length % 2 === 0) ? 
         (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
         ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
@@ -77,10 +81,14 @@ class Utilities {
     }; 
 
     // sets up the main statistics of today's weather 
-    static setTemp = (metric, temp, maxTemp, minTemp) => {
-        const tempElement = document.querySelector('.tempNum h1'); 
-        const minMaxElement = document.querySelector('.tempNum h6'); 
-
+    static setTemp = (
+        tempElement, 
+        minMaxElement, 
+        metric, 
+        temp, 
+        maxTemp, 
+        minTemp
+    ) => {
         (metric === "imperial") ? 
         tempElement.textContent = Math.round(temp) + "\u00b0" + "F": 
         tempElement.textContent = Math.round(temp) + "\u00b0" + "C";
@@ -90,20 +98,44 @@ class Utilities {
         minMaxElement.textContent = `${Math.round(maxTemp)}` + "\u00b0" + ` / ` + 
         `${Math.round(minTemp)}` + "\u00b0";  
     };
+
+    // sets up additional climate statistics for the current day 
+    static setStats = (
+        windElement, 
+        rainElement, 
+        humidityElement, 
+        cloudyElement, 
+        type, 
+        windSpeed, 
+        data, 
+        humidity, 
+        cloudiness
+    ) => {  
+        const precipitation = (data.rain ? data.rain : (data.snow ? data.snow : null)); 
+        windElement.textContent = `${Math.round(windSpeed)} mph`; 
+        humidityElement.textContent = `${humidity}%`; 
+        rainElement.textContent = ((type === "daily" && precipitation) ? `${precipitation["1h"]}mm` : 
+                                ((type === "week" && precipitation) ? `${data.rain} mm` : `0 mm`));
+        cloudyElement.textContent = `${cloudiness}%`; 
+    }; 
     
     // sets up the climate highlights of today's weather
-    static setHighlights = (feelsLike, visibility, sunriseTime, sunsetTime) => {
-        const feelsElement = document.querySelector(".feelslike h4"); 
-        const visibleElement = document.querySelector(".visible h4");  
-        const sunriseElement = document.querySelector(".sunrise h4"); 
-        const sunsetElement = document.querySelector(".sunset h4"); 
+    static setHighlights = (
+        feelsLikeElement, 
+        visibilityElement, 
+        sunriseElement, 
+        sunsetElement, 
+        feelsLike, 
+        visibility, 
+        sunriseTime, 
+        sunsetTime
+    ) => {
         const sunrise = new Date(sunriseTime * 1000).toLocaleTimeString(); 
         const sunset = new Date(sunsetTime * 1000).toLocaleTimeString(); 
-
-        feelsElement.textContent = `${Math.round(feelsLike)}` + "\u00b0"; 
+        feelsLikeElement.textContent = `${Math.round(feelsLike)}` + "\u00b0"; 
         (visibility === "???") ? 
-        (visibleElement.textContent = "???") : 
-        (visibleElement.textContent = `${((visibility / 1000) / 1.609).toFixed(1)} mi`); 
+        (visibilityElement.textContent = "???") : 
+        (visibilityElement.textContent = `${((visibility / 1000) / 1.609).toFixed(1)} mi`); 
         sunriseElement.textContent = (sunrise.length % 2 === 0) ? 
         (`${sunrise.substring(0, 4)} ${sunrise.substring(8, sunrise.length)}`) : 
         (`${sunrise.substring(0, 5)} ${sunrise.substring(9, sunrise.length)}`);
@@ -111,44 +143,32 @@ class Utilities {
         (`${sunset.substring(0, 4)} ${sunset.substring(8, sunset.length)}`) : 
         (`${sunset.substring(0, 5)} ${sunset.substring(9, sunset.length)}`); 
     }; 
-    
-    // sets up additional climate statistics for the current day 
-    static setStats = (type, windSpeed, data, humidity, cloudiness) => {  
-        const windElement = document.querySelector(".windSpeed"); 
-        const rainElement = document.querySelector('.rainVolume'); 
-        const humidityElement = document.querySelector(".humidity");
-        const precipitation = (data.rain ? data.rain : (data.snow ? data.snow : null)); 
-        const cloudyElement = document.querySelector(".cloudiness"); 
-
-        windElement.textContent = `${Math.round(windSpeed)} mph`; 
-        humidityElement.textContent = `${humidity}%`; 
-        rainElement.textContent = ((type === "daily" && precipitation) ? `${precipitation["1h"]}mm` : 
-                                ((type === "week" && precipitation) ? `${data.rain} mm` : `0 mm`));
-        cloudyElement.textContent = `${cloudiness}%`; 
-    }; 
 
     // sets up the weather forecast for each hour of today's weather 
-    static setDaily = (dailyInfo) => {
-        const forecastElement = document.querySelector('.dailyForecast'); 
-        
+    static setDaily = (
+        forecastElement, 
+        dailyInfo
+    ) => {        
         dailyInfo.forEach((info, idx) => {
-            const iconElement = document.createElement('i'); 
-            const timeElement = document.createElement('h4'); 
-            const tempElement = document.createElement('h4'); 
-            const hourlyForecastElement = document.createElement('div'); 
-            const time = new Date(info.dt * 1000); 
-            const desc = info.weather[0].description; 
-
-            Utilities.setIcon(iconElement, desc); 
+            const hourlyForecastElement = document.createElement("div"); 
             hourlyForecastElement.className = "hourlyForecast"; 
+            
+            const iconElement = document.createElement("i"); 
+            const weatherDesc = info.weather[0].description; 
+            Utilities.setIcon(iconElement, weatherDesc); 
+
+            const timeElement = document.createElement("h4"); 
+            const time = new Date(info.dt * 1000); 
             idx === 0 ? timeElement.textContent = "Now" :  
             timeElement.textContent = (time.toLocaleTimeString().length % 2 === 0) ? 
             (`${time.toLocaleTimeString().substring(0, 4)} 
             ${time.toLocaleTimeString().substring(8, time.toLocaleTimeString().length)}`) : 
             (`${time.toLocaleTimeString().substring(0, 5)} 
             ${time.toLocaleTimeString().substring(9, time.toLocaleTimeString().length)}`); 
-
+            
+            const tempElement = document.createElement("h4"); 
             tempElement.textContent = Math.round(info.main.temp) + "\u00b0"; 
+            
             hourlyForecastElement.appendChild(timeElement); 
             hourlyForecastElement.appendChild(iconElement); 
             hourlyForecastElement.appendChild(tempElement);
@@ -157,22 +177,25 @@ class Utilities {
     }; 
 
     // sets up the weather forecast for each day in the upcoming week 
-    static setWeekly = (weekInfo) => {
-        const forecastElement = document.querySelector(".forecastWeather"); 
-
+    static setWeekly = (
+        forecastElement, 
+        weekInfo
+    ) => {
         weekInfo.forEach((daily, idx) => {
             const iconElement = document.createElement("i"); 
-            const dayElement = document.createElement("h4"); 
-            const tempElement = document.createElement("h4");
-            const container = document.createElement("div");
-            const desc = daily.weather[0].description; 
+            const weatherDesc = daily.weather[0].description; 
+            Utilities.setIcon(iconElement, weatherDesc); 
 
-            container.className = "forecastDay"; 
+            const tempElement = document.createElement("h4");
             tempElement.className = "forecastTemp"; 
-            Utilities.setIcon(iconElement, desc); 
+            tempElement.textContent = `${Math.round(daily.temp.max) + "\u00b0"} / ${Math.round(daily.temp.min) + "\u00b0"}`;
+
+            const container = document.createElement("div");
+            container.className = "forecastDay"; 
+
+            const dayElement = document.createElement("h4"); 
             (idx === 0) ? dayElement.textContent = "Today" :  
             (dayElement.textContent = `${State.dayNames[new Date(daily.dt * 1000).getDay()]}`);
-            tempElement.textContent = `${Math.round(daily.temp.max) + "\u00b0"} / ${Math.round(daily.temp.min) + "\u00b0"}`;
             
             container.appendChild(dayElement);
             container.appendChild(iconElement);
@@ -182,8 +205,8 @@ class Utilities {
     }; 
 
     // must clear the DOM before if there a DOM already existed does to ensure page is not loaded incorrectly
-    static clear = () => {
-        const dailyForecast  = document.querySelector(".dailyForecast"); 
+    static clearWeather = () => {
+        const dailyForecast = document.querySelector(".dailyForecast"); 
         const weeklyForecast = document.querySelector(".forecastWeather"); 
         while (dailyForecast.firstChild || weeklyForecast.firstChild) {
             if (dailyForecast.firstChild) dailyForecast.firstChild.remove(); 
@@ -191,27 +214,29 @@ class Utilities {
         }
     }; 
 
-    static mockData = () => {
-        const desc = todayWeather.weather[0].description; 
-        const iconElement = document.querySelector(".currentTempInfo i"); 
-        
-        State.currentWeather = todayWeather; 
-        Utilities.setIcon(iconElement, desc); iconElement.className = `${iconElement.className} weather-icon`;
-        Utilities.setInfo(todayWeather.name); 
-        Utilities.setTemp(State.metric, todayWeather.main.temp, todayWeather.main.temp_max, todayWeather.main.temp_min); 
-        Utilities.setStats(State.flag, todayWeather.wind.speed, todayWeather, todayWeather.main.humidity, todayWeather.clouds.all); 
-        Utilities.setHighlights(todayWeather.main.feels_like, todayWeather.visibility, todayWeather.sys.sunrise, todayWeather.sys.sunset);
-        Utilities.setDaily(todayForecast); 
-        Utilities.setWeekly(weekForecast);
-        WeatherPage.displayHourlyForecast(State.metric); 
-        WeatherPage.displayWeeklyForecast(weekForecast); 
-        WeatherPage.switchMetrics(); 
+    // parses the city, state input for computational value 
+    static parseInput = (inputValue) => {
+        if (inputValue.indexOf(",") !== -1) {
+            const city = inputValue.split(",")[0].toLowerCase();
+            const state = inputValue.split(",")[1].trim(); 
+            State.cityStatePair = {"city": city, "state": state}; 
+        } else {
+            inputValue.split(" ").forEach((word, idx) => {
+                if (idx !== inputValue.split(" ").length-1) city += `${word} `;
+            }); 
+            const city = city.trim(); 
+            const state = inputValue.split(" ")[inputValue.split(" ").length-1]; 
+            State.cityStatePair = {"city": city, "state": state}; 
+        }   
     }; 
 };  
 
 class LocationQuery {
     // helper function to retrieve data about a location from firebase to display 
-    static getLocation = (city, state) => {
+    static getLocation = (
+        city, 
+        state
+    ) => {
         const query = State.db 
             .where("city", "==", city)
             .where("state", "==", state); 
@@ -247,7 +272,10 @@ class LocationQuery {
     }; 
 
     // verify if the location exists within the database or not by querying the fields 
-    static doesLocationExist = (city, state) => {
+    static doesLocationExist = (
+        city, 
+        state
+    ) => {
         const query = State.db
             .where("city", "==", city)
             .where("state", "==", state);
@@ -268,7 +296,10 @@ class LocationQuery {
             .then(res => res.docs.length); 
     }; 
 
-    static deleteFromDatabase = (city, state) => {
+    static deleteFromDatabase = (
+        city, 
+        state
+    ) => {
         const query = State.db
                         .where("city", "==", city)
                         .where("state", "==", state); 
@@ -293,7 +324,11 @@ class LocationStorage {
         return allLocations; 
     }
 
-    static deleteFromLocalStorage = (city, state) => {
+    static deleteFromLocalStorage = (
+        city, 
+        state, 
+        locationClass
+    ) => {
         const locationsStorage = LocationStorage.getLocationStorage(); 
         const newLocationsStorage = 
             locationsStorage.filter(location => {
@@ -304,7 +339,7 @@ class LocationStorage {
                 return city !== cityText || state !== stateText; 
             });
         State.locationStorage.setItem("locations", JSON.stringify(newLocationsStorage));
-        const locationContainer = document.querySelector(".locationContainer"); 
+        const locationContainer = document.querySelector(locationClass); 
         if (locationContainer) {
             locationContainer.childNodes
             .forEach(locElement => {
