@@ -1,0 +1,116 @@
+.weatherMapContainer,
+.weatherMapLocations,
+.weatherMapLocationElement,
+.weatherMapLocationElementRightSection,
+.weatherMapLocationElementLeftSection,
+.weatherMapLocationElementRightSectionText {
+    display: flex; 
+}
+
+.weatherMapContainer, 
+.weatherMapLocations,
+.weatherMapLocationElementRightSectionText {
+    flex-direction: column;
+}
+
+.weatherMapContainer {
+    height: 100%; 
+    width: 60%; 
+    border-radius: 1.5rem; 
+}
+
+.weatherMap {
+    height: 100%; 
+    width: 100%;
+    border-radius: 1.5rem;  
+}
+
+.weatherMapLocations {
+    height: 100%; 
+    width: 30%;
+    border-radius: 1.5rem; 
+    align-items: center;
+    overflow: auto; 
+}
+
+.weatherMapLocationElement {
+    background-color: #EEEEEE;
+    height: 20%; 
+    width: 100%; 
+    border-radius: 2rem; 
+    padding: 3rem; 
+    margin-bottom: 1rem; 
+    justify-content: space-between;
+}
+
+.weatherMapLocationElement:hover {
+    opacity: 0.7; 
+    transition: 0.5; 
+    cursor: pointer; 
+} 
+
+.weatherMapLocationElement:active {
+    opacity: 0.5; 
+    transition: 0.5; 
+    cursor: pointer; 
+}
+
+.weatherMapLocationElementRightSection {
+    height: 100%; 
+    width: 70%; 
+    align-items: center;
+}
+
+.weatherMapLocationElementRightSection i {
+    font-size: 2.5rem; 
+    margin-right: 8%; 
+}
+
+.weatherMapLocationElementRightSection h2 {
+    font-size: 1.5rem;
+}
+
+.weatherMapLocationElementLeftSection {
+    height: 100%; 
+    width: 30%; 
+    justify-content: space-between;
+    align-items: center;
+}
+
+.weatherMapLocationElementLeftSection h1 {
+    font-size: 2rem; 
+}
+
+.weatherMapLocationElementLeftSection i {
+    font-size: 1.5rem; 
+}
+
+.weatherMapLocationElementLeftSection i:hover {
+    opacity: 0.5; 
+    transition: 0.5; 
+}
+
+.weatherMapForm {
+    height: 10%; 
+    width: 75%; 
+}
+
+.weatherMapInput {
+    background-color: #EEEEEE; 
+    height: 65%;
+    width: 45%; 
+    padding: 1rem;  
+    border: hidden; 
+    border-radius: 1rem;
+}
+
+.weatherMapInput:hover {
+    opacity: 0.7; 
+    transition: 0.5;
+}
+
+.weatherMapInput:focus {
+    outline: none; 
+    opacity: 0.5; 
+    transition: 0.5;
+}

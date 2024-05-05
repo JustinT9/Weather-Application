@@ -50,29 +50,28 @@ class LocationMap {
                                         .firstChild
                                         .textContent
                                         .split(","); 
-                const locationContainer = document.querySelector(".weatherMapLocations");  
 
                 LocationQuery
                     .getLocation(city.trim(), state.trim())
                     .then(res => {                        
-                        const locationClass = ".weatherMapLocations"; 
-                        const locationElementClass = "weatherLocationElement";
-                        const rightLocationElementSectionClass = "weatherRightLocationElementSection"; 
-                        const leftLocationElementSectionClass = "weatherLeftLocationElementSection";  
-                        const rightLocationElementSectionTextClass = "weatherRightLocationElementSectionText";
+                        const locationClassname = ".weatherMapLocations"; 
+                        const locationElementClassname = "weatherMapLocationElement";
+                        const locationElementRightSectionClassname = "weatherMapLocationElementRightSection"; 
+                        const locationElementLeftSectionClassname = "weatherMapLocationElementLeftSection";  
+                        const locationElementRightSectionTextClassname = "weatherMapLocationElementRightSectionText";
                         WeatherMenuDisplay.createLocationContainer(
                             res, 
-                            locationContainer, 
+                            weatherMapLocationsElement, 
                             city.trim(), 
                             state.trim(), 
-                            locationClass,
-                            locationElementClass, 
-                            rightLocationElementSectionClass, 
-                            leftLocationElementSectionClass, 
-                            rightLocationElementSectionTextClass
+                            locationClassname,
+                            locationElementClassname, 
+                            locationElementRightSectionClassname, 
+                            locationElementLeftSectionClassname, 
+                            locationElementRightSectionTextClassname
                         );
                         LocationMap.locateLocation(
-                            locationContainer.lastChild,
+                            weatherMapLocationsElement.lastChild,
                             res 
                         ); 
                         console.log(res); 
@@ -80,8 +79,8 @@ class LocationMap {
             }) 
         // when adding new locations
         } else {
-            const formClass = ".weatherLocationForm"; 
-            const inputClass = ".weatherLocationInput"; 
+            const formClass = ".weatherMapForm"; 
+            const inputClass = ".weatherMapInput"; 
             LocationHandler.inputLocation(formClass, inputClass); 
         }
     };

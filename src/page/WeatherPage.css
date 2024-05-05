@@ -1,0 +1,235 @@
+.weatherPageWeather,
+.weatherPageHeader,
+.weatherPageLocation,  
+.weatherPageTemp,
+.weatherPageTempDigits,
+.weatherPageStats,
+.weatherPageHighlightsContainer, 
+.weatherPageHighlights,  
+.topHalf, 
+.botHalf, 
+.climate, 
+.climate-stat, 
+.forecastContainer,
+.forecastWeather,
+.dailyContainer,
+.dailyForecast,
+.metrics {    
+    display: flex; 
+}
+
+.weatherPageWeather,
+.weatherPageLocation, 
+.weatherPageHighlights, 
+.climate-stat, 
+.forecastContainer,
+.forecastWeather,
+.dailyContainer,
+.weatherPageStats, 
+.weatherPageHighlightsContainer {
+    flex-direction: column;
+}
+
+.weatherPageWeather {
+    width: 60%; 
+    justify-content: space-between;
+}
+
+.weatherPageTemp {
+    height: 58%; 
+    width: 100%;
+}
+
+.weatherPageTempDigits {
+    height: 40%; 
+    width: 100%; 
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: 5%; 
+}
+
+.weatherPageLocation {
+    height: 100%; 
+    width: 72%; 
+}
+
+.weatherPageHighlights {
+    font-size: 1.5rem; 
+    height: 80%; 
+    width: 100%; 
+}
+
+.topHalf {
+    height: 50%; 
+    width: 100%;
+    justify-content: space-around; 
+}
+
+.botHalf {
+    height: 50%; 
+    width: 100%; 
+    justify-content: space-around; 
+}
+
+.climate {
+    height: 30%; 
+    width: 100%; 
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.climate-stat {
+    height: 100%; 
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.metrics {
+    font-size: 1.5rem; 
+    align-items: center;
+}
+
+.metric-icon {
+    cursor: pointer; 
+}
+
+.metric-icon:hover {
+    opacity: 0.7; 
+    transition: 0.15; 
+}
+
+.metric-icon:active {
+    opacity: 0.5; 
+    transition: 0.15; 
+}
+
+.forecastContainer {
+    background-color: #EEEEEE;
+    height: 100%; 
+    width: 30%;
+    border-radius: 25px;
+    padding: 3%;
+}
+
+.forecastContainer h2 {
+    height: 15%; 
+}
+
+.forecastWeather {
+    height: 85%; 
+    width: 100%; 
+    justify-content: space-between; 
+}
+
+.forecastWeather i {
+    font-size: 1.75rem; 
+    position: absolute; 
+    right: 23%; 
+}
+
+.dailyContainer {
+    background-color: #EEEEEE;
+    height: 40%; 
+    border-radius: 25px; 
+    padding: 30px; 
+}
+
+.dailyContainer h4 {
+    height: 25%; 
+}
+
+.dailyForecast {
+    height: 75%; 
+    width: 100%; 
+    justify-content: space-around;
+    align-items: center;
+}
+
+.weatherPageStats {
+    height: 100%;
+    width: 50%;  
+}
+
+.weatherPageHighlightsContainer {
+    background-color: #EEEEEE;
+    height: 100%; 
+    width: 50%; 
+    border-radius: 25px;
+    padding: 20px; 
+}
+
+.weatherPageHighlightsContainer h4 {
+    height: 20%; 
+}
+
+.inputWrapper {
+    height: 10%; 
+    width: 75%; 
+    margin-bottom: 5%; 
+}
+
+.weatherPageHeader {
+    align-items: start;
+}
+
+.tempNum h1 {
+    font-size: 4rem; 
+}
+
+.tempNum h6 {
+    font-size: 1rem; 
+}
+
+.weather-addLocation {
+    background-color: #EEEEEE; 
+    height: 100%; 
+    width: 100%; 
+    border: hidden; 
+    border-radius: 15px;
+    padding: 10px; 
+}
+
+.weather-addLocation:hover {
+    opacity: 0.7; 
+    transition: 0.5; 
+}
+
+.weather-addLocation:focus {
+    outline: none; 
+    opacity: 0.5; 
+    transition: 0.5; 
+}
+
+.feelslike h4 {
+    margin-left: 17%; 
+}
+
+.visible h4 {
+    margin-left: 30%; 
+}
+
+@media (max-width: 1280px) {
+    .forecastContainer h2 {
+        font-size: 1.25rem; 
+    }
+
+    .weatherPageHighlights {
+        font-size: 1rem; 
+    }
+
+    .inputWrapper {
+        height: 15%;  
+    }
+
+    .weatherPageHeader {
+        font-size: 0.75rem; 
+    }
+
+    .tempNum h1 {
+        font-size: 2.5rem; 
+    }
+    
+    .tempNum h6 {
+        font-size: 0.75rem; 
+    }
+}
