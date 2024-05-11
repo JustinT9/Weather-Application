@@ -2,6 +2,7 @@ import { maps_key } from "../../config.js";
 import { State } from "../util/state.js";
 import { LocationQuery, LocationStorage } from "../util/Utilities.js";
 import { WeatherMenuDisplay, LocationHandler } from "../menu/WeatherMenu.js"; 
+import { WeatherSettings } from "../settings/WeatherSettings.js";
 
 class LocationMap {      
     static loadMapAPI = (
@@ -86,7 +87,7 @@ class LocationMap {
     };
 }; 
 
-window.addEventListener("DOMContentLoaded", async() => {
+window.addEventListener("load", async() => {
     if (State.relPath !== "WeatherMap.html") return; 
     State.locations = LocationStorage.getLocationStorage().length; 
     LocationMap.displayLocations(); 

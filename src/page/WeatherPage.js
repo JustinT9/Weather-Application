@@ -1,6 +1,7 @@
 import { State } from "../util/state.js"; 
 import { Utilities } from "../util/Utilities.js";
 import { WeatherRequest } from "../util/WeatherRequest.js";
+import { WeatherSettings } from "../settings/WeatherSettings.js";
 import { testWeather } from "../test/testData.js";
 
 class WeatherPage {
@@ -374,7 +375,7 @@ class WeatherPage {
     }; 
 }; 
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
     if (State.relPath === "WeatherPage.html") {
         testWeather.mockWeatherData(); 
         WeatherPage.searchLocation(); 

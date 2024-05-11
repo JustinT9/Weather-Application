@@ -1,0 +1,16 @@
+.settingsComponent {
+    background-color: #c5c5c5;
+    height: 15rem; 
+    width: 15rem; 
+    border-radius: 2rem; 
+    display: flex;     
+    position: absolute; 
+    top: 23rem; 
+    left: 16rem;
+    cursor: pointer;    
+}
+
+.settingsComponent:active {
+    opacity: 0.7;  
+    transition: 0.25; 
+}

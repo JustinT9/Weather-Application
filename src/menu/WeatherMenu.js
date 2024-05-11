@@ -6,6 +6,7 @@ import {
     LocationStorage,
 } from "../util/Utilities.js";
 import { LocationMap } from "../map/WeatherMap.js";
+import { WeatherSettings } from "../settings/WeatherSettings.js";
 
 class WeatherMenuDisplay {
     static createMainContainers = (
@@ -65,7 +66,6 @@ class WeatherMenuDisplay {
             weatherInfoContainer.appendChild(currentWeatherForecast);
             weatherInfoContainer.appendChild(futureWeatherForecast);
         }
-        console.log(weatherInfoContainer);
     }; 
 
     static createAdditionalStatsContainer = () => {
@@ -583,7 +583,10 @@ class LocationHandler {
 }; 
 
 State.relPath === "WeatherMenu.html" && 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
+    const setting = new WeatherSettings; 
+    setting.displaySettings();
+
     LocationQuery.countLocations()
         .then(async(res) => {
             State.locations = res;
@@ -594,8 +597,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 await WeatherMenuDisplay.displayPage(); 
                 LocationHandler.addLocation();
             }
-            console.log(State.locations); 
-        }) 
+        })    
     }
 ); 
 
