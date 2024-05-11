@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../styles.css" /> 
+    <link rel="stylesheet" href="../src/styles.css" /> 
+    <link rel="stylesheet" href="../src/page/WeatherPage.css" /> 
     <link rel="stylesheet" href="../font/weather-icons.min.css" />
     <link rel="stylesheet" href="../assets/css/fontawesome.css" />
     <link rel="stylesheet" href="../assets/css/brands.css" />
@@ -25,15 +26,15 @@
             <i class="fa-solid fa-location-dot weatherMenu"></i>
         </div>
         
-        <div class="currentWeather">
-            <div class="currentTemp">
-                <div class="mainStats">
+        <div class="weatherPageWeather">
+            <div class="weatherPageTemp">
+                <div class="weatherPageStats">
                     <form class="inputWrapper">
                         <input class="weather-addLocation" type="search" placeholder="City, State..." />
                     </form>
 
-                    <div class="header">
-                        <div class="currentGeo">
+                    <div class="weatherPageHeader">
+                        <div class="weatherPageLocation">
                             <h1></h1>
                             <h3></h3>
                         </div>
@@ -44,7 +45,7 @@
                         </div>
                     </div>
 
-                    <div class="currentTempInfo">
+                    <div class="weatherPageTempDigits">
                         <i></i>
 
                         <div class="tempNum">
@@ -76,10 +77,10 @@
                     </div>
                 </div>
 
-                <div class="otherStats">
+                <div class="weatherPageHighlightsContainer">
                     <h4>Today's Highlights</h4>
 
-                    <div class="currentHighlights">
+                    <div class="weatherPageHighlights">
                         <div class="topHalf">
                             <div class="feelslike"> 
                                 <i class="wi wi-thermometer"> Feels Like</i>

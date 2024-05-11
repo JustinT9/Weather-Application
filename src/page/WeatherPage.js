@@ -1,18 +1,19 @@
 import { State } from "../util/state.js"; 
 import { Utilities } from "../util/Utilities.js";
 import { WeatherRequest } from "../util/WeatherRequest.js";
+import { WeatherSettings } from "../settings/WeatherSettings.js";
 import { testWeather } from "../test/testData.js";
 
 class WeatherPage {
     // to allow the UI display the projected weather for each hour within the day 
-    static displayHourlyForecast = (
+    static displayHourlyForecast = ( 
         metric
     ) => {
         const dailyContainer = document.querySelector(".dailyForecast");
         dailyContainer.addEventListener("click", () => {
             dailyContainer.childNodes.forEach(forecast => {
                 forecast.addEventListener("click", () => {
-                    const iconElement = document.querySelector(".currentTempInfo i");
+                    const iconElement = document.querySelector(".weatherPageTempDigits i");
                     iconElement.className = `${forecast.childNodes[1].className} weather-icon`;
                     iconElement.style.color = forecast.childNodes[1].style.color;
 
@@ -22,7 +23,7 @@ class WeatherPage {
                     tempElement.textContent = newTempElement + "F" : 
                     tempElement.textContent = newTempElement + "C"; 
 
-                    const dateElement = document.querySelector(".currentGeo h3");
+                    const dateElement = document.querySelector(".weatherPageLocation h3");
                     const date = new Date(Date.now()); 
                     dateElement.textContent = (forecast.childNodes[0].textContent !== "Now") ? 
                     `${State.dayNames[date.getDay()]} ${forecast.childNodes[0].textContent}` :
@@ -32,7 +33,7 @@ class WeatherPage {
                     (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
                     ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`));
                     
-                    const labelElement = document.querySelector(".otherStats h4"); 
+                    const labelElement = document.querySelector(".weatherPageHighlightsContainer h4"); 
                     if (labelElement.textContent !== "Today's Highlights") {
                         const minMaxElement = document.querySelector(".tempNum h6");  
                         labelElement.textContent  = "Today's Highlights"; 
@@ -166,9 +167,9 @@ class WeatherPage {
     ) => {
         const forecastElement = document.querySelector(".forecastWeather"); 
         forecastElement.addEventListener("click", () => {
-            const dayElement = document.querySelector(".currentGeo h3"); 
-            const iconElement = document.querySelector(".currentTempInfo i");  
-            const labelElement = document.querySelector(".otherStats h4");
+            const dayElement = document.querySelector(".weatherPageLocation h3"); 
+            const iconElement = document.querySelector(".weatherPageTempDigits i");  
+            const labelElement = document.querySelector(".weatherPageHighlightsContainer h4");
             
             forecastElement.childNodes.forEach((forecast, idx) => {
                 forecast.addEventListener("click", () => {
@@ -214,12 +215,12 @@ class WeatherPage {
         .then(res => res.json())
         .then(data => { 
             const weatherDesc = data.weather[0].description; 
-            const iconElement = document.querySelector(".currentTempInfo i"); 
+            const iconElement = document.querySelector(".weatherPageTempDigits i"); 
             Utilities.setIcon(iconElement, weatherDesc); 
             iconElement.className = `${iconElement.className} weather-icon`; 
 
-            const locationElement = document.querySelector(".currentGeo h1"); 
-            const dateElement = document.querySelector(".currentGeo h3"); 
+            const locationElement = document.querySelector(".weatherPageLocation h1"); 
+            const dateElement = document.querySelector(".weatherPageLocation h3"); 
             Utilities.setInfo(locationElement, dateElement, city); 
             
             const tempElement = document.querySelector('.tempNum h1'); 
@@ -374,7 +375,7 @@ class WeatherPage {
     }; 
 }; 
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
     if (State.relPath === "WeatherPage.html") {
         testWeather.mockWeatherData(); 
         WeatherPage.searchLocation(); 

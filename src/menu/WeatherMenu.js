@@ -6,17 +6,18 @@ import {
     LocationStorage,
 } from "../util/Utilities.js";
 import { LocationMap } from "../map/WeatherMap.js";
+import { WeatherSettings } from "../settings/WeatherSettings.js";
 
 class WeatherMenuDisplay {
     static createMainContainers = (
         locationContainer, 
-        weatherContainer
+        weatherInfoContainer
     ) => {
         const searchWeatherForm = document.createElement("form"); 
         const searchWeatherInput = document.createElement("input"); 
     
-        locationContainer.className = "locationContainer"; 
-        weatherContainer.className = "weatherContainer";
+        locationContainer.className = "weatherMenulocationContainer"; 
+        weatherInfoContainer.className = "weatherInfoContainer";
         searchWeatherForm.className = "main-searchWeatherForm"; 
         searchWeatherInput.className = "main-searchWeatherInput";
         searchWeatherInput.placeholder = "City, State...";  
@@ -27,62 +28,61 @@ class WeatherMenuDisplay {
         return new Promise(resolve => resolve(1)); 
     }; 
 
-    static createWeatherContainer = () => {
-        const weatherContainer = document.querySelector(".weatherContainer");
+    static createWeatherInfoContainer = () => {
+        const weatherInfoContainer = document.querySelector(".weatherInfoContainer");
     
-        if (!weatherContainer.childNodes.length) {
+        if (!weatherInfoContainer.childNodes.length) {
             const currentWeatherInfoSection = document.createElement("div");
-            currentWeatherInfoSection.className = "weatherContainerInfoSection";
+            currentWeatherInfoSection.className = "weatherInfoContainerMainSection";
 
             const currentWeatherForecast = document.createElement("div"); 
-            currentWeatherForecast.className = "weatherContainerCurrentForecast";
+            currentWeatherForecast.className = "weatherInfoContainerPresentForecast";
 
             const futureWeatherForecast = document.createElement("div"); 
-            futureWeatherForecast.className = "weatherContainerFutureForecast";
+            futureWeatherForecast.className = "weatherInfoContainerFutureForecast";
         
             const currentHeaderInfo = document.createElement("div"); 
-            currentHeaderInfo.className = "weatherCurrentInfoHeader";
+            currentHeaderInfo.className = "weatherInfoContainerHeader";
 
             const currentLocationInfo = document.createElement("div"); 
-            currentLocationInfo.className = "weatherCurrentInfoGeo";
+            currentLocationInfo.className = "weatherInfoContainerLocation";
 
             const currentMetricSelector = document.createElement("div"); 
-            currentMetricSelector.className = "weatherCurrentMetrics"; 
+            currentMetricSelector.className = "weatherInfoContainerMetricSelection"; 
             
             currentHeaderInfo.appendChild(currentLocationInfo);
             currentHeaderInfo.appendChild(currentMetricSelector); 
             currentWeatherInfoSection.appendChild(currentHeaderInfo);
     
             const currentTempInfo = document.createElement("div"); 
-            currentTempInfo.className = "weatherCurrentTempInfo";
+            currentTempInfo.className = "weatherInfoContainerTemp";        
             currentWeatherInfoSection.appendChild(currentTempInfo);
     
             const currentAdditionalInfo = document.createElement("div"); 
-            currentAdditionalInfo.className = "weatherCurrentAdditionalInfo"; 
+            currentAdditionalInfo.className = "weatherInfoContainerStats"; 
             currentWeatherInfoSection.appendChild(currentAdditionalInfo);
         
-            weatherContainer.appendChild(currentWeatherInfoSection); 
-            weatherContainer.appendChild(currentWeatherForecast);
-            weatherContainer.appendChild(futureWeatherForecast);
+            weatherInfoContainer.appendChild(currentWeatherInfoSection); 
+            weatherInfoContainer.appendChild(currentWeatherForecast);
+            weatherInfoContainer.appendChild(futureWeatherForecast);
         }
-        console.log(weatherContainer);
     }; 
 
     static createAdditionalStatsContainer = () => {
-        const outerContainer = document.querySelector(".weatherCurrentAdditionalInfo");
+        const outerContainer = document.querySelector(".weatherInfoContainerStats");
         outerContainer.innerHTML = ""; 
     
         const windSpeedContainer = document.createElement("div");
-        windSpeedContainer.className = "weatherCurrentClimateContainers";
+        windSpeedContainer.className = "weatherInfoContainerIndividualStat";
 
         const rainVolumeContainer = document.createElement("div");
-        rainVolumeContainer.className = "weatherCurrentClimateContainers";
+        rainVolumeContainer.className = "weatherInfoContainerIndividualStat";
 
         const humidityContainer = document.createElement("div");
-        humidityContainer.className = "weatherCurrentClimateContainers";
+        humidityContainer.className = "weatherInfoContainerIndividualStat";
 
         const cloudinessContainer = document.createElement("div");
-        cloudinessContainer.className = "weatherCurrentClimateContainers";
+        cloudinessContainer.className = "weatherInfoContainerIndividualStat";
     
         const windIcon = document.createElement("div"); 
         windIcon.classList.add("wi", "wi-windy", "climate-icon");
@@ -130,9 +130,9 @@ class WeatherMenuDisplay {
         state, 
         locationClass, 
         locationElementClass, 
-        rightLocationElementSectionClass, 
-        leftLocationElementSectionClass, 
-        rightLocationElementSectionTextClass, 
+        weatherMenuLocationElementRightSectionClassname, 
+        weatherMenuLeftLocationElementLeftSectionClassname, 
+        weatherMenuLocationElementRightSectionTextClassname, 
     ) => {
         const rawTime = res.currentTime.toLocaleTimeString(); 
         const rawTimeLength = rawTime.length; 
@@ -162,23 +162,23 @@ class WeatherMenuDisplay {
         const locationElementContainer = document.createElement("div"); 
         locationElementContainer.className = locationElementClass; 
 
-        const rightLocationElementSection = document.createElement("div"); 
-        rightLocationElementSection.className = rightLocationElementSectionClass; 
+        const weatherMenuLocationElementRightSection = document.createElement("div"); 
+        weatherMenuLocationElementRightSection.className = weatherMenuLocationElementRightSectionClassname; 
         
-        const leftLocationElementSection = document.createElement("div"); 
-        leftLocationElementSection.className = leftLocationElementSectionClass;
+        const weatherMenuLocationElementLeftSection = document.createElement("div"); 
+        weatherMenuLocationElementLeftSection.className = weatherMenuLeftLocationElementLeftSectionClassname;
         
-        const rightLocationElementSectionText = document.createElement("div");
-        rightLocationElementSectionText.className = rightLocationElementSectionTextClass;  
-        rightLocationElementSectionText.appendChild(locationTextElement); 
-        rightLocationElementSectionText.appendChild(timeTextElement); 
+        const weatherMenuLocationElementRightSectionText = document.createElement("div");
+        weatherMenuLocationElementRightSectionText.className = weatherMenuLocationElementRightSectionTextClassname;  
+        weatherMenuLocationElementRightSectionText.appendChild(locationTextElement); 
+        weatherMenuLocationElementRightSectionText.appendChild(timeTextElement); 
 
-        rightLocationElementSection.appendChild(iconElement); 
-        rightLocationElementSection.appendChild(rightLocationElementSectionText);                     
-        leftLocationElementSection.appendChild(temperatureTextElement); 
-        leftLocationElementSection.appendChild(deleteIcon); 
-        locationElementContainer.appendChild(rightLocationElementSection); 
-        locationElementContainer.appendChild(leftLocationElementSection); 
+        weatherMenuLocationElementRightSection.appendChild(iconElement); 
+        weatherMenuLocationElementRightSection.appendChild(weatherMenuLocationElementRightSectionText);                     
+        weatherMenuLocationElementLeftSection.appendChild(temperatureTextElement); 
+        weatherMenuLocationElementLeftSection.appendChild(deleteIcon); 
+        locationElementContainer.appendChild(weatherMenuLocationElementRightSection); 
+        locationElementContainer.appendChild(weatherMenuLocationElementLeftSection); 
         locationContainer.appendChild(locationElementContainer); 
     
         LocationHandler.addDeleteLocationEvent(deleteIcon, locationClass); 
@@ -189,7 +189,7 @@ class WeatherMenuDisplay {
         location, 
         container, 
         locationContainer, 
-        weatherContainer
+        weatherInfoContainer
     ) => {
         const locationElement = new DOMParser().parseFromString(location, "text/xml").firstChild;
         const city = locationElement.textContent.split(",")[0].trim(); 
@@ -198,11 +198,11 @@ class WeatherMenuDisplay {
         return LocationQuery
             .getLocation(city, state)
             .then(res => {
-                const locationClass = ".locationContainer"; 
-                const locationElementClass = "locationElement";
-                const rightLocationElementSectionClass = "rightLocationElementSection"; 
-                const leftLocationElementSectionClass = "leftLocationElementSection";  
-                const rightLocationElementSectionTextClass = "rightLocationElementSectionText"; 
+                const locationClass = ".weatherMenulocationContainer"; 
+                const locationElementClass = "weatherMenuLocationElement";
+                const weatherMenuLocationElementRightSectionClassname = "weatherMenuLocationElementRightSection"; 
+                const weatherMenuLeftLocationElementLeftSectionClassname = "weatherMenuLocationElementLeftSection";  
+                const weatherMenuLocationElementRightSectionTextClassname = "weatherMenuLocationElementRightSectionText"; 
 
                 WeatherMenuDisplay.createLocationContainer(
                     res, 
@@ -211,13 +211,13 @@ class WeatherMenuDisplay {
                     state, 
                     locationClass, 
                     locationElementClass, 
-                    rightLocationElementSectionClass, 
-                    leftLocationElementSectionClass, 
-                    rightLocationElementSectionTextClass 
+                    weatherMenuLocationElementRightSectionClassname, 
+                    weatherMenuLeftLocationElementLeftSectionClassname, 
+                    weatherMenuLocationElementRightSectionTextClassname 
                 ); 
                 container.appendChild(locationContainer); 
-                container.appendChild(weatherContainer);
-                WeatherMenuDisplay.createWeatherContainer();   
+                container.appendChild(weatherInfoContainer);
+                WeatherMenuDisplay.createWeatherInfoContainer();   
                 return new Promise(resolve => resolve(1)); 
             })
             .catch(err => console.log(err)); 
@@ -227,7 +227,7 @@ class WeatherMenuDisplay {
         const container = document.querySelector(".container"); 
         if (!State.locations) {
             const initContainer = document.createElement("div"); 
-            initContainer.className = "initialLocationContainer"; 
+            initContainer.className = "weatherMenuInitContainer"; 
 
             const btn = document.createElement("button"); 
             btn.className = "main-addLocation";
@@ -240,18 +240,18 @@ class WeatherMenuDisplay {
             return new Promise(resolve => resolve(1)); 
         } else if (State.locations === 1) {    
             const locationContainer = document.createElement("div"); 
-            const weatherContainer = document.createElement("div"); 
+            const weatherInfoContainer = document.createElement("div"); 
             const locationDOMElements = LocationStorage.getLocationStorage(); 
             
-            await WeatherMenuDisplay.createMainContainers(locationContainer, weatherContainer);
+            await WeatherMenuDisplay.createMainContainers(locationContainer, weatherInfoContainer);
             // must return Promise so it can wait upon this operation to complete synchronously
             return new Promise(async resolve => {
-                await WeatherMenuDisplay.addLocationElement(locationDOMElements[0], container, locationContainer, weatherContainer); 
+                await WeatherMenuDisplay.addLocationElement(locationDOMElements[0], container, locationContainer, weatherInfoContainer); 
                 resolve(1); 
             });
         } else if (State.applicationStatus !== State.pageStatus.DELETE) {
             const locationDOMElements = LocationStorage.getLocationStorage(); 
-            const isLocationContainer = document.querySelector(".locationContainer"); 
+            const isLocationContainer = document.querySelector(".weatherMenulocationContainer"); 
             if (isLocationContainer) {
                 const locationContainer = isLocationContainer; 
                 return new Promise(resolve => {
@@ -261,11 +261,11 @@ class WeatherMenuDisplay {
                     const state = locationElement.textContent.split(",")[1].trim(); 
                     LocationQuery.getLocation(city, state)
                     .then(res => {
-                        const locationClass = ".locationContainer"; 
-                        const locationElementClass = "locationElement";
-                        const rightLocationElementSectionClass = "rightLocationElementSection"; 
-                        const leftLocationElementSectionClass = "leftLocationElementSection";  
-                        const rightLocationElementSectionTextClass = "rightLocationElementSectionText"; 
+                        const locationClass = ".weatherMenulocationContainer"; 
+                        const locationElementClass = "weatherMenuLocationElement";
+                        const weatherMenuLocationElementRightSectionClassname = "weatherMenuLocationElementRightSection"; 
+                        const weatherMenuLeftLocationElementLeftSectionClassname = "weatherMenuLocationElementLeftSection";  
+                        const weatherMenuLocationElementRightSectionTextClassname = "weatherMenuLocationElementRightSectionText"; 
                         
                         WeatherMenuDisplay.createLocationContainer(
                             res, 
@@ -273,9 +273,9 @@ class WeatherMenuDisplay {
                             city, 
                             state, 
                             locationClass, locationElementClass, 
-                            rightLocationElementSectionClass, 
-                            leftLocationElementSectionClass, 
-                            rightLocationElementSectionTextClass
+                            weatherMenuLocationElementRightSectionClassname, 
+                            weatherMenuLeftLocationElementLeftSectionClassname, 
+                            weatherMenuLocationElementRightSectionTextClassname
                         );
                         resolve(1); 
                     })
@@ -285,11 +285,11 @@ class WeatherMenuDisplay {
             // when first loading into the page if there is stuff stored within localStorage 
             } else {
                 const locationContainer = document.createElement("div"); 
-                const weatherContainer = document.createElement("div"); 
-                WeatherMenuDisplay.createMainContainers(locationContainer, weatherContainer);
+                const weatherInfoContainer = document.createElement("div"); 
+                WeatherMenuDisplay.createMainContainers(locationContainer, weatherInfoContainer);
                 return new Promise(resolve => {
                     locationDOMElements.forEach(async loc => {
-                        await WeatherMenuDisplay.addLocationElement(loc, container, locationContainer, weatherContainer); 
+                        await WeatherMenuDisplay.addLocationElement(loc, container, locationContainer, weatherInfoContainer); 
                         resolve(1); 
                     }); 
                 }); 
@@ -335,7 +335,7 @@ class WeatherMenuDisplay {
         const delimiterText = document.createElement("h5"); 
         delimiterText.textContent = " | "; 
 
-        const currentWeatherMetrics = document.querySelector(".weatherCurrentMetrics");
+        const currentWeatherMetrics = document.querySelector(".weatherInfoContainerMetricSelection");
         currentWeatherMetrics.innerHTML = "";
         currentWeatherMetrics.appendChild(fahrenheitIcon); 
         currentWeatherMetrics.appendChild(delimiterText);
@@ -351,7 +351,7 @@ class WeatherMenuDisplay {
             res.highLowTemperature.hi, 
             res.highLowTemperature.low
         );
-        tempNumElement.className = "weatherCurrentTempNums"; 
+        tempNumElement.className = "weatherInfoContainerTempDigits"; 
         tempNumElement.appendChild(currentTempElement);
         tempNumElement.appendChild(currentHighLowElement); 
     }; 
@@ -366,8 +366,8 @@ class WeatherMenuDisplay {
                             .firstChild
                             .textContent
                             .split(",");
-            const currentForecast = document.querySelector(".weatherContainerCurrentForecast");
-            const futureForecast = document.querySelector(".weatherContainerFutureForecast"); 
+            const currentForecast = document.querySelector(".weatherInfoContainerPresentForecast");
+            const futureForecast = document.querySelector(".weatherInfoContainerFutureForecast"); 
             const iconElement = document.createElement("i");
             const cityElement = document.createElement("h1"); 
             const timeElement = document.createElement("h3"); 
@@ -404,12 +404,12 @@ class WeatherMenuDisplay {
                     WeatherMenuDisplay.displayFutureForecast(res.futureForecastStats.list, futureForecast); 
                 }
             );
-            const currentWeatherLocationInfo = document.querySelector(".weatherCurrentInfoGeo");
+            const currentWeatherLocationInfo = document.querySelector(".weatherInfoContainerLocation");
             currentWeatherLocationInfo.innerHTML = '';
             currentWeatherLocationInfo.appendChild(cityElement);
             currentWeatherLocationInfo.appendChild(timeElement);
     
-            const currentWeatherTempInfo = document.querySelector('.weatherCurrentTempInfo');
+            const currentWeatherTempInfo = document.querySelector('.weatherInfoContainerTemp');
             currentWeatherTempInfo.innerHTML = '';
             currentWeatherTempInfo.appendChild(iconElement);
             currentWeatherTempInfo.appendChild(tempNumElement); 
@@ -458,11 +458,11 @@ class LocationHandler {
     ) => {    
         if (!State.locations) {            
             const locationElement = document.createElement("div"); 
-            locationElement.className = "locationElement"; 
+            locationElement.className = "weatherMenuLocationElement"; 
             locationElement.textContent = `${city}, ${state}`; 
             // delete the old UI and add the new UI for the locations being existent 
             State.relPath === "WeatherMenu.html" && 
-            document.querySelector(".initialLocationContainer").remove(); 
+            document.querySelector(".weatherMenuInitContainer").remove(); 
             // save it within local storage 
             const allLocations = LocationStorage.getLocationStorage(); 
             allLocations.push(locationElement.outerHTML); 
@@ -478,7 +478,7 @@ class LocationHandler {
             LocationMap.displayLocations()); 
         } else { 
             const locationElement = document.createElement("div"); 
-            locationElement.className = "locationElement"; 
+            locationElement.className = "weatherMenuLocationElement"; 
             locationElement.textContent = `${city}, ${state}`;
 
             const allLocations = LocationStorage.getLocationStorage(); 
@@ -538,7 +538,7 @@ class LocationHandler {
                 btnElement.remove();
                 formElement.appendChild(inputElement); 
 
-                const parentElement = document.querySelector(".initialLocationContainer");  
+                const parentElement = document.querySelector(".weatherMenuInitContainer");  
                 parentElement.appendChild(formElement); 
                 // now handle the input 
                 LocationHandler.inputLocation("." + formElement.className, "." + inputElement.className);
@@ -569,11 +569,11 @@ class LocationHandler {
             State.locations -= 1; 
     
             if (State.relPath === "WeatherMenu.html" && !State.locations) {
-                const locationContainer = document.querySelector(".locationContainer");
+                const locationContainer = document.querySelector(".weatherMenulocationContainer");
                 locationContainer.remove();
 
-                const weatherContainer = document.querySelector(".weatherContainer"); 
-                weatherContainer.remove(); 
+                const weatherInfoContainer = document.querySelector(".weatherInfoContainer"); 
+                weatherInfoContainer.remove(); 
 
                 WeatherMenuDisplay.displayPage(); 
                 LocationHandler.addLocation();
@@ -583,7 +583,10 @@ class LocationHandler {
 }; 
 
 State.relPath === "WeatherMenu.html" && 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
+    const setting = new WeatherSettings; 
+    setting.displaySettings();
+
     LocationQuery.countLocations()
         .then(async(res) => {
             State.locations = res;
@@ -594,8 +597,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 await WeatherMenuDisplay.displayPage(); 
                 LocationHandler.addLocation();
             }
-            console.log(State.locations); 
-        }) 
+        })    
     }
 ); 
 

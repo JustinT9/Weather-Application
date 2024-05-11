@@ -2,6 +2,7 @@ import { maps_key } from "../../config.js";
 import { State } from "../util/state.js";
 import { LocationQuery, LocationStorage } from "../util/Utilities.js";
 import { WeatherMenuDisplay, LocationHandler } from "../menu/WeatherMenu.js"; 
+import { WeatherSettings } from "../settings/WeatherSettings.js";
 
 class LocationMap {      
     static loadMapAPI = (
@@ -50,29 +51,28 @@ class LocationMap {
                                         .firstChild
                                         .textContent
                                         .split(","); 
-                const locationContainer = document.querySelector(".weatherMapLocations");  
 
                 LocationQuery
                     .getLocation(city.trim(), state.trim())
                     .then(res => {                        
-                        const locationClass = ".weatherMapLocations"; 
-                        const locationElementClass = "weatherLocationElement";
-                        const rightLocationElementSectionClass = "weatherRightLocationElementSection"; 
-                        const leftLocationElementSectionClass = "weatherLeftLocationElementSection";  
-                        const rightLocationElementSectionTextClass = "weatherRightLocationElementSectionText";
+                        const locationClassname = ".weatherMapLocations"; 
+                        const locationElementClassname = "weatherMapLocationElement";
+                        const locationElementRightSectionClassname = "weatherMapLocationElementRightSection"; 
+                        const locationElementLeftSectionClassname = "weatherMapLocationElementLeftSection";  
+                        const locationElementRightSectionTextClassname = "weatherMapLocationElementRightSectionText";
                         WeatherMenuDisplay.createLocationContainer(
                             res, 
-                            locationContainer, 
+                            weatherMapLocationsElement, 
                             city.trim(), 
                             state.trim(), 
-                            locationClass,
-                            locationElementClass, 
-                            rightLocationElementSectionClass, 
-                            leftLocationElementSectionClass, 
-                            rightLocationElementSectionTextClass
+                            locationClassname,
+                            locationElementClassname, 
+                            locationElementRightSectionClassname, 
+                            locationElementLeftSectionClassname, 
+                            locationElementRightSectionTextClassname
                         );
                         LocationMap.locateLocation(
-                            locationContainer.lastChild,
+                            weatherMapLocationsElement.lastChild,
                             res 
                         ); 
                         console.log(res); 
@@ -80,14 +80,14 @@ class LocationMap {
             }) 
         // when adding new locations
         } else {
-            const formClass = ".weatherLocationForm"; 
-            const inputClass = ".weatherLocationInput"; 
+            const formClass = ".weatherMapForm"; 
+            const inputClass = ".weatherMapInput"; 
             LocationHandler.inputLocation(formClass, inputClass); 
         }
     };
 }; 
 
-window.addEventListener("DOMContentLoaded", async() => {
+window.addEventListener("load", async() => {
     if (State.relPath !== "WeatherMap.html") return; 
     State.locations = LocationStorage.getLocationStorage().length; 
     LocationMap.displayLocations(); 

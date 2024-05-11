@@ -1,0 +1,150 @@
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Merriweather';
+}
+
+:root {
+    background-color: #87CEEB; 
+    height: 100vh;
+    width: 100vw; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+}
+
+a {
+    color: inherit;
+}
+
+.container,
+.navbar,  
+.hourlyForecast,
+.forecastDay,  
+.forecastIcon {
+    display: flex; 
+}
+
+.navbar, 
+.hourlyForecast {
+    flex-direction: column;
+}
+
+.container {
+    background-color: white; 
+    height: 85vh; 
+    width: 80vw; 
+    padding: 25px; 
+    border-radius: 25px; 
+    justify-content: space-evenly;
+}
+
+.navbar {
+    background-color: #EEEEEE;
+    height: 100%; 
+    width: 5%; 
+    border-radius: 25px;
+    padding: 15px;
+    align-items: center;
+}
+
+.weatherMenu {
+    font-size: 1.75rem;
+    margin-bottom: 50px;  
+}
+
+.weatherMenu:hover {
+    opacity: 0.7; 
+    transition: 0.2;
+    cursor: pointer; 
+}
+
+.weatherMenu:active {
+    opacity: 0.5; 
+    transition: 0.25; 
+    cursor: pointer; 
+} 
+
+.weather-icon {
+    font-size: 6rem; 
+}
+
+.climate-icon {
+    font-size: 1.5rem; 
+}
+
+.windSpeed, 
+.rainVolume, 
+.humidity, 
+.cloudiness {
+    font-size: 1rem; 
+}
+
+.hourlyForecast {
+    height: 80%; 
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.hourlyForecast:hover {
+    opacity: 0.5; 
+    transition: 0.25; 
+    cursor: pointer; 
+}
+
+.hourlyForecast i {
+    font-size: 2rem; 
+}
+
+.forecastDay {
+    height: 10%;
+    justify-content: start; 
+}
+
+.forecastDay:hover {
+    opacity: 0.75; 
+    transition: 0.15; 
+    cursor: pointer; 
+}
+
+.forecastDay:active {
+    opacity: 0.5; 
+    transition: 0.15; 
+    cursor: pointer; 
+}
+
+.forecastTemp {
+    position: absolute; 
+    right: 15%; 
+}
+
+@media (max-width: 1280px) {
+    .weatherMenu {
+        font-size: 1.25rem; 
+    }
+
+    .weather-icon {
+        font-size: 4rem; 
+    }
+    
+    .climate-icon {
+        font-size: 1rem; 
+    }
+
+    .windSpeed, 
+    .rainVolume, 
+    .humidity, 
+    .cloudiness {
+        font-size: 0.5rem; 
+    }
+    
+    .hourlyForecast h4 {
+        font-size: 0.75rem; 
+    }
+
+    .hourlyForecast i {
+        font-size: 1.5rem; 
+    }
+}

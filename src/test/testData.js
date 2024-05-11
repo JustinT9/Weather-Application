@@ -550,12 +550,12 @@ class testWeather {
         State.currentWeather = todayWeather; 
         
         const weatherDesc = todayWeather.weather[0].description; 
-        const iconElement = document.querySelector(".currentTempInfo i"); 
+        const iconElement = document.querySelector(".weatherPageTempDigits i"); 
         Utilities.setIcon(iconElement, weatherDesc); 
         iconElement.className = `${iconElement.className} weather-icon`;
         
-        const locationElement = document.querySelector(".currentGeo h1"); 
-        const dateElement = document.querySelector(".currentGeo h3");  
+        const locationElement = document.querySelector(".weatherPageLocation h1"); 
+        const dateElement = document.querySelector(".weatherPageLocation h3");  
         Utilities.setInfo(locationElement, dateElement, todayWeather.name);
 
         const tempElement = document.querySelector('.tempNum h1'); 
