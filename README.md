@@ -1,6 +1,6 @@
 # Comprehensive Weather Application 
 
-### This Weather Application contains multiple components:
+### Pages:
 1. Menu Page: allows users to view multiple locations and click on each location element to display statistics about the specific location in terms of the temperature, climate, current and future forecasts; this display is a preview of the weather page.
 2. Weather Page: contains a more detailed viewing of the menu page's display of the location's statistics and shows a broader timeline of the current and future forecast. It also includes specialize statistics such as the visbility, sunset times, etc. 
 3. Map Page: similar to the menu page that displays all the locations queried by the user and when the user clicks on the location element, it opens up a map displaying the precise location on the map. 
