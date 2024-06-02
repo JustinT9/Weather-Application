@@ -2,8 +2,11 @@
 
 ### Pages:
 1. Menu Page: allows users to view multiple locations and click on each location element to display statistics about the specific location in terms of the temperature, climate, current and future forecasts; this display is a preview of the weather page.
+![](src/menu/weathermenu.JPG)
 2. Weather Page: contains a more detailed viewing of the menu page's display of the location's statistics and shows a broader timeline of the current and future forecast. It also includes specialize statistics such as the visbility, sunset times, etc. 
+![](src/page/weatherpage.JPG)
 3. Map Page: similar to the menu page that displays all the locations queried by the user and when the user clicks on the location element, it opens up a map displaying the precise location on the map. 
+![](src/map/weathermap.JPG)
 4. Settings Component: includes a variety of options for the user to customize the application. 
 5. Current Location: a shortcut for the user to have the browser ask for the user's current location and add that to the list of locations queried if not already present, and upon clicking for the current location, it will update the application and display the statistics for that location. 
 
