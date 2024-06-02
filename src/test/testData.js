@@ -591,10 +591,10 @@ class testWeather {
         );
 
         const todayForecastElement = document.querySelector(".dailyForecast"); 
-        Utilities.setDaily(todayForecastElement, todayForecast); 
+        Utilities.setPresentForecast(todayForecastElement, todayForecast); 
 
         const futureForecastElement = document.querySelector(".forecastWeather"); 
-        Utilities.setWeekly(futureForecastElement, weekForecast);
+        Utilities.setFutureForecast(futureForecastElement, weekForecast);
         WeatherPage.displayHourlyForecast(State.metric); 
         WeatherPage.displayWeeklyForecast(weekForecast); 
         WeatherPage.switchMetrics(); 

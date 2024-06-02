@@ -65,10 +65,10 @@ class Utilities {
     static setInfo = (
         locationElement, 
         dateElement, 
-        city
+        cityText
     ) => {
         const date = new Date(Date.now()); 
-        city.split(" ").forEach((word, idx) => {
+        cityText.split(" ").forEach((word, idx) => {
             if (idx === 0) locationElement.textContent = ""; 
             locationElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
         })
@@ -85,13 +85,13 @@ class Utilities {
         tempElement, 
         minMaxElement, 
         metric, 
-        temp, 
+        tempDigit, 
         maxTemp, 
         minTemp
     ) => {
         (metric === "imperial") ? 
-        tempElement.textContent = Math.round(temp) + "\u00b0" + "F": 
-        tempElement.textContent = Math.round(temp) + "\u00b0" + "C";
+        tempElement.textContent = Math.round(tempDigit) + "\u00b0" + "F": 
+        tempElement.textContent = Math.round(tempDigit) + "\u00b0" + "C";
         (metric === "imperial") ? 
         minMaxElement.textContent = `${Math.round(maxTemp)}` + "\u00b0" + ` / ` + 
         `${Math.round(minTemp)}`+ "\u00b0" : 
@@ -105,17 +105,17 @@ class Utilities {
         rainElement, 
         humidityElement, 
         cloudyElement, 
-        type, 
+        precipitationType, 
         windSpeed, 
-        data, 
+        weatherData, 
         humidity, 
         cloudiness
     ) => {  
-        const precipitation = (data.rain ? data.rain : (data.snow ? data.snow : null)); 
+        const precipitation = (weatherData.rain ? weatherData.rain : (weatherData.snow ? weatherData.snow : null)); 
         windElement.textContent = `${Math.round(windSpeed)} mph`; 
         humidityElement.textContent = `${humidity}%`; 
-        rainElement.textContent = ((type === "daily" && precipitation) ? `${precipitation["1h"]}mm` : 
-                                ((type === "week" && precipitation) ? `${data.rain} mm` : `0 mm`));
+        rainElement.textContent = ((precipitationType === "daily" && precipitation) ? `${precipitation["1h"]}mm` : 
+                                ((precipitationType === "week" && precipitation) ? `${weatherData.rain} mm` : `0 mm`));
         cloudyElement.textContent = `${cloudiness}%`; 
     }; 
     
@@ -145,11 +145,11 @@ class Utilities {
     }; 
 
     // sets up the weather forecast for each hour of today's weather 
-    static setDaily = (
-        forecastElement, 
-        dailyInfo
+    static setPresentForecast = (
+        presentForecastElement, 
+        presentForecastData
     ) => {        
-        dailyInfo.forEach((info, idx) => {
+        presentForecastData.forEach((info, idx) => {
             const hourlyForecastElement = document.createElement("div"); 
             hourlyForecastElement.className = "hourlyForecast"; 
             
@@ -172,16 +172,16 @@ class Utilities {
             hourlyForecastElement.appendChild(timeElement); 
             hourlyForecastElement.appendChild(iconElement); 
             hourlyForecastElement.appendChild(tempElement);
-            forecastElement.appendChild(hourlyForecastElement); 
+            presentForecastElement.appendChild(hourlyForecastElement); 
         }); 
     }; 
 
     // sets up the weather forecast for each day in the upcoming week 
-    static setWeekly = (
+    static setFutureForecast = (
         forecastElement, 
-        weekInfo
+        futureForecastData
     ) => {
-        weekInfo.forEach((daily, idx) => {
+        futureForecastData.forEach((daily, idx) => {
             const iconElement = document.createElement("i"); 
             const weatherDesc = daily.weather[0].description; 
             Utilities.setIcon(iconElement, weatherDesc); 
@@ -240,35 +240,36 @@ class LocationQuery {
         const query = State.db 
             .where("city", "==", city)
             .where("state", "==", state); 
-
+    
         return query
-            .get() 
-            .then(res => {
-                const currentTime = new Date(); 
-                const weatherCondition = res.docs[0].data().currentWeather.weather[0].description;
-                const currentTemperature = res.docs[0].data().currentWeather.main.temp;  
-                const highTemperature = res.docs[0].data().currentWeather.main.temp_max; 
-                const lowTemperature = res.docs[0].data().currentWeather.main.temp_min;
-                const currentTempStats = {
-                    "wind": res.docs[0].data().currentWeather.wind.speed, 
-                    "rain": res.docs[0].data().currentWeather, 
-                    "humidity": res.docs[0].data().currentWeather.main.humidity, 
-                    "clouds": res.docs[0].data().currentWeather.clouds.all 
-                }; 
-                const currentForecastStats = res.docs[0].data().currentForecast;
-                const futureForecastStats = res.docs[0].data().futureForecast; 
+        .get() 
+        .then(res => {
+            const presentTime = new Date(); 
+            const weatherCondition = res.docs[0].data().currentWeather.weather[0].description;
+            const presentTemperature = res.docs[0].data().currentWeather.main.temp;  
+            const highTemperature = res.docs[0].data().currentWeather.main.temp_max; 
+            const lowTemperature = res.docs[0].data().currentWeather.main.temp_min;
+            const presentTempStats = {
+                "wind": res.docs[0].data().currentWeather.wind.speed, 
+                "rain": res.docs[0].data().currentWeather, 
+                "humidity": res.docs[0].data().currentWeather.main.humidity, 
+                "clouds": res.docs[0].data().currentWeather.clouds.all 
+            }; 
+            const presentForecastStats = res.docs[0].data().currentForecast;
+            const futureForecastStats = res.docs[0].data().futureForecast; 
 
-                return { 
-                    currentTime: currentTime, 
-                    weatherCondition: weatherCondition,
-                    currentTemperature: currentTemperature, 
-                    highLowTemperature: { "hi": highTemperature, "low": lowTemperature }, 
-                    currentTempStats: currentTempStats, 
-                    currentForecastStats: currentForecastStats, 
-                    futureForecastStats: futureForecastStats
-                }; 
-            })
-            .catch(err => console.log(err)); 
+            return { 
+                presentTime: presentTime,
+                location: { "city": city, "state": state },  
+                weatherCondition: weatherCondition,
+                presentTemperature: presentTemperature, 
+                highLowTemperature: { "hi": highTemperature, "low": lowTemperature }, 
+                presentTempStats: presentTempStats, 
+                presentForecastStats: presentForecastStats, 
+                futureForecastStats: futureForecastStats
+            }; 
+        })
+        .catch(err => console.log(err)); 
     }; 
 
     // verify if the location exists within the database or not by querying the fields 
@@ -300,6 +301,7 @@ class LocationQuery {
         city, 
         state
     ) => {
+        console.log(city, state); 
         const query = State.db
                         .where("city", "==", city)
                         .where("state", "==", state); 
@@ -317,36 +319,38 @@ class LocationQuery {
 };
 
 class LocationStorage { 
-    static getLocationStorage = () => {
-        let allLocations; 
-        if (State.locationStorage.getItem("locations") === null) allLocations = []; 
-        else allLocations = JSON.parse(State.locationStorage.getItem("locations"));
-        return allLocations; 
+    static getStorageItem = (item) => {
+        let allItems; 
+        if (State.locationStorage.getItem(item) === null) allItems = [] 
+        else allItems = JSON.parse(State.locationStorage.getItem(item));
+        return allItems; 
     }
 
     static deleteFromLocalStorage = (
         city, 
         state, 
-        locationClass
+        locationClassname
     ) => {
-        const locationsStorage = LocationStorage.getLocationStorage(); 
+        const locationsStorage = LocationStorage.getStorageItem("locations"); 
         const newLocationsStorage = 
             locationsStorage.filter(location => {
                 const locationDOMElement = new DOMParser().parseFromString(location, "text/xml");
                 const locationTextContent = locationDOMElement.firstChild.textContent; 
                 const cityText = locationTextContent.split(",")[0].trim();
                 const stateText = locationTextContent.split(",")[1].trim();
-                return city !== cityText || state !== stateText; 
+                return city.toLowerCase() !== cityText.toLowerCase() || state.toLowerCase() !== stateText.toLowerCase(); 
             });
         State.locationStorage.setItem("locations", JSON.stringify(newLocationsStorage));
-        const locationContainer = document.querySelector(locationClass); 
+        const locationContainer = document.querySelector(locationClassname); 
         if (locationContainer) {
-            locationContainer.childNodes
-            .forEach(locElement => {
-                if (locElement.textContent.includes(city) && locElement.textContent.includes(state)) {
-                    locationContainer.removeChild(locElement); 
-                }
-            })
+            locationContainer
+                .childNodes
+                .forEach(locElement => {
+                    console.log(city, state, locElement.textContent); 
+                    if (locElement.textContent.includes(city) && locElement.textContent.includes(state)) {
+                        locationContainer.removeChild(locElement); 
+                    }
+                })
         }
     };
 };

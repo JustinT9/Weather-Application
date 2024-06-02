@@ -1,8 +1,7 @@
 import { State } from "../util/state.js"; 
-import { Utilities } from "../util/Utilities.js";
+import { LocationQuery, LocationStorage, Utilities } from "../util/Utilities.js";
 import { WeatherRequest } from "../util/WeatherRequest.js";
 import { WeatherSettings } from "../settings/WeatherSettings.js";
-import { testWeather } from "../test/testData.js";
 
 class WeatherPage {
     // to allow the UI display the projected weather for each hour within the day 
@@ -81,7 +80,8 @@ class WeatherPage {
         ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`);
         
         const tempElement = document.querySelector('.tempNum h1');
-        const minMaxElement = document.querySelector('.tempNum h6');  
+        const minMaxElement = document.querySelector('.tempNum h6'); 
+        console.log(State.currentWeather)
         Utilities.setTemp(
             tempElement, 
             minMaxElement, 
@@ -177,7 +177,7 @@ class WeatherPage {
                     const minTemp = forecast.childNodes[2].textContent.split("/")[1];  
 
                     if (forecast.childNodes[0].textContent === "Today") {
-                        const date = new Date(Date.now());                                                                                       
+                        const date = new Date(Date.now());              
                         WeatherPage.weeklyForecastTodayUtil(
                             date, 
                             State.flag, 
@@ -270,7 +270,7 @@ class WeatherPage {
         .then(data => {
             const dailyInfo = data.list;
             const forecastElement = document.querySelector(".dailyForecast"); 
-            Utilities.setDaily(forecastElement, dailyInfo); 
+            Utilities.setPresentForecast(forecastElement, dailyInfo); 
             WeatherPage.displayHourlyForecast(State.metric); 
             console.log("DAILY FORECAST:", data); 
         })
@@ -287,7 +287,7 @@ class WeatherPage {
         .then(data => {
             const weekInfo = data.list; 
             const futureForecastElement = document.querySelector(".forecastWeather"); 
-            Utilities.setWeekly(futureForecastElement, weekInfo); 
+            Utilities.setFutureForecast(futureForecastElement, weekInfo); 
             WeatherPage.displayWeeklyForecast(weekInfo); 
             console.log("WEEKLY FORECAST:", data); 
         })
@@ -371,16 +371,88 @@ class WeatherPage {
                 WeatherPage.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
                 console.log("switched to celsius"); 
             }
-        }); 
+         }); 
+    }; 
+
+    static displayWeather = () => {
+        const cachedLocation = State.locationStorage.getItem("toggledLocation") && 
+                                JSON.parse(State.locationStorage.getItem("toggledLocation"));
+        if (cachedLocation && cachedLocation.length) {
+            const [city, state] = cachedLocation.split(","); 
+
+            LocationQuery.getLocation(city.toLowerCase().trim(), state.trim())
+                .then(data => {
+                    const { 
+                        presentForecastStats,
+                        presentTempStats, 
+                        presentTemperature, 
+                        futureForecastStats, 
+                        highLowTemperature,
+                        weatherCondition
+                    } = data;
+                    
+                    const iconElement = document.querySelector(".weatherPageTempDigits i"); 
+                    Utilities.setIcon(iconElement, weatherCondition); 
+                    iconElement.className = `${iconElement.className} weather-icon`;
+
+                    const locationElement = document.querySelector(".weatherPageLocation h1"); 
+                    const dateElement = document.querySelector(".weatherPageLocation h3");  
+                    Utilities.setInfo(locationElement, dateElement, presentForecastStats.city.name); 
+
+                    const tempElement = document.querySelector('.tempNum h1'); 
+                    const minMaxElement = document.querySelector('.tempNum h6'); 
+                    Utilities.setTemp(
+                        tempElement,
+                        minMaxElement,
+                        State.metric,
+                        presentTemperature,
+                        highLowTemperature.hi, 
+                        highLowTemperature.low
+                    ); 
+                    Utilities.setStats(
+                        State.windElement, 
+                        State.rainElement, 
+                        State.humidityElement, 
+                        State.cloudyElement, 
+                        State.flag, 
+                        presentTempStats.wind,
+                        presentTempStats,
+                        presentTempStats.humidity,
+                        presentTempStats.clouds
+                    ); 
+                    Utilities.setHighlights(
+                        State.feelsLikeElement, 
+                        State.visibilityElement, 
+                        State.sunriseElement, 
+                        State.sunsetElement, 
+                        presentTempStats.rain.main.feels_like,
+                        presentTempStats.rain.visibility,
+                        presentTempStats.rain.sys.sunrise, 
+                        presentTempStats.rain.sys.sunset
+                    );
+                    State.currentWeather = presentTempStats.rain; 
+                    State.cityStatePair = {"city": city, "state": state}; 
+                    const todayForecastElement = document.querySelector(".dailyForecast"); 
+                    Utilities.setPresentForecast(todayForecastElement, presentForecastStats.list); 
+
+                    const futureForecastElement = document.querySelector(".forecastWeather"); 
+                    Utilities.setFutureForecast(futureForecastElement, futureForecastStats.list);
+                    WeatherPage.displayHourlyForecast(State.metric); 
+                    WeatherPage.displayWeeklyForecast(futureForecastStats.list); 
+                    WeatherPage.switchMetrics(); 
+                }); 
+        }
     }; 
 }; 
 
+State.relPath === "WeatherPage.html" && 
 window.addEventListener("load", () => {
-    if (State.relPath === "WeatherPage.html") {
-        testWeather.mockWeatherData(); 
-        WeatherPage.searchLocation(); 
-        WeatherPage.getCurrentLocation(); 
-    }
+    const setting = new WeatherSettings;
+    setting.displaySettings();     
+    
+    WeatherPage.searchLocation(); 
+    WeatherPage.getCurrentLocation(); 
+    WeatherPage.displayWeather(); 
 });
 
 export { WeatherPage }; 

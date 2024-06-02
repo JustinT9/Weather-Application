@@ -6,7 +6,7 @@ class WeatherSettings {
     displaySettings() {
         const settingsComponent = document.createElement("div");
         settingsComponent.className = "settingsComponent";
-
+        
         const settingsElement = document.querySelector(".fa-gear");
         const onSettingsComponentDrag = (e) => {
             const settingsStyle = window.getComputedStyle(settingsComponent);
@@ -18,11 +18,14 @@ class WeatherSettings {
         };
         
         settingsElement.addEventListener("click", () => {
-            const weatherMenuContainer = document.body; 
+            const applicationContainer = document.body; 
             this.displaySetting ? 
                 (() => {
                     this.displaySetting = false;
-                    weatherMenuContainer.removeChild(settingsComponent);
+                    ["mousedown", "mouseup"].forEach(type => settingsComponent.removeEventListener(type, () => {
+                        settingsComponent.removeEventListener("mousemove", onSettingsComponentDrag); 
+                    })); 
+                    applicationContainer.removeChild(settingsComponent);
                 })() : 
                 (() => {
                     this.displaySetting = true;
@@ -32,7 +35,7 @@ class WeatherSettings {
                     settingsComponent.addEventListener("mouseup", () => {
                         settingsComponent.removeEventListener("mousemove", onSettingsComponentDrag); 
                     }); 
-                    weatherMenuContainer.appendChild(settingsComponent);
+                    applicationContainer.appendChild(settingsComponent);
                 })(); 
         })
     }; 

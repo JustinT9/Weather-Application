@@ -25,10 +25,10 @@ let applicationEffects = {
     metric: "imperial", 
     db: firebaseApp.firestore().collection("locations"),  
     applicationStatus: null, 
-    currentLocationView: null,
     currentWeather: null, 
     cityStatePair: null,  
     flag: null, 
+    toggledLocation: null, 
 }; 
  
 class State {
@@ -41,7 +41,6 @@ class State {
     static get locations() { return applicationEffects.locations; }
     static get metric() { return applicationEffects.metric; }
     static get applicationStatus() { return applicationEffects.applicationStatus; }
-    static get currentLocationView() { return applicationEffects.currentLocationView; }
     static get cityStatePair() { return applicationEffects.cityStatePair; }
     static get flag() { return applicationEffects.flag; }
     static get currentWeather() { return applicationEffects.currentWeather; }
@@ -53,14 +52,15 @@ class State {
     static get visibilityElement() { return applicationStates.visibilityElement; }
     static get sunriseElement() { return applicationStates.sunriseElement; }
     static get sunsetElement() { return applicationStates.sunsetElement; }
+    static get toggledLocation() { return applicationEffects.toggledLocation; }
 
     static set locations(val) { applicationEffects.locations += val }
     static set metric(newMetric) { applicationEffects.metric = newMetric; }
     static set applicationStatus(newStatus) { applicationEffects.applicationStatus = newStatus; }
-    static set currentLocationView(newView) { applicationEffects.currentLocationView = newView; }
     static set currentWeather(newWeather) { applicationEffects.currentWeather = newWeather; }
     static set cityStatePair(newPair) { applicationEffects.cityStatePair = newPair; }
     static set flag(newFlag) { applicationEffects.flag = newFlag; }
+    static set toggledLocation(newToggledLocation) { applicationEffects.toggledLocation = newToggledLocation; }
 }
 
 export { State }; 

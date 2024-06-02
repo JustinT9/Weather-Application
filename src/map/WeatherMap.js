@@ -33,11 +33,39 @@ class LocationMap {
     ) => {
         locationElement.addEventListener("click", () => {
             const {lat, lon} = weatherData
-                            .currentForecastStats
-                            .city
-                            .coord; 
+                                .presentForecastStats
+                                .city
+                                .coord; 
+            const {city, state} = weatherData.location; 
+
+            WeatherMenuDisplay.toggleLocationElement(locationElement);
+            const toggledLocation = JSON.parse(State.locationStorage.getItem("toggledLocation"));
+            toggledLocation.length && 
+            toggledLocation.toLowerCase().includes(city) && 
+            toggledLocation.includes(state) && 
             LocationMap.loadMapAPI(lat, lon);
         }); 
+    }; 
+
+    static displayToggledLocation = (
+        locationElement, 
+        weatherData, 
+        city, 
+        state
+    ) => {  
+        const cachedLocation = JSON.parse(State.locationStorage.getItem("toggledLocation"));  
+        if (cachedLocation.length === 0) return; 
+
+        const [cachedCity, cachedState] = cachedLocation.split(","); 
+        if (cachedCity.toLowerCase() === city && cachedState === state) {
+            const {lat, lon} = weatherData  
+                                .presentForecastStats
+                                .city
+                                .coord; 
+            locationElement.style.backgroundColor = "#CECCCC"; 
+            State.toggledLocation = locationElement;
+            // LocationMap.loadMapAPI(lat, lon); 
+        }
     }; 
 
     static displayLocations = () => {
@@ -45,39 +73,45 @@ class LocationMap {
 
         // when first loading the map page 
         if (!weatherMapLocationsElement.childNodes.length && State.locations) {
-            LocationStorage.getLocationStorage().forEach(location => {
-                const [city, state] = new DOMParser()
-                                        .parseFromString(location, "text/xml")
-                                        .firstChild
-                                        .textContent
-                                        .split(","); 
+            LocationStorage.getStorageItem("locations").forEach(
+                location => {
+                    const [city, state] = new DOMParser()
+                                            .parseFromString(location, "text/xml")
+                                            .firstChild
+                                            .textContent
+                                            .split(","); 
 
-                LocationQuery
-                    .getLocation(city.trim(), state.trim())
-                    .then(res => {                        
-                        const locationClassname = ".weatherMapLocations"; 
-                        const locationElementClassname = "weatherMapLocationElement";
-                        const locationElementRightSectionClassname = "weatherMapLocationElementRightSection"; 
-                        const locationElementLeftSectionClassname = "weatherMapLocationElementLeftSection";  
-                        const locationElementRightSectionTextClassname = "weatherMapLocationElementRightSectionText";
-                        WeatherMenuDisplay.createLocationContainer(
-                            res, 
-                            weatherMapLocationsElement, 
-                            city.trim(), 
-                            state.trim(), 
-                            locationClassname,
-                            locationElementClassname, 
-                            locationElementRightSectionClassname, 
-                            locationElementLeftSectionClassname, 
-                            locationElementRightSectionTextClassname
-                        );
-                        LocationMap.locateLocation(
-                            weatherMapLocationsElement.lastChild,
-                            res 
-                        ); 
-                        console.log(res); 
-                    });
-            }) 
+                    LocationQuery
+                        .getLocation(city.trim(), state.trim())
+                        .then(res => {             
+                            const locationClassname = ".weatherMapLocations"; 
+                            const locationElementClassname = "weatherMapLocationElement";
+                            const locationElementRightSectionClassname = "weatherMapLocationElementRightSection"; 
+                            const locationElementLeftSectionClassname = "weatherMapLocationElementLeftSection";  
+                            const locationElementRightSectionTextClassname = "weatherMapLocationElementRightSectionText";
+                            WeatherMenuDisplay.createLocationContainer(
+                                res, 
+                                weatherMapLocationsElement, 
+                                city.trim(), 
+                                state.trim(), 
+                                locationClassname,
+                                locationElementClassname, 
+                                locationElementRightSectionClassname, 
+                                locationElementLeftSectionClassname, 
+                                locationElementRightSectionTextClassname
+                            );
+                            LocationMap.locateLocation(
+                                weatherMapLocationsElement.lastChild,
+                                res 
+                            ); 
+                            LocationMap.displayToggledLocation(
+                                weatherMapLocationsElement.lastChild, 
+                                res,
+                                city, 
+                                state
+                            ); 
+                        });
+                    }) 
         // when adding new locations
         } else {
             const formClass = ".weatherMapForm"; 
@@ -89,9 +123,11 @@ class LocationMap {
 
 window.addEventListener("load", async() => {
     if (State.relPath !== "WeatherMap.html") return; 
-    State.locations = LocationStorage.getLocationStorage().length; 
+    const setting = new WeatherSettings;
+    setting.displaySettings(); 
+
+    State.locations = LocationStorage.getStorageItem("locations").length; 
     LocationMap.displayLocations(); 
-    console.log(State.locations); 
 });
 
 export { LocationMap }; 
