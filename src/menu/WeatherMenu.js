@@ -7,6 +7,7 @@ import {
 } from "../util/Utilities.js";
 import { LocationMap } from "../map/WeatherMap.js";
 import { WeatherSettings } from "../settings/WeatherSettings.js";
+import { WeatherPage } from "../page/WeatherPage.js";
 
 class WeatherMenuDisplay {
     static createMainContainers = (
@@ -253,6 +254,7 @@ class WeatherMenuDisplay {
             // must return Promise so it can wait upon this operation to complete synchronously
             return new Promise(async resolve => {
                 await WeatherMenuDisplay.addLocationElement(locationDOMElements[0], container, locationContainer, weatherInfoContainer); 
+                WeatherMenuDisplay.displayToggledElement(); 
                 resolve(1); 
             });
         } else if (State.applicationStatus !== State.pageStatus.DELETE) {
@@ -284,6 +286,7 @@ class WeatherMenuDisplay {
                             weatherMenuLeftLocationElementLeftSectionClassname, 
                             weatherMenuLocationElementRightSectionTextClassname
                         );
+                        WeatherMenuDisplay.displayToggledElement(); 
                         resolve(1); 
                     })
                     .catch(err => console.log(err)); 
@@ -297,6 +300,7 @@ class WeatherMenuDisplay {
                 return new Promise(resolve => {
                     locationDOMElements.forEach(async loc => {
                         await WeatherMenuDisplay.addLocationElement(loc, container, locationContainer, weatherInfoContainer); 
+                        WeatherMenuDisplay.displayToggledElement(); 
                         resolve(1); 
                     }); 
                 }); 
@@ -367,10 +371,11 @@ class WeatherMenuDisplay {
         const locationsContainer = document.querySelector(".weatherMenulocationContainer"); 
         const cachedLocation = State.locationStorage.getItem("toggledLocation") && 
                                 JSON.parse(State.locationStorage.getItem("toggledLocation"));
-       
+         
         cachedLocation && cachedLocation.length && locationsContainer.childNodes.forEach(
-            locationElement => { 
-                if (locationElement.textContent.includes(cachedLocation)) {
+            (locationElement, idx) => {
+                if (State.toggledLocation && !State.toggledLocation.textContent.includes(cachedLocation)) State.toggledLocation.style.backgroundColor = "#EEEEEE"; 
+                if (idx > 0 && locationElement.textContent.includes(cachedLocation)) {
                     locationElement.style.backgroundColor = "#CECCCC"; 
                     State.toggledLocation = locationElement;  
                     WeatherMenuDisplay.displayWeatherLogic(locationElement);
@@ -469,6 +474,15 @@ class WeatherMenuDisplay {
         locationElement
     ) => {
         locationElement.addEventListener("click", () => {
+            if (State.applicationStatus === State.pageStatus.DELETE && 
+                State.toggledLocation && 
+                State.toggledLocation !== locationElement) return;
+            else if (locationElement.textContent.includes(State.deletedLocation)) {
+                const weatherContainer = document.querySelector(".weatherInfoContainer");
+                weatherContainer.innerHTML = ""; 
+                WeatherMenuDisplay.createWeatherInfoContainer(); 
+                return; 
+            }
             WeatherMenuDisplay.displayWeatherLogic(locationElement);
             WeatherMenuDisplay.toggleLocationElement(locationElement);
         })
@@ -483,20 +497,25 @@ class LocationHandler {
         return new Promise(resolve => {
             WeatherRequest.requestCurrentCoordinates(city, state)
             .then(res => res.json())
-            .then(data => { return { lat: data[0].lat, lon: data[0].lon } }) 
-            // fetch data to initialize the document within the collection of the firestore database 
-            .then(async coords => {
-                const currentWeather = await WeatherRequest.requestCurrentWeather(coords.lat, coords.lon).then(res => res.json());
-                const currentForecast = await WeatherRequest.requestCurrentForecast(coords.lat, coords.lon).then(res => res.json());
-                const futureForecast = await WeatherRequest.requestFutureForecast(coords.lat, coords.lon).then(res => res.json()); 
+            .then(async data => {
+                const [lat, lon] = [data[0].lat, data[0].lon]; 
+                const presentWeather = await WeatherRequest.requestCurrentWeather(lat, lon).then(res => res.json());
+                const presentForecast = await WeatherRequest.requestCurrentForecast(lat, lon).then(res => res.json());
+                const futureForecast = await WeatherRequest.requestFutureForecast(lat, lon).then(res => res.json()); 
                 
+                if (State.relPath === "WeatherPage.html") {
+                    WeatherPage.currentWeather(presentWeather, city); 
+                    WeatherPage.dailyForecast(presentForecast); 
+                    WeatherPage.weeklyForecastWeather(futureForecast); 
+                }
+
                 State.db.add({
                     city: city,
                     state: state,
-                    latitude: currentWeather.coord.lat, 
-                    longtitude: currentWeather.coord.lon, 
-                    currentWeather: currentWeather,
-                    currentForecast: currentForecast, 
+                    latitude: presentWeather.coord.lat, 
+                    longtitude: presentWeather.coord.lon, 
+                    currentWeather: presentWeather,
+                    currentForecast: presentForecast, 
                     futureForecast: futureForecast 
                 })
                 console.log("Data added to Firestore"); 
@@ -511,6 +530,11 @@ class LocationHandler {
         city, 
         state
     ) => {    
+        const [formattedCity, formattedState] = [
+            city.split(" ").map(word => word[0].toUpperCase() + word.substring(1)).join(" "),
+            state.split(" ").map(word => word[0].toUpperCase() + word.substring(1)).join(" ")
+        ]; 
+
         if (!State.locations) {            
             const locationElement = document.createElement("div"); 
             locationElement.className = "weatherMenuLocationElement"; 
@@ -522,15 +546,15 @@ class LocationHandler {
             const allLocations = LocationStorage.getStorageItem("locations"); 
             allLocations.push(locationElement.outerHTML); 
             State.locationStorage.setItem("locations", JSON.stringify(allLocations)); 
-            State.locationStorage.setItem("toggledLocation", JSON.stringify(`${city}, ${state}`));     
-        
+            State.locationStorage.setItem("toggledLocation", JSON.stringify(`${formattedCity}, ${formattedState}`));     
+
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 
             (State.relPath === "WeatherMenu.html" && 
             await WeatherMenuDisplay.displayPage() && 
             setTimeout(() => {
                 location.reload(); 
-            }, 150)) || 
+            }, 150));
             (State.relPath === "WeatherMap.html" && 
             LocationMap.displayLocations()); 
         } else { 
@@ -541,15 +565,15 @@ class LocationHandler {
             const allLocations = LocationStorage.getStorageItem("locations"); 
             allLocations.push(locationElement.outerHTML); 
             State.locationStorage.setItem("locations", JSON.stringify(allLocations));
-            State.locationStorage.setItem("toggledLocation", JSON.stringify(`${city}, ${state}`));
+            State.locationStorage.setItem("toggledLocation", JSON.stringify(`${formattedCity}, ${formattedState}`));
             
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 
             (State.relPath === "WeatherMenu.html" && 
-            WeatherMenuDisplay.displayPage()) || 
+            await WeatherMenuDisplay.displayPage());  
             (State.relPath === "WeatherMap.html" && 
             LocationMap.displayLocations()); 
-        }
+        }  
     }; 
 
     // now handle the input 
@@ -565,19 +589,23 @@ class LocationHandler {
             // if not City, State format 
             const parsedLocationInput = document.querySelector(inputClassname).value.trim();
             Utilities.parseInput(parsedLocationInput); 
-          
+            State.relPath === "WeatherPage.html" && Utilities.clearWeather();
+
             // once parsed use the data to add it to the data 
             // if empty then add otherwise do nothing since it is already within the database
-            const city = State.cityStatePair["city"]; 
-            const state = State.cityStatePair["state"];
+            const [city, state] = [State.cityStatePair["city"], State.cityStatePair["state"]];
             LocationQuery.doesLocationExist(city, state)
                 .then(async(res) => {
                     if (res) {
                         await LocationHandler.addToDb(city, state);
                         LocationHandler.saveLocations(city, state); 
-                    } else console.log("already exists"); 
+                    } else {
+                        State.relPath === "WeatherPage.html" && WeatherPage.displayWeather(); 
+                        console.log("already exists"); 
+                    }
                 })
             locationInput.value = ""; 
+            console.log("searched for location"); 
         })
     };
 
@@ -625,9 +653,10 @@ class LocationHandler {
             LocationQuery.deleteFromDatabase(city.toLowerCase().trim(), state.trim()); 
             LocationStorage.deleteFromLocalStorage(city.trim(), state.trim(), locationClass);
             const cachedLocation = JSON.parse(State.locationStorage.getItem("toggledLocation")); 
-            if (cachedLocation.contains(city.trim()) && cachedLocation.contains(state.trim())) {
+            if (cachedLocation.includes(city.trim()) && cachedLocation.includes(state.trim())) {
                 State.locationStorage.setItem("toggledLocation", JSON.stringify([]));  
                 State.toggledLocation = null; 
+                State.deletedLocation = cachedLocation; 
             }
             State.applicationStatus = State.pageStatus.DELETE; 
             State.locations -= 1; 

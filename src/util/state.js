@@ -29,6 +29,7 @@ let applicationEffects = {
     cityStatePair: null,  
     flag: null, 
     toggledLocation: null, 
+    deletedLocation: null,
 }; 
  
 class State {
@@ -53,6 +54,7 @@ class State {
     static get sunriseElement() { return applicationStates.sunriseElement; }
     static get sunsetElement() { return applicationStates.sunsetElement; }
     static get toggledLocation() { return applicationEffects.toggledLocation; }
+    static get deletedLocation() { return applicationEffects.deletedLocation; }
 
     static set locations(val) { applicationEffects.locations += val }
     static set metric(newMetric) { applicationEffects.metric = newMetric; }
@@ -61,6 +63,7 @@ class State {
     static set cityStatePair(newPair) { applicationEffects.cityStatePair = newPair; }
     static set flag(newFlag) { applicationEffects.flag = newFlag; }
     static set toggledLocation(newToggledLocation) { applicationEffects.toggledLocation = newToggledLocation; }
+    static set deletedLocation(newDeletedLocation) { applicationEffects.deletedLocation = newDeletedLocation; }
 }
 
 export { State }; 

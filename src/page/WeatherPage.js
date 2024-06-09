@@ -1,7 +1,8 @@
 import { State } from "../util/state.js"; 
-import { LocationQuery, LocationStorage, Utilities } from "../util/Utilities.js";
+import { LocationQuery, Utilities } from "../util/Utilities.js";
 import { WeatherRequest } from "../util/WeatherRequest.js";
 import { WeatherSettings } from "../settings/WeatherSettings.js";
+import { LocationHandler } from "../menu/WeatherMenu.js";
 
 class WeatherPage {
     // to allow the UI display the projected weather for each hour within the day 
@@ -9,60 +10,63 @@ class WeatherPage {
         metric
     ) => {
         const dailyContainer = document.querySelector(".dailyForecast");
+
         dailyContainer.addEventListener("click", () => {
-            dailyContainer.childNodes.forEach(forecast => {
-                forecast.addEventListener("click", () => {
-                    const iconElement = document.querySelector(".weatherPageTempDigits i");
-                    iconElement.className = `${forecast.childNodes[1].className} weather-icon`;
-                    iconElement.style.color = forecast.childNodes[1].style.color;
+            dailyContainer.childNodes.forEach(
+                forecast => {
+                    forecast.addEventListener("click", () => {
+                        const iconElement = document.querySelector(".weatherPageTempDigits i");
+                        iconElement.className = `${forecast.childNodes[1].className} weather-icon`;
+                        iconElement.style.color = forecast.childNodes[1].style.color;
 
-                    const tempElement = document.querySelector(".tempNum h1"); 
-                    const newTempElement = forecast.childNodes[2].textContent; 
-                    (metric === "imperial") ? 
-                    tempElement.textContent = newTempElement + "F" : 
-                    tempElement.textContent = newTempElement + "C"; 
+                        const tempElement = document.querySelector(".tempNum h1"); 
+                        const newTempElement = forecast.childNodes[2].textContent; 
+                        (metric === "imperial") ? 
+                        tempElement.textContent = newTempElement + "F" : 
+                        tempElement.textContent = newTempElement + "C"; 
 
-                    const dateElement = document.querySelector(".weatherPageLocation h3");
-                    const date = new Date(Date.now()); 
-                    dateElement.textContent = (forecast.childNodes[0].textContent !== "Now") ? 
-                    `${State.dayNames[date.getDay()]} ${forecast.childNodes[0].textContent}` :
-                    ((date.toLocaleTimeString().length % 2 === 0) ? 
-                    (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
-                    ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
-                    (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
-                    ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`));
-                    
-                    const labelElement = document.querySelector(".weatherPageHighlightsContainer h4"); 
-                    if (labelElement.textContent !== "Today's Highlights") {
-                        const minMaxElement = document.querySelector(".tempNum h6");  
-                        labelElement.textContent  = "Today's Highlights"; 
-                        minMaxElement.textContent = `${Math.round(State.currentWeather.main.temp_max)}` + "\u00b0" + " / " + `${Math.round(State.currentWeather.main.temp_min)}` + "\u00b0";   
-                        Utilities.setStats(
-                            State.windElement, 
-                            State.rainElement, 
-                            State.humidityElement, 
-                            State.cloudyElement, 
-                            State.flag, 
-                            State.currentWeather.wind.speed, 
-                            State.currentWeather, 
-                            State.currentWeather.main.humidity, 
-                            State.currentWeather.clouds.all
-                        );
-                        Utilities.setHighlights(
-                            State.feelsLikeElement, 
-                            State.visibilityElement, 
-                            State.sunriseElement, 
-                            State.sunsetElement, 
-                            State.currentWeather.main.feels_like, 
-                            State.currentWeather.visibility, 
-                            State.currentWeather.sys.sunrise, 
-                            State.currentWeather.sys.sunset
-                        );
-                    }
-                });
+                        const date = new Date(Date.now()); 
+                        const dateElement = document.querySelector(".weatherPageLocation h3");
+                        dateElement.textContent = (forecast.childNodes[0].textContent !== "Now") ? 
+                        `${State.dayNames[date.getDay()]} ${forecast.childNodes[0].textContent}` :
+                        ((date.toLocaleTimeString().length % 2 === 0) ? 
+                        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
+                        ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
+                        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
+                        ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`));
+                        
+                        const labelElement = document.querySelector(".weatherPageHighlightsContainer h4"); 
+
+                        if (labelElement.textContent !== "Today's Highlights") {
+                            const minMaxElement = document.querySelector(".tempNum h6");  
+                            minMaxElement.textContent = `${Math.round(State.currentWeather.main.temp_max)}` + "\u00b0" + " / " + `${Math.round(State.currentWeather.main.temp_min)}` + "\u00b0";   
+                            labelElement.textContent  = "Today's Highlights"; 
+                            Utilities.setStats(
+                                State.windElement, 
+                                State.rainElement, 
+                                State.humidityElement, 
+                                State.cloudyElement, 
+                                State.flag, 
+                                State.currentWeather.wind.speed, 
+                                State.currentWeather, 
+                                State.currentWeather.main.humidity, 
+                                State.currentWeather.clouds.all
+                            );
+                            Utilities.setHighlights(
+                                State.feelsLikeElement, 
+                                State.visibilityElement, 
+                                State.sunriseElement, 
+                                State.sunsetElement, 
+                                State.currentWeather.main.feels_like, 
+                                State.currentWeather.visibility, 
+                                State.currentWeather.sys.sunrise, 
+                                State.currentWeather.sys.sunset
+                            );
+                        }
+                    });
+                }); 
             }); 
-        }); 
-    }; 
+        }; 
 
     // to display forecast for today's weather 
     static weeklyForecastTodayUtil = (
@@ -81,7 +85,6 @@ class WeatherPage {
         
         const tempElement = document.querySelector('.tempNum h1');
         const minMaxElement = document.querySelector('.tempNum h6'); 
-        console.log(State.currentWeather)
         Utilities.setTemp(
             tempElement, 
             minMaxElement, 
@@ -207,109 +210,82 @@ class WeatherPage {
 
     // requests data from openWeatherAPI for today's weather and climate 
     static currentWeather = (
-        lat, 
-        lon, 
+        presentWeather, 
         city
     ) => {
-        WeatherRequest.requestCurrentWeather(lat, lon)
-        .then(res => res.json())
-        .then(data => { 
-            const weatherDesc = data.weather[0].description; 
-            const iconElement = document.querySelector(".weatherPageTempDigits i"); 
-            Utilities.setIcon(iconElement, weatherDesc); 
-            iconElement.className = `${iconElement.className} weather-icon`; 
+        const weatherDesc = presentWeather.weather[0].description; 
+        const iconElement = document.querySelector(".weatherPageTempDigits i"); 
+        Utilities.setIcon(iconElement, weatherDesc); 
+        iconElement.className = `${iconElement.className} weather-icon`; 
 
-            const locationElement = document.querySelector(".weatherPageLocation h1"); 
-            const dateElement = document.querySelector(".weatherPageLocation h3"); 
-            Utilities.setInfo(locationElement, dateElement, city); 
-            
-            const tempElement = document.querySelector('.tempNum h1'); 
-            const minMaxElement = document.querySelector('.tempNum h6'); 
-            Utilities.setTemp(
-                tempElement, 
-                minMaxElement, 
-                State.metric, 
-                data.main.temp, 
-                data.main.temp_max, 
-                data.main.temp_min
-            ); 
-            Utilities.setStats(
-                State.windElement, 
-                State.rainElement,  
-                State.humidityElement, 
-                State.cloudyElement, 
-                State.flag, 
-                data.wind.speed, 
-                data, 
-                data.main.humidity, 
-                data.clouds.all
-            ); 
-            Utilities.setHighlights(
-                State.feelsLikeElement, 
-                State.visibilityElement, 
-                State.sunriseElement, 
-                State.sunsetElement, 
-                data.main.feels_like, 
-                data.visibility, 
-                data.sys.sunrise, 
-                data.sys.sunset
-            ); 
-            State.currentWeather = data; 
-            console.log("TODAY'S WEATHER:", data); 
-        })
-        .catch(error => console.log(error)); 
+        const locationElement = document.querySelector(".weatherPageLocation h1"); 
+        const dateElement = document.querySelector(".weatherPageLocation h3"); 
+        Utilities.setInfo(locationElement, dateElement, city); 
+        
+        const tempElement = document.querySelector('.tempNum h1'); 
+        const minMaxElement = document.querySelector('.tempNum h6'); 
+        Utilities.setTemp(
+            tempElement, 
+            minMaxElement, 
+            State.metric, 
+            presentWeather.main.temp, 
+            presentWeather.main.temp_max, 
+            presentWeather.main.temp_min
+        ); 
+        Utilities.setStats(
+            State.windElement, 
+            State.rainElement,  
+            State.humidityElement, 
+            State.cloudyElement, 
+            State.flag, 
+            presentWeather.wind.speed, 
+            presentWeather, 
+            presentWeather.main.humidity, 
+            presentWeather.clouds.all
+        ); 
+        Utilities.setHighlights(
+            State.feelsLikeElement, 
+            State.visibilityElement, 
+            State.sunriseElement, 
+            State.sunsetElement, 
+            presentWeather.main.feels_like, 
+            presentWeather.visibility, 
+            presentWeather.sys.sunrise, 
+            presentWeather.sys.sunset
+        ); 
+        State.currentWeather = presentWeather; 
+        console.log("TODAY'S WEATHER:", presentWeather); 
     };
 
     // requests data from openWeatherAPI for today's weather hourly forecast  
     static dailyForecast = (
-        lat, 
-        lon
+        presentForecast
     ) => {
-        WeatherRequest.requestCurrentForecast(lat, lon)
-        .then(res => res.json())
-        .then(data => {
-            const dailyInfo = data.list;
-            const forecastElement = document.querySelector(".dailyForecast"); 
-            Utilities.setPresentForecast(forecastElement, dailyInfo); 
-            WeatherPage.displayHourlyForecast(State.metric); 
-            console.log("DAILY FORECAST:", data); 
-        })
-        .catch(error => console.log(error));  
+        const dailyInfo = presentForecast.list;
+        const forecastElement = document.querySelector(".dailyForecast"); 
+        Utilities.setPresentForecast(forecastElement, dailyInfo); 
+        WeatherPage.displayHourlyForecast(State.metric); 
+        console.log("DAILY FORECAST:", presentForecast); 
     };
 
     // requests data from openWeatherAPI for this week's weather daily forecast  
     static weeklyForecastWeather = (
-        lat, 
-        lon
+        futureForecast
     ) => {
-        WeatherRequest.requestFutureForecast(lat, lon)
-        .then(res => res.json())
-        .then(data => {
-            const weekInfo = data.list; 
-            const futureForecastElement = document.querySelector(".forecastWeather"); 
-            Utilities.setFutureForecast(futureForecastElement, weekInfo); 
-            WeatherPage.displayWeeklyForecast(weekInfo); 
-            console.log("WEEKLY FORECAST:", data); 
-        })
-        .catch(error => console.log(error)); 
+        const weekInfo = futureForecast.list; 
+        const futureForecastElement = document.querySelector(".forecastWeather"); 
+        Utilities.setFutureForecast(futureForecastElement, weekInfo); 
+        WeatherPage.displayWeeklyForecast(weekInfo); 
+        console.log("WEEKLY FORECAST:", futureForecast); 
     }; 
 
     // initializes data call for weather board and loads it onto the UI of the specific town requested 
-    static callWeatherData = (
+    static callWeatherData = async(
         city, 
         state
     ) => {
-        WeatherRequest.requestCurrentCoordinates(city, state)
-        .then(res => res.json())
-        .then(data => {
-            const lat = data[0].lat; 
-            const lon = data[0].lon; 
-            // request data for specific statistics 
-            WeatherPage.currentWeather(lat, lon, city); 
-            WeatherPage.dailyForecast(lat, lon); 
-            WeatherPage.weeklyForecastWeather(lat, lon); 
-        })
-        .catch(error => console.log(error)); 
+        await LocationHandler.addToDb(city, state);
+        LocationHandler.saveLocations(city, state); 
     };
 
     // if track current location is given accessed, then generate data for the current location as requested 
@@ -339,19 +315,8 @@ class WeatherPage {
     }; 
 
     // searching option for data of weather for a specific inputted with regards to the format "City, State"
-    static searchLocation = () => {
-        const formElement = document.querySelector('.inputWrapper'); 
-        formElement.addEventListener('submit', (e) => {
-            const locationValue = document.querySelector(".weather-addLocation").value.trim(); 
-            Utilities.parseInput(locationValue); 
-            e.preventDefault(); 
-            Utilities.clearWeather(); 
-            WeatherPage.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
-            document.querySelector(".weather-addLocation").value = ""; 
-            console.log("searched for location"); 
-        }); 
-    }; 
-
+    static searchLocation = () => LocationHandler.inputLocation(".inputWrapper", ".weather-addLocation");
+        
     // to switch to fahrenheit or celsius and re-display onto UI 
     static switchMetrics = () => {
         const fahrenheitElement = document.querySelector(".wi-fahrenheit");
