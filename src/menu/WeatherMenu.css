@@ -1,5 +1,6 @@
 .weatherMenuInitContainer, 
-.weatherMenulocationContainer,
+.weatherMenuMainContainer,
+.weatherMenuLocationContainer,
 .weatherMenuLocationElement,
 .weatherMenuLocationElementRightSection, 
 .weatherMenuLocationElementLeftSection, 
@@ -17,7 +18,8 @@
     display: flex;
 }
 
-.weatherMenulocationContainer,
+.weatherMenuMainContainer, 
+.weatherMenuLocationContainer,
 .weatherMenuLocationElementRightSectionText, 
 .weatherInfoContainer,
 .weatherInfoContainerMainSection,
@@ -33,9 +35,14 @@
     align-items: center;
 }
 
-.weatherMenulocationContainer {   
+.weatherMenuMainContainer {
     height: 100%; 
     width: 55%; 
+}
+
+.weatherMenuLocationContainer {   
+    height: 100%; 
+    width: 100%; 
     overflow: auto;
 }
 
@@ -138,14 +145,6 @@
     height: 20%; 
 }
 
-.weatherInfoContainerMetricSelection {
-    font-size: 2.2rem;
-    height: 100%; 
-    width: 25%; 
-    position: absolute; 
-    left: 82.5%; 
-}
-
 .weatherInfoContainerTemp {
     width: 100%; 
     height: 60%; 
@@ -178,8 +177,16 @@
 }
 
 .weatherInfoContainerLocation {
-    width: 75%; 
+    width: 80%; 
     height: 100%; 
+} 
+
+.weatherInfoContainerLocation h1 {
+    font-size: 2.5rem; 
+} 
+
+.weatherInfoContainerLocation h3 {
+    font-size: 1.5rem; 
 } 
 
 .main-addLocation {
@@ -224,8 +231,8 @@
 }
 
 .main-searchWeatherForm {
-    height: 7%;
-    width: 100%; 
+    height: 4.5rem;
+    width: 60rem; 
     margin-bottom: 1rem; 
 }
 

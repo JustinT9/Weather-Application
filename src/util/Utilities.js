@@ -301,7 +301,6 @@ class LocationQuery {
         city, 
         state
     ) => {
-        console.log(city, state); 
         const query = State.db
                         .where("city", "==", city)
                         .where("state", "==", state); 
@@ -346,7 +345,6 @@ class LocationStorage {
             locationContainer
                 .childNodes
                 .forEach(locElement => {
-                    console.log(city, state, locElement.textContent); 
                     if (locElement.textContent.includes(city) && locElement.textContent.includes(state)) {
                         locationContainer.removeChild(locElement); 
                     }
