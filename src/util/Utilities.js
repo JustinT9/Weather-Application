@@ -68,10 +68,12 @@ class Utilities {
         cityText
     ) => {
         const date = new Date(Date.now()); 
-        cityText.split(" ").forEach((word, idx) => {
-            if (idx === 0) locationElement.textContent = ""; 
-            locationElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
-        })
+        cityText.split(" ").forEach(
+                (word, idx) => {
+                if (idx === 0) locationElement.textContent = ""; 
+                locationElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
+            }
+        ); 
 
         dateElement.textContent = (date.toLocaleTimeString().length % 2 === 0) ? 
         (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
@@ -176,32 +178,33 @@ class Utilities {
         }); 
     }; 
 
-    // sets up the weather forecast for each day in the upcoming week 
+    // Sets up the weather forecast for each day in the upcoming week 
     static setFutureForecast = (
         forecastElement, 
         futureForecastData
     ) => {
-        futureForecastData.forEach((daily, idx) => {
-            const iconElement = document.createElement("i"); 
-            const weatherDesc = daily.weather[0].description; 
-            Utilities.setIcon(iconElement, weatherDesc); 
+        futureForecastData.forEach(
+            (daily, idx) => {
+                const container = document.createElement("div");
+                container.className = "forecastDay"; 
 
-            const tempElement = document.createElement("h4");
-            tempElement.className = "forecastTemp"; 
-            tempElement.textContent = `${Math.round(daily.temp.max) + "\u00b0"} / ${Math.round(daily.temp.min) + "\u00b0"}`;
+                const dayElement = document.createElement("h4"); 
+                (idx === 0) ? dayElement.textContent = "Today" :  
+                (dayElement.textContent = `${State.dayNames[new Date(daily.dt * 1000).getDay()]}`);
+                container.appendChild(dayElement);
 
-            const container = document.createElement("div");
-            container.className = "forecastDay"; 
+                const iconElement = document.createElement("i"); 
+                const weatherDesc = daily.weather[0].description; 
+                Utilities.setIcon(iconElement, weatherDesc); 
+                container.appendChild(iconElement);
 
-            const dayElement = document.createElement("h4"); 
-            (idx === 0) ? dayElement.textContent = "Today" :  
-            (dayElement.textContent = `${State.dayNames[new Date(daily.dt * 1000).getDay()]}`);
-            
-            container.appendChild(dayElement);
-            container.appendChild(iconElement);
-            container.appendChild(tempElement);
-            forecastElement.appendChild(container); 
-        }); 
+                const tempElement = document.createElement("h4");
+                tempElement.className = "forecastTemp"; 
+                tempElement.textContent = `${Math.round(daily.temp.max) + "\u00b0"} / ${Math.round(daily.temp.min) + "\u00b0"}`;
+                container.appendChild(tempElement);
+                forecastElement.appendChild(container); 
+            }
+        ); 
     }; 
 
     // must clear the DOM before if there a DOM already existed does to ensure page is not loaded incorrectly
@@ -214,18 +217,18 @@ class Utilities {
         }
     }; 
 
-    // parses the city, state input for computational value 
+    // Parses the city, state input for computational value 
     static parseInput = (inputValue) => {
         if (inputValue.indexOf(",") !== -1) {
-            const city = inputValue.split(",")[0].toLowerCase();
-            const state = inputValue.split(",")[1].trim(); 
+            const [city, state] = [inputValue.split(",")[0].toLowerCase(), inputValue.split(",")[1].trim()]; 
             State.cityStatePair = {"city": city, "state": state}; 
         } else {
-            inputValue.split(" ").forEach((word, idx) => {
-                if (idx !== inputValue.split(" ").length-1) city += `${word} `;
-            }); 
-            const city = city.trim(); 
-            const state = inputValue.split(" ")[inputValue.split(" ").length-1]; 
+            inputValue.split(" ").forEach(
+                (word, idx) => {
+                    if (idx !== inputValue.split(" ").length-1) city += `${word} `;
+                }
+            ); 
+            const [city, state] = [city.trim(), inputValue.split(" ")[inputValue.split(" ").length-1]]; 
             State.cityStatePair = {"city": city, "state": state}; 
         }   
     }; 
@@ -245,17 +248,17 @@ class LocationQuery {
         .get() 
         .then(res => {
             const presentTime = new Date(); 
-            const weatherCondition = res.docs[0].data().currentWeather.weather[0].description;
-            const presentTemperature = res.docs[0].data().currentWeather.main.temp;  
-            const highTemperature = res.docs[0].data().currentWeather.main.temp_max; 
-            const lowTemperature = res.docs[0].data().currentWeather.main.temp_min;
+            const weatherCondition = res.docs[0].data().presentWeather.weather[0].description;
+            const presentTemperature = res.docs[0].data().presentWeather.main.temp;  
+            const highTemperature = res.docs[0].data().presentWeather.main.temp_max; 
+            const lowTemperature = res.docs[0].data().presentWeather.main.temp_min;
             const presentTempStats = {
-                "wind": res.docs[0].data().currentWeather.wind.speed, 
-                "rain": res.docs[0].data().currentWeather, 
-                "humidity": res.docs[0].data().currentWeather.main.humidity, 
-                "clouds": res.docs[0].data().currentWeather.clouds.all 
+                "wind": res.docs[0].data().presentWeather.wind.speed, 
+                "rain": res.docs[0].data().presentWeather, 
+                "humidity": res.docs[0].data().presentWeather.main.humidity, 
+                "clouds": res.docs[0].data().presentWeather.clouds.all 
             }; 
-            const presentForecastStats = res.docs[0].data().currentForecast;
+            const presentForecastStats = res.docs[0].data().presentForecast;
             const futureForecastStats = res.docs[0].data().futureForecast; 
 
             return { 

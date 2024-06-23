@@ -1,81 +1,81 @@
 import { maps_key } from "../../config.js"; 
 import { State } from "../util/state.js";
 import { LocationQuery, LocationStorage } from "../util/Utilities.js";
-import { WeatherMenuDisplay, LocationHandler } from "../menu/WeatherMenu.js"; 
 import { WeatherSettings } from "../settings/WeatherSettings.js";
+import { WeatherMenuDisplay, LocationHandler } from "../menu/WeatherMenu.js"; 
 
 class LocationMap {      
-    static loadMapAPI = (
+    static loadMap = (
         lat, 
         lon
     ) => {
-        return new Promise(resolve => {
-            let script = document.createElement("script"); 
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${maps_key}&loading=async&callback=initMap`;
-            script.async = true; 
-    
-            window.initMap = async() => {
-                const { Map } = await google.maps.importLibrary("maps");
-                new Map(document.querySelector(".weatherMap"), {
-                    center: { lat: lat, lng: lon },
-                    zoom: 8,
-                  });
-            }; 
-    
-            document.body.appendChild(script);
-            resolve(1); 
-        })
+        return new Promise(
+            resolve => {
+                let script = document.createElement("script"); 
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${maps_key}&loading=async&callback=initMap`;
+                script.async = true; 
+        
+                window.initMap = async() => {
+                    const { Map } = await google.maps.importLibrary("maps");
+                    new Map(document.querySelector(".weatherMap"), {
+                        center: { lat: lat, lng: lon },
+                        zoom: 8,
+                    });
+                }; 
+        
+                document.body.appendChild(script);
+                resolve(1); 
+            }
+        );
     };
 
     static locateLocation = (
-        locationElement, 
-        weatherData 
+        weatherData,
+        locationElement 
     ) => {
         locationElement.addEventListener("click", () => {
             if (State.applicationStatus === State.pageStatus.DELETE && 
                 State.deletedLocationElement === locationElement && 
                 State.toggledLocation && 
-                State.toggledLocation !== locationElement) return;
+                State.toggledLocation !== locationElement
+            ) return;
             else if (State.applicationStatus === State.pageStatus.DELETE &&
                 State.deletedLocationElement === locationElement
             ) return; 
-
+            WeatherMenuDisplay.toggleLocationElement(locationElement);
+            
+            const {city, state} = weatherData.location; 
             const {lat, lon} = weatherData
                                 .presentForecastStats
                                 .city
                                 .coord; 
-            const {city, state} = weatherData.location; 
-
-            WeatherMenuDisplay.toggleLocationElement(locationElement);
             const toggledLocation = JSON.parse(State.locationStorage.getItem("toggledLocation"));
-            
             toggledLocation.length && 
             toggledLocation.toLowerCase().includes(city) && 
             toggledLocation.includes(state) && 
-            LocationMap.loadMapAPI(lat, lon);
+            LocationMap.loadMap(lat, lon);
         }); 
     }; 
 
     static displayToggledLocation = (
-        locationElement, 
-        weatherData, 
         city, 
-        state
+        state,
+        weatherData, 
+        locationElement
     ) => {  
-        const cachedLocation = JSON.parse(State.locationStorage.getItem("toggledLocation"));  
-        if (cachedLocation.length === 0) return; 
+        const toggledLocation = JSON.parse(State.locationStorage.getItem("toggledLocation"));  
+        if (toggledLocation.length === 0) return; 
 
-        const [cachedCity, cachedState] = cachedLocation.split(",");
-        if ((cachedCity === city || cachedCity.toLowerCase() === city) && cachedState.trim() === state) {
+        const [toggledCity, toggledState] = toggledLocation.split(",");
+        if ((toggledCity === city || toggledCity.toLowerCase() === city) && toggledState.trim() === state) {
             const {lat, lon} = weatherData  
                                 .presentForecastStats
                                 .city
                                 .coord; 
-
-            locationElement.style.backgroundColor = "#CECCCC"; 
             if (State.toggledLocation) State.toggledLocation.style.backgroundColor = "#EEEEEE"; 
+            locationElement.style.backgroundColor = "#CECCCC"; 
             State.toggledLocation = locationElement;
-            // LocationMap.loadMapAPI(lat, lon); 
+            // LocationMap.loadMap(lat, lon); 
         }
     }; 
 
@@ -86,48 +86,36 @@ class LocationMap {
     ) => {
         LocationQuery
             .getLocation(city.toLowerCase().trim(), state.trim())
-            .then(weatherData => {
-                const locationClassname = ".weatherMapLocations"; 
-                const locationElementClassname = "weatherMapLocationElement";
-                const locationElementRightSectionClassname = "weatherMapLocationElementRightSection"; 
-                const locationElementLeftSectionClassname = "weatherMapLocationElementLeftSection";  
-                const locationElementRightSectionTextClassname = "weatherMapLocationElementRightSectionText";
-                WeatherMenuDisplay.createLocationContainer(
-                    weatherData, 
-                    null, 
-                    weatherMapLocationsElement, 
-                    city.trim(), 
-                    state.trim(), 
-                    locationClassname,
-                    locationElementClassname, 
-                    locationElementRightSectionClassname, 
-                    locationElementLeftSectionClassname, 
-                    locationElementRightSectionTextClassname
-                );
-                // add eventlistener to display map 
-                LocationMap.locateLocation(
-                    weatherMapLocationsElement.lastChild,
-                    weatherData 
-                ); 
-                LocationMap.displayToggledLocation(
-                    weatherMapLocationsElement.lastChild, 
-                    weatherData,
-                    city.trim(), 
-                    state.trim()
-                );  
-            })
+            .then(
+                weatherData => {
+                    WeatherMenuDisplay.createLocationContainer(
+                        city.trim(), 
+                        state.trim(), 
+                        weatherData, 
+                        null, 
+                        weatherMapLocationsElement, 
+                        ".weatherMapLocations",
+                        "weatherMapLocationElement", 
+                        "weatherMapLocationElementRightSection", 
+                        "weatherMapLocationElementLeftSection", 
+                        "weatherMapLocationElementRightSectionText");
+                    LocationMap.locateLocation(weatherData, weatherMapLocationsElement.lastChild); 
+                    LocationMap.displayToggledLocation(
+                        city.trim(), 
+                        state.trim(), 
+                        weatherData, 
+                        weatherMapLocationsElement.lastChild);  
+                }
+            )
     };  
 
     static displayLocations = () => {
         const weatherMapLocationsElement = document.querySelector(".weatherMapLocations"); 
-        const cachedLocation = JSON.parse(State.locationStorage.getItem("toggledLocation")); 
+        const toggledLocation = JSON.parse(State.locationStorage.getItem("toggledLocation")); 
 
-        // when first loading the map page 
+        // When first loading the map page 
         if (!weatherMapLocationsElement.childNodes.length && State.locations) {
-            // when adding new locations by adding an eventlistener
-            const [formClass, inputClass] = [".weatherMapForm", ".weatherMapInput"]; 
-            LocationHandler.inputLocation(formClass, inputClass); 
-
+            LocationHandler.inputLocation(".weatherMapForm", ".weatherMapInput"); 
             LocationStorage.getStorageItem("locations").forEach(
                 location => {
                     const [city, state] = new DOMParser()
@@ -135,30 +123,24 @@ class LocationMap {
                                             .firstChild
                                             .textContent
                                             .split(","); 
-                    LocationMap.displayLocationsLogic(
-                        city,
-                        state,
-                        weatherMapLocationsElement
-                    ); 
-                });
-        } else if (JSON.parse(State.locationStorage.getItem("toggledLocation")).length) {
-            const [cachedCity, cachedState] = cachedLocation.split(",");
-            LocationMap.displayLocationsLogic(
-                cachedCity,
-                cachedState,
-                weatherMapLocationsElement
+                    LocationMap.displayLocationsLogic(city, state, weatherMapLocationsElement); 
+                }
             );
+        } else if (toggledLocation.length) {
+            const [toggledCity, toggledState] = toggledLocation.split(",");
+            LocationMap.displayLocationsLogic(toggledCity, toggledState, weatherMapLocationsElement);
         }
     }     
 }; 
 
-window.addEventListener("load", async() => {
-    if (State.relPath !== "WeatherMap.html") return; 
-    const setting = new WeatherSettings;
-    setting.displaySettings(); 
-
-    State.locations = LocationStorage.getStorageItem("locations").length; 
-    LocationMap.displayLocations(); 
-});
+State.relPath === "WeatherMap.html" && 
+window.addEventListener("load", 
+    () => {
+        const setting = new WeatherSettings;
+        setting.displaySettings(); 
+        State.locations = LocationStorage.getStorageItem("locations").length; 
+        LocationMap.displayLocations(); 
+    }
+);
 
 export { LocationMap }; 
