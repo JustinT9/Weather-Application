@@ -1,5 +1,5 @@
 import { State } from "../util/state.js";
-import { Utilities } from "../util/Utilities.js";
+import { LocationQuery, LocationStorage, Utilities } from "../util/Utilities.js";
 import { WeatherPage } from "../page/WeatherPage.js";
 
 class WeatherSettings {
@@ -14,8 +14,8 @@ class WeatherSettings {
             case "Metric": 
                 State.metric === "metric" ? State.metric = "imperial" : State.metric = "metric"; 
                 State.relPath === "WeatherPage.html" && Utilities.clearWeather(); 
-z
-                const [city, state] = JSON.parse(State.locationStorage.getItem("toggledLocation")).split(","); 
+
+                const [city, state] = JSON.parse(State.locationStorage.getItem("toggledLocation")).split(",");  
                 WeatherPage.callWeatherData(city.toLowerCase(), state.trim()); 
                 break; 
             case "Theme": 

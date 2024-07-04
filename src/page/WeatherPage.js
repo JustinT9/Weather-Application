@@ -306,29 +306,7 @@ class WeatherPage {
     }; 
 
     // searching option for data of weather for a specific inputted with regards to the format "City, State"
-    static searchLocation = () => LocationHandler.inputLocation(".inputWrapper", ".weather-addLocation");
-        
-    // to switch to fahrenheit or celsius and re-display onto UI 
-    static switchMetrics = () => {
-        // const fahrenheitElement = document.querySelector(".wi-fahrenheit");
-        // const celsiusElement = document.querySelector(".wi-celsius"); 
-        // fahrenheitElement.addEventListener("click", () => {
-        //     if (State.metric === "metric") {
-        //         State.metric = "imperial";
-        //         Utilities.clearWeather(); 
-        //         WeatherPage.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
-        //         console.log("switched to fahrenheit");
-        //     }
-        // }); 
-        // celsiusElement.addEventListener("click", () => {
-        //     if (State.metric === "imperial") {
-        //         State.metric = "metric"; 
-        //         Utilities.clearWeather(); 
-        //         WeatherPage.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
-        //         console.log("switched to celsius"); 
-        //     }
-        //  }); 
-    }; 
+    static searchLocation = () => LocationHandler.inputLocation(".inputWrapper", ".weather-addLocation");z
 
     static displayWeather = () => {
         const toggledLocation = State.locationStorage.getItem("toggledLocation") && 
