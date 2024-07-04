@@ -3,6 +3,7 @@ import { State } from "../util/state.js";
 import { LocationQuery, LocationStorage } from "../util/Utilities.js";
 import { WeatherSettings } from "../settings/WeatherSettings.js";
 import { WeatherMenuDisplay, LocationHandler } from "../menu/WeatherMenu.js"; 
+import { WeatherPage } from "../page/WeatherPage.js";
 
 class LocationMap {      
     static loadMap = (
@@ -140,6 +141,7 @@ window.addEventListener("load",
         setting.displaySettings(); 
         State.locations = LocationStorage.getStorageItem("locations").length; 
         LocationMap.displayLocations(); 
+        WeatherPage.getCurrentLocation(); 
     }
 );
 

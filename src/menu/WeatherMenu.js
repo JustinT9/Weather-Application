@@ -499,8 +499,8 @@ class LocationHandler {
             .then(res => res.json())
             .then(async data => {
                 const [lat, lon] = [data[0].lat, data[0].lon]; 
-                const presentWeather = await WeatherRequest.requestCurrentWeather(lat, lon).then(res => res.json());
-                const presentForecast = await WeatherRequest.requestCurrentForecast(lat, lon).then(res => res.json());
+                const presentWeather = await WeatherRequest.requestPresentWeather(lat, lon).then(res => res.json());
+                const presentForecast = await WeatherRequest.requestPresentForecast(lat, lon).then(res => res.json());
                 const futureForecast = await WeatherRequest.requestFutureForecast(lat, lon).then(res => res.json()); 
                 
                 if (State.relPath === "WeatherPage.html") {
@@ -597,18 +597,7 @@ class LocationHandler {
             // Once parsed use the data to add it to the data and if empty then add otherwise 
             // do nothing since it is already within the database
             const [city, state] = [State.cityStatePair["city"], State.cityStatePair["state"]];
-            LocationQuery.doesLocationExist(city, state)
-                .then(
-                    async(res) => {
-                        if (res) {
-                            await LocationHandler.addToDb(city, state);
-                            LocationHandler.saveLocations(city, state); 
-                        } else {
-                            State.relPath === "WeatherPage.html" && WeatherPage.displayWeather(); 
-                            console.log("Location already exists."); 
-                        }
-                    }
-                ); 
+            WeatherPage.callWeatherData(city, state); 
             locationInput.value = ""; 
             console.log("Searched for location."); 
         })
@@ -697,10 +686,12 @@ window.addEventListener("load",
                     if (!State.locations) {
                         WeatherMenuDisplay.displayPage();
                         LocationHandler.addLocation();
+                        WeatherPage.getCurrentLocation(); 
                     } else {
                         await WeatherMenuDisplay.displayPage(); 
                         LocationHandler.addLocation();
-                        WeatherMenuDisplay.displayToggledElement(); 
+                        WeatherMenuDisplay.displayToggledElement();
+                        WeatherPage.getCurrentLocation();  
                     }
                 }
             );    

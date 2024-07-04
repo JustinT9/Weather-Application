@@ -566,8 +566,7 @@ class testWeather {
             State.metric, 
             todayWeather.main.temp, 
             todayWeather.main.temp_max, 
-            todayWeather.main.temp_min
-        ); 
+            todayWeather.main.temp_min); 
         Utilities.setStats(
             State.windElement, 
             State.rainElement, 
@@ -577,8 +576,7 @@ class testWeather {
             todayWeather.wind.speed, 
             todayWeather, 
             todayWeather.main.humidity, 
-            todayWeather.clouds.all
-        ); 
+            todayWeather.clouds.all); 
         Utilities.setHighlights(
             State.feelsLikeElement, 
             State.visibilityElement, 
@@ -587,8 +585,7 @@ class testWeather {
             todayWeather.main.feels_like, 
             todayWeather.visibility, 
             todayWeather.sys.sunrise, 
-            todayWeather.sys.sunset
-        );
+            todayWeather.sys.sunset);
 
         const todayForecastElement = document.querySelector(".dailyForecast"); 
         Utilities.setPresentForecast(todayForecastElement, todayForecast); 

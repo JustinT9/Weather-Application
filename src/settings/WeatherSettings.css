@@ -1,16 +1,107 @@
-.settingsComponent {
+.weatherSettingsComponent, 
+.weatherSettingsOptions, 
+.weatherSettingMetricOption,
+.weatherSettingThemeOption,
+.weatherSettingTimeOption,
+.weatherSettingLangOption {
+    display: flex;    
+}
+
+.weatherSettingsComponent, 
+.weatherSettingsOptions {
+    flex-direction: column;  
+}
+
+.weatherSettingsComponent {
     background-color: #EEEEEE;
     height: 15rem; 
     width: 15rem; 
+    padding: 1.5rem; 
     border-radius: 2rem; 
-    display: flex;     
     position: absolute; 
     top: 20rem; 
     left: 16rem;
     cursor: pointer;    
+    align-items: center;
 }
 
-.settingsComponent:active {
-    opacity: 0.7;  
-    transition: 0.25; 
+.weatherSettingsComponent h2 {
+    margin-bottom: 0.5rem; 
 }
+
+.weatherSettingsOptions, 
+.weatherSettingMetricOption,
+.weatherSettingThemeOption,
+.weatherSettingTimeOption, 
+.weatherSettingLangOption {
+    width: 100%; 
+}
+
+.weatherSettingsOptions,
+.weatherSettingMetricOption {
+    justify-content: space-between;
+}
+
+.weatherSettingsOptions {
+    height: 80%; 
+}
+
+.weatherSettingMetricOption,
+.weatherSettingThemeOption,
+.weatherSettingTimeOption, 
+.weatherSettingLangOption {
+    height: 20%;
+}
+
+.weatherSettingsSwitch {
+    height: 30px; 
+    width: 56px;
+    position: absolute;
+    right: 1.25rem;  
+}
+
+.weatherSettingsSwitch input {
+    opacity: 0; 
+    width: 0; 
+    height: 0; 
+}
+
+.weatherSettingsSlider {
+    background-color: #ccc;
+    border-radius: 34px;
+    display: flex; 
+    justify-content: space-evenly;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: .4s;
+    cursor: pointer;
+}
+
+.weatherSettingsSlider:before {
+    background-color: white;
+    height: 23px;
+    width: 23px;
+    border-radius: 50%;
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    transition: .4s;
+    content: "";
+}
+
+.weatherSettingsSwitch input:checked + .weatherSettingsSlider {
+    background-color: #2196F3;
+} 
+
+.weatherSettingsSwitch:focus + .weatherSettingsSlider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+.weatherSettingsSwitch input:checked + .weatherSettingsSlider:before {
+    transform: translateX(26px);
+}
+

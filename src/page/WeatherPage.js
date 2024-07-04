@@ -266,23 +266,33 @@ class WeatherPage {
         city, 
         state
     ) => {
-        await LocationHandler.addToDb(city, state);
-        LocationHandler.saveLocations(city, state); 
+        LocationQuery.doesLocationExist(city, state)
+        .then(
+            async(res) => {
+                if (res) {
+                    await LocationHandler.addToDb(city, state);
+                    LocationHandler.saveLocations(city, state); 
+                } else {
+                    State.relPath === "WeatherPage.html" && WeatherPage.displayWeather(); 
+                    console.log("Location already exists."); 
+                }
+            }
+        ); 
     };
 
     // if track current location is given accessed, then generate data for the current location as requested 
-    static successCallback = (
+    static getCurrentLocationSuccessCB = (
         pos
     ) => {
         const [lat, lon] = [pos.coords.latitude, pos.coords.longitude]; 
         WeatherRequest.requestCurrentLocation(lat, lon)
         .then(res => res.json())
-        .then(data => {
-            Utilities.clearWeather();
-            State.cityStatePair = {"city": data[0].name, "state": data[0].state}; 
-            WeatherPage.presentWeather(lat, lon, data[0].name); 
-            WeatherPage.presentForecast(lat, lon); 
-            WeatherPage.weeklyForecastWeather(lat, lon); 
+        .then(weatherData => {
+            State.relPath === "WeatherPage.html" && Utilities.clearWeather();
+            State.cityStatePair = {
+                "city": weatherData[0].name.toLowerCase(), 
+                "state": weatherData[0].state.split(" ").map(word => word[0]).join("")}; 
+            this.callWeatherData(State.cityStatePair["city"], State.cityStatePair["state"]); 
         })
         .catch(err => console.log(err)); 
     }; 
@@ -290,7 +300,7 @@ class WeatherPage {
     static getCurrentLocation = () => {
         const currentLocationElement = document.querySelector(".fa-location-dot"); 
         currentLocationElement.addEventListener("click", () => {
-            navigator.geolocation.getCurrentPosition(WeatherPage.successCallback, err => console.log(err)); 
+            navigator.geolocation.getCurrentPosition(WeatherPage.getCurrentLocationSuccessCB, err => console.log(err)); 
             console.log("Requested current location.");  
         });
     }; 
@@ -326,63 +336,19 @@ class WeatherPage {
         if (toggledLocation && toggledLocation.length) {
             const [city, state] = toggledLocation.split(","); 
             LocationQuery.getLocation(city.toLowerCase().trim(), state.trim())
-                .then(weatherData => {
-                    const { 
-                        presentForecastStats,
-                        presentTempStats, 
-                        presentTemperature, 
-                        futureForecastStats, 
-                        highLowTemperature,
-                        weatherCondition
-                    } = weatherData;
-                    
-                    const iconElement = document.querySelector(".weatherPageTempDigits i"); 
-                    Utilities.setIcon(iconElement, weatherCondition); 
-                    iconElement.className = `${iconElement.className} weather-icon`;
-
-                    const locationElement = document.querySelector(".weatherPageLocation h1"); 
-                    const dateElement = document.querySelector(".weatherPageLocation h3");  
-                    Utilities.setInfo(locationElement, dateElement, presentForecastStats.city.name); 
-
-                    const tempElement = document.querySelector('.tempNum h1'); 
-                    const minMaxElement = document.querySelector('.tempNum h6'); 
-                    Utilities.setTemp(
-                        tempElement,
-                        minMaxElement,
-                        State.metric,
-                        presentTemperature,
-                        highLowTemperature.hi, 
-                        highLowTemperature.low); 
-                    Utilities.setStats(
-                        State.windElement, 
-                        State.rainElement, 
-                        State.humidityElement, 
-                        State.cloudyElement, 
-                        State.flag, 
-                        presentTempStats.wind,
-                        presentTempStats,
-                        presentTempStats.humidity,
-                        presentTempStats.clouds); 
-                    Utilities.setHighlights(
-                        State.feelsLikeElement, 
-                        State.visibilityElement, 
-                        State.sunriseElement, 
-                        State.sunsetElement, 
-                        presentTempStats.rain.main.feels_like,
-                        presentTempStats.rain.visibility,
-                        presentTempStats.rain.sys.sunrise, 
-                        presentTempStats.rain.sys.sunset);
-                    State.currentWeather = presentTempStats.rain; 
-                    State.cityStatePair = {"city": city, "state": state}; 
-                    const todayForecastElement = document.querySelector(".dailyForecast"); 
-                    Utilities.setPresentForecast(todayForecastElement, presentForecastStats.list); 
-
-                    const futureForecastElement = document.querySelector(".forecastWeather"); 
-                    Utilities.setFutureForecast(futureForecastElement, futureForecastStats.list);
-                    WeatherPage.displayHourlyForecast(State.metric); 
-                    WeatherPage.displayWeeklyForecast(futureForecastStats.list); 
-                    WeatherPage.switchMetrics(); 
-                }
+                .then(
+                    weatherData => {
+                        const { 
+                            presentWeather, 
+                            presentForecastStats,
+                            futureForecastStats, 
+                        } = weatherData;
+                        WeatherPage.presentWeather(presentWeather, city); 
+                        State.cityStatePair = {"city": city, "state": state}; 
+                        this.presentForecast(presentForecastStats); 
+                        this.weeklyForecastWeather(futureForecastStats); 
+                        WeatherPage.switchMetrics(); 
+                    }
             ); 
         }
     }; 

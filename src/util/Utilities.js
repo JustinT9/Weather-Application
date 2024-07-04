@@ -247,7 +247,8 @@ class LocationQuery {
         return query
         .get() 
         .then(res => {
-            const presentTime = new Date(); 
+            const presentTime = new Date();
+            const presentWeather = res.docs[0].data().presentWeather;  
             const weatherCondition = res.docs[0].data().presentWeather.weather[0].description;
             const presentTemperature = res.docs[0].data().presentWeather.main.temp;  
             const highTemperature = res.docs[0].data().presentWeather.main.temp_max; 
@@ -263,6 +264,7 @@ class LocationQuery {
 
             return { 
                 presentTime: presentTime,
+                presentWeather: presentWeather, 
                 location: { "city": city, "state": state },  
                 weatherCondition: weatherCondition,
                 presentTemperature: presentTemperature, 
