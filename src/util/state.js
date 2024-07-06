@@ -9,6 +9,7 @@ const applicationStates = {
         INIT: 0, 
         ADD: 1, 
         DELETE: 2, 
+        SWITCH: 3, 
     }), 
     windElement: document.querySelector(".windSpeed"), 
     rainElement: document.querySelector(".rainVolume"),  

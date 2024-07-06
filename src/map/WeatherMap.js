@@ -127,9 +127,22 @@ class LocationMap {
                     LocationMap.displayLocationsLogic(city, state, weatherMapLocationsElement); 
                 }
             );
-        } else if (toggledLocation.length) {
+        } else if (toggledLocation.length && State.applicationStatus !== State.pageStatus.SWITCH) {
             const [toggledCity, toggledState] = toggledLocation.split(",");
             LocationMap.displayLocationsLogic(toggledCity, toggledState, weatherMapLocationsElement);
+        } else if (State.applicationStatus === State.pageStatus.SWITCH) {
+            weatherMapLocationsElement.innerHTML = ""; 
+            LocationStorage.getStorageItem("locations").forEach(
+                location => {
+                    const [city, state] = new DOMParser()
+                                            .parseFromString(location, "text/xml")
+                                            .firstChild
+                                            .textContent
+                                            .split(","); 
+                    LocationMap.displayLocationsLogic(city, state, weatherMapLocationsElement); 
+                } 
+            );
+            State.applicationStatus = State.pageStatus.INIT; 
         }
     }     
 }; 
@@ -139,7 +152,8 @@ window.addEventListener("load",
     () => {
         const setting = new WeatherSettings;
         setting.displaySettings(); 
-        State.locations = LocationStorage.getStorageItem("locations").length; 
+        State.locations = LocationStorage.getStorageItem("locations").length;
+        State.metric = LocationStorage.getStorageItem("metric"); 
         LocationMap.displayLocations(); 
         WeatherPage.getCurrentLocation(); 
     }

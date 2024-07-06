@@ -1,26 +1,31 @@
 import { State } from "../util/state.js";
-import { Utilities } from "../util/Utilities.js";
+import { LocationStorage, Utilities } from "../util/Utilities.js";
 import { WeatherPage } from "../page/WeatherPage.js";
 import { WeatherMenuDisplay } from "../menu/WeatherMenu.js";
+import { LocationMap } from "../map/WeatherMap.js";
 
 class WeatherSettings {
     constructor() {
         this.displaySetting = false;
     }
 
-    createOptionLogic( 
+    async createOptionLogic( 
         labelText
     ) {
         switch(labelText) {
             case "Metric": 
                 State.metric === "metric" ? State.metric = "imperial" : State.metric = "metric";  
+                State.locationStorage.setItem("metric", JSON.stringify(State.metric)); 
                 if (State.relPath === "WeatherPage.html") {
                     Utilities.clearWeather(); 
                     WeatherPage.displayWeather();  
                 } else if (State.relPath === "WeatherMenu.html") {
-                    
+                    State.applicationStatus = State.pageStatus.SWITCH; 
+                    await WeatherMenuDisplay.displayPage(); 
+                } else if (State.relPath === "WeatherMap.html") {
+                    State.applicationStatus = State.pageStatus.SWITCH; 
+                    LocationMap.displayLocations(); 
                 }
-                
                 break; 
             case "Theme": 
                 break; 
@@ -67,6 +72,24 @@ class WeatherSettings {
         }; 
     };
 
+    toggleOptionSelections(
+        labelText, 
+        toggleInput
+    ) {
+        switch(labelText) {
+            case "Metric": 
+                if (LocationStorage.getStorageItem("metric") === "metric"
+                ) toggleInput.checked = true;
+                break; 
+            case "Theme": 
+                break; 
+            case "Time Format": 
+                break; 
+            case "Language": 
+                break; 
+        }
+    }
+
     createOptionSelection(
         optionElement, 
         labelText
@@ -78,7 +101,8 @@ class WeatherSettings {
         const toggleInput = document.createElement("input");
         toggleInput.type = "checkbox"; 
         toggleSwitch.appendChild(toggleInput); 
-
+        this.toggleOptionSelections(labelText, toggleInput); 
+        
         const toggleSlider = document.createElement("span"); 
         toggleSlider.className = "weatherSettingsSlider"; 
         toggleSwitch.appendChild(toggleSlider); 

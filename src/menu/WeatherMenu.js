@@ -165,7 +165,7 @@ class WeatherMenuDisplay {
         const tempElement = document.createElement("h1");
         const temp = Math.round(weatherData.presentTemperature);
         tempElement.textContent = (State.metric === "imperial") ? 
-        `${temp}` + "\u00b0" + "F" : `${Utilities.convertToCelsius(temp)}` + "\u00b0" + "C";
+        `${Math.round(temp)}` + "\u00b0" + "F" : `${Math.round(Utilities.convertToCelsius(temp))}` + "\u00b0" + "C";
         weatherMenuLocationElementLeftSection.appendChild(tempElement); 
 
         const deleteIcon = document.createElement("i");        
@@ -260,7 +260,7 @@ class WeatherMenuDisplay {
             const mainContainer = document.querySelector(".weatherMenuMainContainer");
             const locationContainer = document.querySelector(".weatherMenuLocationContainer"); 
             const locationElements = LocationStorage.getStorageItem("locations"); 
-            if (mainContainer && locationContainer) {
+            if (mainContainer && locationContainer && State.applicationStatus !== State.pageStatus.SWITCH) {
                 return new Promise(resolve => {
                     const locationElement = new DOMParser().parseFromString(locationElements[locationElements.length-1], "text/xml").firstChild;
                     const [city, state] = 
@@ -290,7 +290,7 @@ class WeatherMenuDisplay {
             // If reloaded, then you have to retrieve the locationContainer from the 
             // localStorage as it is not saved when first loading into the page if 
             // there are location elements stored within the localStorage 
-            } else {
+            } else if (State.applicationStatus !== State.pageStatus.SWITCH) {
                 const mainContainer = document.createElement("div"); 
                 const locationContainer = document.createElement("div"); 
                 const weatherInfoContainer = document.createElement("div"); 
@@ -311,10 +311,31 @@ class WeatherMenuDisplay {
                                 WeatherMenuDisplay.displayToggledElement(); 
                                 resolve(1); 
                             }
+                        );
+                    }
+                ); 
+            } else if (State.applicationStatus === State.pageStatus.SWITCH) {
+                const locationContainer = document.querySelector(".weatherMenuLocationContainer");
+                const weatherInfoContainer = document.querySelector(".weatherInfoContainer"); 
+                locationContainer.innerHTML = "";
+                return new Promise(
+                    resolve => {
+                        locationElements.forEach(
+                            async location => {
+                                await WeatherMenuDisplay.addLocationElement(
+                                    location, 
+                                    container, 
+                                    mainContainer, 
+                                    locationContainer, 
+                                    weatherInfoContainer); 
+                                WeatherMenuDisplay.displayToggledElement(); 
+                                State.applicationStatus = State.pageStatus.INIT;
+                                resolve(1);  
+                            }
                         ); 
                     }
                 ); 
-            } 
+            }
         }
     };
 
@@ -547,6 +568,7 @@ class LocationHandler {
             allLocations.push(locationElement.outerHTML); 
             State.locationStorage.setItem("locations", JSON.stringify(allLocations)); 
             State.locationStorage.setItem("toggledLocation", JSON.stringify(`${formattedCity}, ${formattedState}`));     
+            State.locationStorage.setItem("metric", JSON.stringify(State.metric)); 
 
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 
@@ -679,6 +701,7 @@ window.addEventListener("load",
     () => {
         const setting = new WeatherSettings; 
         setting.displaySettings(); 
+        State.metric = LocationStorage.getStorageItem("metric"); 
         LocationQuery.countLocations()
             .then(
                 async(res) => {

@@ -1,8 +1,9 @@
 import { State } from "../util/state.js"; 
-import { LocationQuery, Utilities } from "../util/Utilities.js";
+import { LocationQuery, LocationStorage, Utilities } from "../util/Utilities.js";
 import { WeatherRequest } from "../util/WeatherRequest.js";
 import { WeatherSettings } from "../settings/WeatherSettings.js";
 import { LocationHandler } from "../menu/WeatherMenu.js";
+
 
 class WeatherPage {
     // To allow the UI display the projected weather for each hour within the day 
@@ -336,6 +337,7 @@ window.addEventListener("load",
     () => {
         const setting = new WeatherSettings;
         setting.displaySettings();     
+        State.metric = LocationStorage.getStorageItem("metric"); 
         WeatherPage.searchLocation(); 
         WeatherPage.getCurrentLocation(); 
         WeatherPage.displayWeather(); 
