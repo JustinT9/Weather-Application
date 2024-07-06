@@ -165,7 +165,7 @@ class WeatherMenuDisplay {
         const tempElement = document.createElement("h1");
         const temp = Math.round(weatherData.presentTemperature);
         tempElement.textContent = (State.metric === "imperial") ? 
-        `${temp}` + "\u00b0" + "F" : `${temp}` + "\u00b0" + "C";
+        `${temp}` + "\u00b0" + "F" : `${Utilities.convertToCelsius(temp)}` + "\u00b0" + "C";
         weatherMenuLocationElementLeftSection.appendChild(tempElement); 
 
         const deleteIcon = document.createElement("i");        

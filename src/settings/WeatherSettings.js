@@ -1,22 +1,26 @@
 import { State } from "../util/state.js";
-import { LocationQuery, LocationStorage, Utilities } from "../util/Utilities.js";
+import { Utilities } from "../util/Utilities.js";
 import { WeatherPage } from "../page/WeatherPage.js";
+import { WeatherMenuDisplay } from "../menu/WeatherMenu.js";
 
 class WeatherSettings {
     constructor() {
         this.displaySetting = false;
     }
 
-    createOptionEventListenerLogic( 
+    createOptionLogic( 
         labelText
     ) {
         switch(labelText) {
             case "Metric": 
-                State.metric === "metric" ? State.metric = "imperial" : State.metric = "metric"; 
-                State.relPath === "WeatherPage.html" && Utilities.clearWeather(); 
-
-                const [city, state] = JSON.parse(State.locationStorage.getItem("toggledLocation")).split(",");  
-                WeatherPage.callWeatherData(city.toLowerCase(), state.trim()); 
+                State.metric === "metric" ? State.metric = "imperial" : State.metric = "metric";  
+                if (State.relPath === "WeatherPage.html") {
+                    Utilities.clearWeather(); 
+                    WeatherPage.displayWeather();  
+                } else if (State.relPath === "WeatherMenu.html") {
+                    
+                }
+                
                 break; 
             case "Theme": 
                 break; 
@@ -79,12 +83,8 @@ class WeatherSettings {
         toggleSlider.className = "weatherSettingsSlider"; 
         toggleSwitch.appendChild(toggleSlider); 
         this.createOptionSelectionText(labelText, toggleSlider); 
-        
-        toggleInput.addEventListener("click", 
-            () => {
-                this.createOptionEventListenerLogic(labelText); 
-            }
-        ); 
+
+        toggleInput.addEventListener("click", () => this.createOptionLogic(labelText)); 
     }; 
 
     createOption(

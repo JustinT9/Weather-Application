@@ -209,8 +209,8 @@ class WeatherPage {
         const dateElement = document.querySelector(".weatherPageLocation h3"); 
         Utilities.setInfo(locationElement, dateElement, city); 
         
-        const tempElement = document.querySelector('.tempNum h1'); 
-        const minMaxElement = document.querySelector('.tempNum h6'); 
+        const tempElement = document.querySelector(".tempNum h1"); 
+        const minMaxElement = document.querySelector(".tempNum h6"); 
         Utilities.setTemp(
             tempElement, 
             minMaxElement, 
@@ -321,11 +321,10 @@ class WeatherPage {
                             presentForecastStats,
                             futureForecastStats, 
                         } = weatherData;
-                        WeatherPage.presentWeather(presentWeather, city); 
+                        this.presentWeather(presentWeather, city); 
                         State.cityStatePair = {"city": city, "state": state}; 
                         this.presentForecast(presentForecastStats); 
                         this.weeklyForecastWeather(futureForecastStats); 
-                        WeatherPage.switchMetrics(); 
                     }
             ); 
         }

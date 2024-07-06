@@ -93,12 +93,9 @@ class Utilities {
     ) => {
         (metric === "imperial") ? 
         tempElement.textContent = Math.round(tempDigit) + "\u00b0" + "F": 
-        tempElement.textContent = Math.round(tempDigit) + "\u00b0" + "C";
-        (metric === "imperial") ? 
-        minMaxElement.textContent = `${Math.round(maxTemp)}` + "\u00b0" + ` / ` + 
-        `${Math.round(minTemp)}`+ "\u00b0" : 
-        minMaxElement.textContent = `${Math.round(maxTemp)}` + "\u00b0" + ` / ` + 
-        `${Math.round(minTemp)}` + "\u00b0";  
+        tempElement.textContent = Math.round(Utilities.convertToCelsius(tempDigit)) + "\u00b0" + "C";
+        minMaxElement.textContent = `${Math.round(metric === "imperial" ? maxTemp : Utilities.convertToCelsius(maxTemp))}` 
+        + "\u00b0" + ` / ` + `${Math.round(metric === "imperial" ? minTemp : Utilities.convertToCelsius(minTemp))}`+ "\u00b0";
     };
 
     // sets up additional climate statistics for the current day 
@@ -134,7 +131,9 @@ class Utilities {
     ) => {
         const sunrise = new Date(sunriseTime * 1000).toLocaleTimeString(); 
         const sunset = new Date(sunsetTime * 1000).toLocaleTimeString(); 
-        feelsLikeElement.textContent = `${Math.round(feelsLike)}` + "\u00b0"; 
+        feelsLikeElement.textContent = `${Math.round(
+            State.metric === "imperial" ? feelsLike : Utilities.convertToCelsius(feelsLike)
+        )}` + "\u00b0"; 
         (visibility === "???") ? 
         (visibilityElement.textContent = "???") : 
         (visibilityElement.textContent = `${((visibility / 1000) / 1.609).toFixed(1)} mi`); 
@@ -169,7 +168,9 @@ class Utilities {
             ${time.toLocaleTimeString().substring(9, time.toLocaleTimeString().length)}`); 
             
             const tempElement = document.createElement("h4"); 
-            tempElement.textContent = Math.round(info.main.temp) + "\u00b0"; 
+            tempElement.textContent = Math.round(
+                State.metric === "imperial" ? info.main.temp : Utilities.convertToCelsius(info.main.temp)
+            ) + "\u00b0"; 
             
             hourlyForecastElement.appendChild(timeElement); 
             hourlyForecastElement.appendChild(iconElement); 
@@ -200,7 +201,11 @@ class Utilities {
 
                 const tempElement = document.createElement("h4");
                 tempElement.className = "forecastTemp"; 
-                tempElement.textContent = `${Math.round(daily.temp.max) + "\u00b0"} / ${Math.round(daily.temp.min) + "\u00b0"}`;
+                tempElement.textContent = `${Math.round(
+                    State.metric === "imperial" ? daily.temp.max : Utilities.convertToCelsius(daily.temp.max)
+                ) + "\u00b0"} / ${Math.round(
+                    State.metric === "Imperial" ? daily.temp.min : Utilities.convertToCelsius(daily.temp.min)
+                ) + "\u00b0"}`;
                 container.appendChild(tempElement);
                 forecastElement.appendChild(container); 
             }
@@ -232,6 +237,8 @@ class Utilities {
             State.cityStatePair = {"city": city, "state": state}; 
         }   
     }; 
+
+    static convertToCelsius = temp => (5/9) * (temp - 32); 
 };  
 
 class LocationQuery {
