@@ -11,6 +11,10 @@ const applicationStates = {
         DELETE: 2, 
         SWITCH: 3, 
     }), 
+    timeConvention: Object.freeze({
+        TWELVE: 0, 
+        TWENTY_FOUR: 1,
+    }),
     windElement: document.querySelector(".windSpeed"), 
     rainElement: document.querySelector(".rainVolume"),  
     humidityElement: document.querySelector(".humidity"),
@@ -31,7 +35,8 @@ let applicationEffects = {
     flag: null, 
     toggledLocation: null, 
     deletedLocationName: null,
-    deletedLocationElement: null, 
+    deletedLocationElement: null,
+    timeConvention: applicationStates.timeConvention.TWELVE,  
 }; 
  
 class State {
@@ -58,6 +63,8 @@ class State {
     static get toggledLocation() { return applicationEffects.toggledLocation; }
     static get deletedLocationName() { return applicationEffects.deletedLocationName; }
     static get deletedLocationElement() { return applicationEffects.deletedLocationElement; }
+    static get timeConventions() { return applicationStates.timeConvention; }
+    static get timeConvention() { return applicationEffects.timeConvention; }
 
     static set locations(val) { applicationEffects.locations += val }
     static set metric(newMetric) { applicationEffects.metric = newMetric; }
@@ -68,6 +75,7 @@ class State {
     static set toggledLocation(newToggledLocation) { applicationEffects.toggledLocation = newToggledLocation; }
     static set deletedLocationName(newDeletedLocationName) { applicationEffects.deletedLocationName = newDeletedLocationName; }
     static set deletedLocationElement(newDeletedLocationElement) { applicationEffects.deletedLocationElement = newDeletedLocationElement; }
+    static set timeConvention(newTimeConvention) { applicationEffects.timeConvention = newTimeConvention; }
 }
 
 export { State }; 

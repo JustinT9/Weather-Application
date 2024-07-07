@@ -146,9 +146,11 @@ class WeatherMenuDisplay {
         weatherMenuLocationElementRightSectionText.appendChild(locationElement); 
 
         const presentTime = weatherData.presentTime.toLocaleTimeString(); 
-        const parsedTime = (presentTime.length % 2 === 0) ? 
+        const parsedTime = State.timeConvention === State.timeConventions.TWELVE ? 
+        ((presentTime.length % 2 === 0) ? 
         (`${presentTime[0]}:${presentTime.substring(2, 4)} ${presentTime.substring(presentTime.length-2, presentTime.length)}`) : 
-        (`${presentTime.substring(0, 2)}:${presentTime.substring(3, 5)} ${presentTime.substring(presentTime.length-2, presentTime.length)}`); 
+        (`${presentTime.substring(0, 2)}:${presentTime.substring(3, 5)} ${presentTime.substring(presentTime.length-2, presentTime.length)}`)) : 
+        Utilities.convertToTwentyFourHourTime(weatherData.presentTime); 
         const presentTimeElement = document.createElement("h4");       
         presentTimeElement.textContent = `${parsedTime}`; 
         weatherMenuLocationElementRightSectionText.appendChild(presentTimeElement); 
@@ -569,6 +571,7 @@ class LocationHandler {
             State.locationStorage.setItem("locations", JSON.stringify(allLocations)); 
             State.locationStorage.setItem("toggledLocation", JSON.stringify(`${formattedCity}, ${formattedState}`));     
             State.locationStorage.setItem("metric", JSON.stringify(State.metric)); 
+            State.locationStorage.setItem("timeConvention", JSON.stringify(State.timeConvention)); 
 
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 

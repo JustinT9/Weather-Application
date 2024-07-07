@@ -74,12 +74,14 @@ class Utilities {
                 locationElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
             }
         ); 
-
-        dateElement.textContent = (date.toLocaleTimeString().length % 2 === 0) ? 
+        
+        dateElement.textContent = (State.timeConvention === State.timeConventions.TWELVE) ? 
+        ((date.toLocaleTimeString().length % 2 === 0) ? 
         (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
         ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
         (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
-        ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`);
+        ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`)) :
+        `${State.dayNames[date.getDay()]} ${Utilities.convertToTwentyFourHourTime(date)}`;
     }; 
 
     // sets up the main statistics of today's weather 
@@ -161,11 +163,13 @@ class Utilities {
             const timeElement = document.createElement("h4"); 
             const time = new Date(info.dt * 1000); 
             idx === 0 ? timeElement.textContent = "Now" :  
-            timeElement.textContent = (time.toLocaleTimeString().length % 2 === 0) ? 
+            timeElement.textContent = (State.timeConvention === State.timeConventions.TWELVE) ? 
+            ((time.toLocaleTimeString().length % 2 === 0) ? 
             (`${time.toLocaleTimeString().substring(0, 4)} 
             ${time.toLocaleTimeString().substring(8, time.toLocaleTimeString().length)}`) : 
             (`${time.toLocaleTimeString().substring(0, 5)} 
-            ${time.toLocaleTimeString().substring(9, time.toLocaleTimeString().length)}`); 
+            ${time.toLocaleTimeString().substring(9, time.toLocaleTimeString().length)}`)) : 
+            Utilities.convertToTwentyFourHourTime(time);  
             
             const tempElement = document.createElement("h4"); 
             tempElement.textContent = Math.round(
@@ -239,6 +243,9 @@ class Utilities {
     }; 
 
     static convertToCelsius = temp => (5/9) * (temp - 32); 
+
+    static convertToTwentyFourHourTime = time => time.toTimeString().split(" ")[0].substring(0, 5); 
+    
 };  
 
 class LocationQuery {

@@ -28,8 +28,23 @@ class WeatherSettings {
                 }
                 break; 
             case "Theme": 
+                
                 break; 
             case "Time Format":
+                State.timeConvention === State.timeConventions.TWENTY_FOUR ? 
+                State.timeConvention = State.timeConventions.TWELVE :
+                State.timeConvention = State.timeConventions.TWENTY_FOUR; 
+                State.locationStorage.setItem("timeConvention", JSON.stringify(State.timeConvention)); 
+                if (State.relPath === "WeatherPage.html") {
+                    Utilities.clearWeather(); 
+                    WeatherPage.displayWeather(); 
+                } else if (State.relPath === "WeatherMenu.html") {
+                    State.applicationStatus = State.pageStatus.SWITCH; 
+                    await WeatherMenuDisplay.displayPage(); 
+                } else if (State.relPath === "WeatherMap.html") {
+                    State.applicationStatus = State.pageStatus.SWITCH; 
+                    LocationMap.displayLocations(); 
+                }
                 break; 
             case "Language": 
                 break; 
@@ -84,6 +99,8 @@ class WeatherSettings {
             case "Theme": 
                 break; 
             case "Time Format": 
+                if (LocationStorage.getStorageItem("timeConvention") === 
+                State.timeConventions.TWENTY_FOUR) toggleInput.checked = true;  
                 break; 
             case "Language": 
                 break; 
