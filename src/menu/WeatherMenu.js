@@ -572,6 +572,8 @@ class LocationHandler {
             State.locationStorage.setItem("toggledLocation", JSON.stringify(`${formattedCity}, ${formattedState}`));     
             State.locationStorage.setItem("metric", JSON.stringify(State.metric)); 
             State.locationStorage.setItem("timeConvention", JSON.stringify(State.timeConvention)); 
+            State.locationStorage.setItem("language", JSON.stringify(State.language)); 
+            State.locationStorage.setItem("theme", JSON.stringify(State.theme)); 
 
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 
@@ -610,10 +612,17 @@ class LocationHandler {
         formClassname, 
         inputClassname
     ) => {
-        const formElement = document.querySelector(formClassname); 
+        const [formElement, 
+               locationInput
+        ] = [document.querySelector(formClassname),
+            document.querySelector(inputClassname)];
+            
+        locationInput.placeholder = State.language === State.languages.EN ?
+            "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`; 
+
         formElement.addEventListener("submit", (e) => { 
             e.preventDefault(); 
-            const locationInput = document.querySelector(inputClassname);
+
             // parsing matters now with the user input with location 
             const parsedLocationInput = document.querySelector(inputClassname).value.trim();
             Utilities.parseInput(parsedLocationInput); 
@@ -638,8 +647,9 @@ class LocationHandler {
 
                 const inputElement = document.createElement("input");
                 inputElement.className = "main-inputLocation"; 
-                inputElement.placeholder = "City, State..."; 
-    
+                inputElement.placeholder = State.language === State.languages.EN ? 
+                    "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`; 
+                
                 btnElement.remove();
                 formElement.appendChild(inputElement); 
 
@@ -705,6 +715,8 @@ window.addEventListener("load",
         const setting = new WeatherSettings; 
         setting.displaySettings(); 
         State.metric = LocationStorage.getStorageItem("metric"); 
+        State.timeConvention = LocationStorage.getStorageItem("timeConvention"); 
+        State.language = LocationStorage.getStorageItem("language");
         LocationQuery.countLocations()
             .then(
                 async(res) => {

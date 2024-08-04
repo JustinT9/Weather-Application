@@ -245,8 +245,15 @@ class WeatherPage {
     static presentForecast = (
         presentForecast
     ) => {
-        const dailyInfo = presentForecast.list;
-        const forecastElement = document.querySelector(".dailyForecast"); 
+        const [dailyInfo, 
+            forecastElement,
+            presentForecastLabelElement
+        ] = [presentForecast.list, 
+            document.querySelector(".dailyForecast"),
+            document.querySelector(".dailyContainer h4")];
+
+        presentForecastLabelElement.textContent = State.language === State.languages.EN ? 
+            "Today's Forecast" : State.englishToSpanishTranslation.TodayForecast;
         Utilities.setPresentForecast(forecastElement, dailyInfo); 
         WeatherPage.displayHourlyForecast(State.metric); 
         console.log("Daily Forecast:", presentForecast); 
@@ -255,8 +262,15 @@ class WeatherPage {
     static weeklyForecastWeather = (
         futureForecast
     ) => {
-        const weekInfo = futureForecast.list; 
-        const futureForecastElement = document.querySelector(".forecastWeather"); 
+        const [weekInfo, 
+            futureForecastElement, 
+            futureForecastLabelElement 
+        ] = [futureForecast.list, 
+            document.querySelector(".forecastWeather"),
+            document.querySelector(".forecastContainer h2")];
+            
+        futureForecastLabelElement.textContent = State.language === State.languages.EN ? 
+            "Weekly Forecast" : State.englishToSpanishTranslation.WeeklyForecast; 
         Utilities.setFutureForecast(futureForecastElement, weekInfo); 
         WeatherPage.displayWeeklyForecast(weekInfo); 
         console.log("Weekly Forecast:", futureForecast); 
@@ -337,7 +351,11 @@ window.addEventListener("load",
     () => {
         const setting = new WeatherSettings;
         setting.displaySettings();     
+
         State.metric = LocationStorage.getStorageItem("metric"); 
+        State.timeConvention = LocationStorage.getStorageItem("timeConvention"); 
+        State.language = LocationStorage.getStorageItem("language");
+
         WeatherPage.searchLocation(); 
         WeatherPage.getCurrentLocation(); 
         WeatherPage.displayWeather(); 

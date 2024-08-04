@@ -15,6 +15,33 @@ const applicationStates = {
         TWELVE: 0, 
         TWENTY_FOUR: 1,
     }),
+    language: Object.freeze({
+        EN: 0,
+        ES: 1, 
+    }), 
+    themes: Object.freeze({
+        light: 0, 
+        dark: 1, 
+    }), 
+    englishToSpanishTranslation: {
+        dayNames: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"], 
+        City: "Ciudad",
+        State: "Estado",
+        Now: "Ahora",
+        Today: "Hoy", 
+        TodayForecast: "Pronóstico de hoy",
+        TodayHighlights: "Lo más destacado de hoy",
+        WeeklyForecast: "Pronóstico Semanal",
+        FeelsLike: "Se siente como",
+        Visibility: "Visibilidad",
+        Sunrise: "Amanecer",
+        Sunset: "Atardecer",
+        Settings: "Ajustes",
+        Metric: "Métrico",
+        Theme: "Tema",
+        TimeFormat: "Formato de tiempo",
+        Language: "Idioma", 
+    },
     windElement: document.querySelector(".windSpeed"), 
     rainElement: document.querySelector(".rainVolume"),  
     humidityElement: document.querySelector(".humidity"),
@@ -36,7 +63,9 @@ let applicationEffects = {
     toggledLocation: null, 
     deletedLocationName: null,
     deletedLocationElement: null,
-    timeConvention: applicationStates.timeConvention.TWELVE,  
+    timeConvention: applicationStates.timeConvention.TWELVE,
+    language: applicationStates.language.EN, 
+    theme: applicationStates.themes.light, 
 }; 
  
 class State {
@@ -65,6 +94,11 @@ class State {
     static get deletedLocationElement() { return applicationEffects.deletedLocationElement; }
     static get timeConventions() { return applicationStates.timeConvention; }
     static get timeConvention() { return applicationEffects.timeConvention; }
+    static get languages() { return applicationStates.language; }
+    static get language() { return applicationEffects.language; }
+    static get themes() { return applicationStates.themes; }
+    static get theme() { return applicationEffects.theme; }
+    static get englishToSpanishTranslation() { return applicationStates.englishToSpanishTranslation; }
 
     static set locations(val) { applicationEffects.locations += val }
     static set metric(newMetric) { applicationEffects.metric = newMetric; }
@@ -76,6 +110,8 @@ class State {
     static set deletedLocationName(newDeletedLocationName) { applicationEffects.deletedLocationName = newDeletedLocationName; }
     static set deletedLocationElement(newDeletedLocationElement) { applicationEffects.deletedLocationElement = newDeletedLocationElement; }
     static set timeConvention(newTimeConvention) { applicationEffects.timeConvention = newTimeConvention; }
+    static set language(newLanguage) { applicationEffects.language = newLanguage; }
+    static set theme(newTheme) { applicationEffects.theme = newTheme; }
 }
 
 export { State }; 

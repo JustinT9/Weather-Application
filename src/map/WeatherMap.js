@@ -154,6 +154,8 @@ window.addEventListener("load",
         setting.displaySettings(); 
         State.locations = LocationStorage.getStorageItem("locations").length;
         State.metric = LocationStorage.getStorageItem("metric"); 
+        State.timeConvention = LocationStorage.getStorageItem("timeConvention"); 
+        State.language = LocationStorage.getStorageItem("language");
         LocationMap.displayLocations(); 
         WeatherPage.getCurrentLocation(); 
     }

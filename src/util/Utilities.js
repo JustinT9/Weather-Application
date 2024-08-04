@@ -61,27 +61,35 @@ class Utilities {
         };
     };
 
+    static setDate = (
+        dateElement
+    ) => {
+        const date = new Date(Date.now());
+        const dayName = State.language === State.languages.EN ? 
+            State.dayNames[date.getDay()] :
+            State.englishToSpanishTranslation.dayNames[date.getDay()];  
+        dateElement.textContent = (State.timeConvention === State.timeConventions.TWELVE) ? 
+        ((date.toLocaleTimeString().length % 2 === 0) ? 
+        (`${dayName} ${date.toLocaleTimeString().substring(0, 4)} 
+        ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
+        (`${dayName} ${date.toLocaleTimeString().substring(0, 5)} 
+        ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`)) :
+        `${dayName} ${Utilities.convertToTwentyFourHourTime(date)}`;
+    }; 
+
     // sets up the time and location of today's weather 
     static setInfo = (
         locationElement, 
         dateElement, 
         cityText
     ) => {
-        const date = new Date(Date.now()); 
         cityText.split(" ").forEach(
                 (word, idx) => {
                 if (idx === 0) locationElement.textContent = ""; 
                 locationElement.textContent += `${word[0].toUpperCase()}` + `${word.substring(1).toLowerCase()} `; 
             }
         ); 
-        
-        dateElement.textContent = (State.timeConvention === State.timeConventions.TWELVE) ? 
-        ((date.toLocaleTimeString().length % 2 === 0) ? 
-        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
-        ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
-        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
-        ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`)) :
-        `${State.dayNames[date.getDay()]} ${Utilities.convertToTwentyFourHourTime(date)}`;
+        this.setDate(dateElement); 
     }; 
 
     // sets up the main statistics of today's weather 
@@ -119,6 +127,61 @@ class Utilities {
                                 ((precipitationType === "week" && precipitation) ? `${weatherData.rain} mm` : `0 mm`));
         cloudyElement.textContent = `${cloudiness}%`; 
     }; 
+
+    static setHighlightLabels = (
+        highlightsLabel, 
+        feelsLikeLabelElement,
+        visibilityLabelElement, 
+        sunriseLabelElement, 
+        sunsetLabelElement
+    ) => {
+        const [
+            feelsLikeLabel, 
+            visibilityLabel,
+            sunriseLabel,
+            sunsetLabel 
+        ] = [document.querySelector(`.${feelsLikeLabelElement.className} i`),
+            document.querySelector(`.${visibilityLabelElement.className} i`),
+            document.querySelector(`.${sunriseLabelElement.className} i`),
+            document.querySelector(`.${sunsetLabelElement.className} i`)];
+        
+        highlightsLabel.textContent = State.language === State.languages.EN ? 
+            "Today's Highlights" : State.englishToSpanishTranslation.TodayHighlights;
+
+        feelsLikeLabel.textContent = State.language === State.languages.EN ? 
+            " Feels Like" : ` ${State.englishToSpanishTranslation.FeelsLike}`; 
+        feelsLikeLabel.style.fontSize = State.language === State.languages.ES ? "1.15rem" : "1.5rem";
+
+        visibilityLabel.textContent = State.language === State.languages.EN ? 
+            " Visibility" : ` ${State.englishToSpanishTranslation.Visibility}`; 
+        visibilityLabel.style.fontsize = State.language === State.languages.ES ? "1.15rem" : "2rem"; 
+
+        sunriseLabel.textContent = State.language === State.languages.EN ? 
+            " Sunrise" : ` ${State.englishToSpanishTranslation.Sunrise}`; 
+        sunsetLabel.textContent = State.language === State.languages.EN ? 
+            " Sunset" : ` ${State.englishToSpanishTranslation.Sunset}`; 
+    };
+
+    static setHighlightTimes = (
+        sunriseElement, 
+        sunsetElement,
+        sunriseTime, 
+        sunsetTime
+    ) => {
+        const sunrise = State.timeConvention === State.timeConventions.TWELVE ? 
+        new Date(sunriseTime * 1000).toLocaleTimeString() : 
+        Utilities.convertToTwentyFourHourTime(new Date(sunriseTime * 1000)); 
+        sunriseElement.textContent = (sunrise.length % 2 === 0) ? 
+        (`${sunrise.substring(0, 4)} ${sunrise.substring(8, sunrise.length)}`) : 
+        (`${sunrise.substring(0, 5)} ${sunrise.substring(9, sunrise.length)}`);
+
+        const sunset = State.timeConvention === State.timeConventions.TWELVE ? 
+        new Date(sunsetTime * 1000).toLocaleTimeString() : 
+        Utilities.convertToTwentyFourHourTime(new Date(sunsetTime * 1000)); 
+        sunsetElement.textContent = (sunset.length % 2 === 0) ? 
+        (`${sunset.substring(0, 4)} ${sunset.substring(8, sunset.length)}`) : 
+        (`${sunset.substring(0, 5)} ${sunset.substring(9, sunset.length)}`); 
+    }; 
     
     // sets up the climate highlights of today's weather
     static setHighlights = (
@@ -131,20 +194,21 @@ class Utilities {
         sunriseTime, 
         sunsetTime
     ) => {
-        const sunrise = new Date(sunriseTime * 1000).toLocaleTimeString(); 
-        const sunset = new Date(sunsetTime * 1000).toLocaleTimeString(); 
         feelsLikeElement.textContent = `${Math.round(
             State.metric === "imperial" ? feelsLike : Utilities.convertToCelsius(feelsLike)
         )}` + "\u00b0"; 
         (visibility === "???") ? 
         (visibilityElement.textContent = "???") : 
         (visibilityElement.textContent = `${((visibility / 1000) / 1.609).toFixed(1)} mi`); 
-        sunriseElement.textContent = (sunrise.length % 2 === 0) ? 
-        (`${sunrise.substring(0, 4)} ${sunrise.substring(8, sunrise.length)}`) : 
-        (`${sunrise.substring(0, 5)} ${sunrise.substring(9, sunrise.length)}`);
-        sunsetElement.textContent = (sunset.length % 2 === 0) ? 
-        (`${sunset.substring(0, 4)} ${sunset.substring(8, sunset.length)}`) : 
-        (`${sunset.substring(0, 5)} ${sunset.substring(9, sunset.length)}`); 
+        
+        const highlightsLabel = document.querySelector(".weatherPageHighlightsContainer h4"); 
+        this.setHighlightLabels(
+            highlightsLabel, 
+            feelsLikeElement.parentElement, 
+            visibilityElement.parentElement,
+            sunriseElement.parentElement,
+            sunsetElement.parentElement); 
+        this.setHighlightTimes(sunriseElement, sunsetElement, sunriseTime, sunsetTime); 
     }; 
 
     // sets up the weather forecast for each hour of today's weather 
@@ -162,14 +226,15 @@ class Utilities {
 
             const timeElement = document.createElement("h4"); 
             const time = new Date(info.dt * 1000); 
-            idx === 0 ? timeElement.textContent = "Now" :  
-            timeElement.textContent = (State.timeConvention === State.timeConventions.TWELVE) ? 
-            ((time.toLocaleTimeString().length % 2 === 0) ? 
-            (`${time.toLocaleTimeString().substring(0, 4)} 
-            ${time.toLocaleTimeString().substring(8, time.toLocaleTimeString().length)}`) : 
-            (`${time.toLocaleTimeString().substring(0, 5)} 
-            ${time.toLocaleTimeString().substring(9, time.toLocaleTimeString().length)}`)) : 
-            Utilities.convertToTwentyFourHourTime(time);  
+            timeElement.textContent = idx === 0 ? 
+                (State.language === State.languages.EN ? "Now" : State.englishToSpanishTranslation.Now) : 
+                (State.timeConvention === State.timeConventions.TWELVE) ? 
+                    ((time.toLocaleTimeString().length % 2 === 0) ? 
+                        (`${time.toLocaleTimeString().substring(0, 4)} 
+                        ${time.toLocaleTimeString().substring(8, time.toLocaleTimeString().length)}`) : 
+                        (`${time.toLocaleTimeString().substring(0, 5)} 
+                        ${time.toLocaleTimeString().substring(9, time.toLocaleTimeString().length)}`)) : 
+                    Utilities.convertToTwentyFourHourTime(time);  
             
             const tempElement = document.createElement("h4"); 
             tempElement.textContent = Math.round(
@@ -194,8 +259,11 @@ class Utilities {
                 container.className = "forecastDay"; 
 
                 const dayElement = document.createElement("h4"); 
-                (idx === 0) ? dayElement.textContent = "Today" :  
-                (dayElement.textContent = `${State.dayNames[new Date(daily.dt * 1000).getDay()]}`);
+                dayElement.textContent = idx === 0 ?  
+                    State.language === State.languages.EN ? "Today" : State.englishToSpanishTranslation.Today : 
+                    State.language === State.languages.EN ? 
+                        `${State.dayNames[new Date(daily.dt * 1000).getDay()]}` : 
+                        `${State.englishToSpanishTranslation.dayNames[new Date(daily.dt * 1000).getDay()]}`;
                 container.appendChild(dayElement);
 
                 const iconElement = document.createElement("i"); 
@@ -208,7 +276,7 @@ class Utilities {
                 tempElement.textContent = `${Math.round(
                     State.metric === "imperial" ? daily.temp.max : Utilities.convertToCelsius(daily.temp.max)
                 ) + "\u00b0"} / ${Math.round(
-                    State.metric === "Imperial" ? daily.temp.min : Utilities.convertToCelsius(daily.temp.min)
+                    State.metric === "imperial" ? daily.temp.min : Utilities.convertToCelsius(daily.temp.min)
                 ) + "\u00b0"}`;
                 container.appendChild(tempElement);
                 forecastElement.appendChild(container); 
