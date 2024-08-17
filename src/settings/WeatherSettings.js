@@ -10,181 +10,224 @@ class WeatherSettings {
         this.displaySetting = false;
     }
 
-    createMetricOptionLogic = () => {
-        switch(State.relPath) {
-            case "WeatherPage.html": {
-                const toggledLocation = State.locationStorage.getItem("toggledLocation") && 
-                JSON.parse(State.locationStorage.getItem("toggledLocation"));
+    weatherPageMetricOptionLogic = () => {
+        const toggledLocation = Utilities.getToggledLocation();
+        if (!toggledLocation || !toggledLocation.length) return;
+        const [city, state] = toggledLocation.split(","); 
 
-                if (!toggledLocation || !toggledLocation.length) return;
-                const [city, state] = toggledLocation.split(","); 
+        LocationQuery.getLocation(
+            city.toLowerCase().trim(), 
+            state.trim()
+        ).then(
+            weatherData => {
+                const {
+                    presentWeather,
+                    presentForecastStats,
+                    futureForecastStats,
+                } = weatherData; 
+                const [
+                    tempElement, 
+                    minMaxElement,
+                    presentForecastStat, 
+                    presentForecastElement,
+                    futureForecastStat,
+                    futureForecastElement
+                ] = [
+                    document.querySelector(".tempNum h1"), 
+                    document.querySelector(".tempNum h6"),
+                    presentForecastStats.list, 
+                    document.querySelector(".dailyForecast"),
+                    futureForecastStats.list, 
+                    document.querySelector(".forecastWeather")
+                ];  
+                Utilities.setTemp(
+                    tempElement, 
+                    minMaxElement, 
+                    State.metric, 
+                    presentWeather.main.temp, 
+                    presentWeather.main.temp_max, 
+                    presentWeather.main.temp_min
+                ); 
+                Utilities.setMainTempWithoutSymbol(
+                    State.feelsLikeElement, 
+                    presentWeather.main.feels_like, 
+                    State.metric
+                );
+                presentForecastElement.childNodes.forEach(
+                    (hourlyForecast, idx) => {
+                        hourlyForecast.lastChild ? 
+                            Utilities.setMainTempWithoutSymbol(
+                                hourlyForecast.lastChild,
+                                presentForecastStat[idx-1].main.temp, 
+                                State.metric
+                            ) : []; 
+                    }                                    
+                ); 
+                futureForecastElement.childNodes.forEach(
+                    (dailyForecast, idx) => {
+                        dailyForecast.lastChild ? 
+                            Utilities.setHighLowTemp(
+                                dailyForecast.lastChild,
+                                futureForecastStat[idx-1].temp.max,
+                                futureForecastStat[idx-1].temp.min,
+                                State.metric
+                            ) : [];
+                    }
+                );
+            }
+        ); 
+    }; 
 
-                LocationQuery.getLocation(city.toLowerCase().trim(), state.trim())
-                    .then(
-                        weatherData => {
-                            const {
-                                presentWeather,
-                                presentForecastStats,
-                                futureForecastStats,
-                            } = weatherData; 
+    weatherMenuMetricOptionLogic = () => {
+        const locationContainer = document.querySelector(".weatherMenuLocationContainer"); 
+                
+        locationContainer.childNodes.forEach(
+            location => {
+                const [city, state] = location
+                                        .firstChild
+                                        .lastChild
+                                        .firstChild
+                                        .textContent
+                                        .split(","); 
+                LocationQuery.getLocation(
+                    city.toLowerCase().trim(), 
+                    state.trim()
+                ).then(
+                    weatherData => {
+                        const {
+                            presentTemperature,
+                            presentForecastStats,
+                            highLowTemperature,
+                            futureForecastStats 
+                        } = weatherData; 
+                        const toggledLocation = Utilities.getToggledLocation(); 
+
+                        Utilities.setMainTempWithSymbol(
+                            location.lastChild.firstChild, 
+                            presentTemperature, 
+                            State.metric
+                        );                                 
+                        if (toggledLocation && 
+                            toggledLocation.length && 
+                            toggledLocation.split(",")[0] === city && 
+                            toggledLocation.split(",")[1] === state
+                        ) {
                             const [
-                                tempElement, 
-                                minMaxElement
-                            ] = [document.querySelector(".tempNum h1"), 
-                                document.querySelector(".tempNum h6")];  
-                            Utilities.setTemp(
-                                tempElement, 
-                                minMaxElement, 
-                                State.metric, 
-                                presentWeather.main.temp, 
-                                presentWeather.main.temp_max, 
-                                presentWeather.main.temp_min); 
-                            State.feelsLikeElement.textContent = `${Math.round(
-                                State.metric === "imperial" ? presentWeather.main.feels_like : 
-                                Utilities.convertToCelsius(presentWeather.main.feels_like)
-                            )}` + "\u00b0"; 
-
-                            const [
-                                presentForecastStat, 
-                                presentForecastElement
-                            ] = [presentForecastStats.list, 
-                                document.querySelector(".dailyForecast")];
+                                presentTemp,
+                                highLowTemp,
+                                presentForecast, 
+                                presentForecastElement, 
+                                futureForecast, 
+                                futureForecastElement
+                            ] = [
+                                document.querySelector(".weatherInfoContainerTempDigits h1"), 
+                                document.querySelector(".weatherInfoContainerTempDigits h6"),
+                                presentForecastStats.list, 
+                                document.querySelector(".weatherInfoContainerPresentForecast"), 
+                                futureForecastStats.list, 
+                                document.querySelector(".weatherInfoContainerFutureForecast")
+                            ];
+                            
+                            Utilities.setMainTempWithSymbol(
+                                presentTemp, 
+                                presentTemperature, 
+                                State.metric
+                            );
+                            Utilities.setHighLowTemp(
+                                highLowTemp, 
+                                highLowTemperature.hi, 
+                                highLowTemperature.low, 
+                                State.metric
+                            ); 
+                        
                             presentForecastElement.childNodes.forEach(
                                 (hourlyForecast, idx) => {
-                                    hourlyForecast.lastChild ? hourlyForecast.lastChild.textContent = Math.round(
-                                        State.metric === "imperial" ? presentForecastStat[idx-1].main.temp : 
-                                        Utilities.convertToCelsius(presentForecastStat[idx-1].main.temp)
-                                    ) + "\u00b0" : []; 
-                                }                                    
+                                    const [
+                                        hourlyTemp, 
+                                        tempElement
+                                    ] = [
+                                        presentForecast[idx].main.temp, 
+                                        hourlyForecast.lastChild
+                                    ];
+                                    Utilities.setMainTempWithoutSymbol(
+                                        tempElement, 
+                                        hourlyTemp, 
+                                        State.metric
+                                    ); 
+                                }
                             ); 
-
-                            const [
-                                futureForecastStat,
-                                futureForecastElement
-                            ] = [futureForecastStats.list, 
-                                document.querySelector(".forecastWeather")];
+                        
                             futureForecastElement.childNodes.forEach(
                                 (dailyForecast, idx) => {
-                                    dailyForecast.lastChild ? (dailyForecast.lastChild.textContent = `${Math.round(
-                                        State.metric === "imperial" ? futureForecastStat[idx-1].temp.max : 
-                                        Utilities.convertToCelsius(futureForecastStat[idx-1].temp.max)
-                                    ) + "\u00b0"} / ${Math.round(
-                                        State.metric === "imperial" ? futureForecastStat[idx-1].temp.min : 
-                                        Utilities.convertToCelsius(futureForecastStat[idx-1].temp.min)
-                                    ) + "\u00b0"}`) : [];
+                                    const [
+                                        dailyHi,
+                                        dailyLow,
+                                        tempElement
+                                    ] = [
+                                        futureForecast[idx].temp.max,
+                                        futureForecast[idx].temp.min,  
+                                        dailyForecast.lastChild
+                                    ];
+                                    Utilities.setHighLowTemp(
+                                        tempElement, 
+                                        dailyHi, 
+                                        dailyLow, 
+                                        State.metric
+                                    ); 
                                 }
-                            );
+                            ); 
                         }
-                    )
-                break; 
-            } case "WeatherMenu.html": {
-                State.applicationStatus = State.pageStatus.SWITCH;
-                const locationContainer = document.querySelector(".weatherMenuLocationContainer"); 
-                    locationContainer.childNodes.forEach(
-                        location => {
-                            const [city, state] = location
-                                                    .firstChild
-                                                    .lastChild
-                                                    .firstChild
-                                                    .textContent
-                                                    .split(","); 
-                            LocationQuery.getLocation(city.toLowerCase().trim(), state.trim())
-                                .then(
-                                    weatherData => {
-                                        const {
-                                            presentTemperature,
-                                            presentForecastStats,
-                                            highLowTemperature,
-                                            futureForecastStats 
-                                        } = weatherData; 
-
-                                        location.lastChild.firstChild.textContent = (State.metric === "imperial") ? 
-                                        `${Math.round(presentTemperature)}` + "\u00b0" + "F" : 
-                                        `${Math.round(Utilities.convertToCelsius(presentTemperature))}` + "\u00b0" + "C";
-                                    
-                                        const toggledLocation = State.locationStorage.getItem("toggledLocation") && 
-                                        JSON.parse(State.locationStorage.getItem("toggledLocation"));
-                                        if (toggledLocation && toggledLocation.length && 
-                                            toggledLocation.split(",")[0] === city && toggledLocation.split(",")[1] === state) {
-                                            const presentTemp = document.querySelector(".weatherInfoContainerTempDigits h1");
-                                            presentTemp.textContent = (State.metric === "imperial") ? 
-                                            `${Math.round(presentTemperature)}` + "\u00b0" + "F" :
-                                            `${Math.round(Utilities.convertToCelsius(presentTemperature))}` + "\u00b0" + "C"; 
-                    
-                                            const highLowTemp = document.querySelector(".weatherInfoContainerTempDigits h6");
-                                            highLowTemp.textContent = (State.metric === "imperial") ? 
-                                            `${Math.round(highLowTemperature.hi)} \u00b0 / ${Math.round(highLowTemperature.low)}  \u00b0` : 
-                                            `${Math.round(Utilities.convertToCelsius(highLowTemperature.hi))} \u00b0 / 
-                                            ${Math.round(Utilities.convertToCelsius(highLowTemperature.low))} \u00b0`; 
-                                           
-                                            const [presentForecast, 
-                                                presentForecastElement
-                                            ] = [presentForecastStats.list, 
-                                                document.querySelector(".weatherInfoContainerPresentForecast")]; 
-                                            presentForecastElement.childNodes.forEach(
-                                                (hourlyForecast, idx) => {
-                                                    const [hourlyTemp, 
-                                                            tempElement
-                                                    ] = [presentForecast[idx].main.temp, 
-                                                        hourlyForecast.lastChild];
-                                                    tempElement.textContent = (State.metric === "imperial") ? 
-                                                    `${Math.round(hourlyTemp)} \u00b0` : 
-                                                    `${Math.round(Utilities.convertToCelsius(hourlyTemp))} \u00b0`; 
-                                                }
-                                            ); 
-                                            
-                                            const [futureForecast, 
-                                                futureForecastElement
-                                            ] = [futureForecastStats.list, 
-                                                document.querySelector(".weatherInfoContainerFutureForecast")]; 
-                                            futureForecastElement.childNodes.forEach(
-                                                (dailyForecast, idx) => {
-                                                    const [dailyHi,
-                                                           dailyLow,
-                                                           tempElement
-                                                    ] = [futureForecast[idx].temp.max,
-                                                         futureForecast[idx].temp.min,  
-                                                         dailyForecast.lastChild];
-                                                    tempElement.textContent = (State.metric === "imperial") ?
-                                                    `${Math.round(dailyHi)} \u00b0 / ${Math.round(dailyLow)} \u00b0` : 
-                                                    `${Math.round(Utilities.convertToCelsius(dailyHi))} \u00b0 / 
-                                                    ${Math.round(Utilities.convertToCelsius(dailyLow))} \u00b0`; 
-                                                }
-                                            ); 
-                                
-                                        }
-                                    }
-                                ); 
-                            }
-                        );
-                break; 
-            } case "WeatherMap.html":
-                const weatherMapLocations = document.querySelector(".weatherMapLocations");
-                weatherMapLocations.childNodes.forEach(
-                    location => {
-                        const [city, state] = location
-                                .firstChild
-                                .lastChild
-                                .firstChild
-                                .textContent
-                                .split(","); 
-                        LocationQuery.getLocation(city.toLowerCase().trim(), state.trim())
-                            .then(
-                                weatherData => {
-                                    const {
-                                        presentTemperature 
-                                    } = weatherData; 
-
-                                    const tempElement = location
-                                                        .lastChild
-                                                        .firstChild; 
-                                    tempElement.textContent = (State.metric === "imperial") ?
-                                    `${Math.round(presentTemperature)}\u00b0F` :
-                                    `${Math.round(Utilities.convertToCelsius(presentTemperature))}\u00b0C`; 
-                                }
-                            );
                     }
                 ); 
+            }
+        );
+        State.applicationStatus = State.pageStatus.SWITCH;
+    }; 
+    
+    weatherMapMetricOptionLogic = () => {
+        const weatherMapLocations = document.querySelector(".weatherMapLocations");
+
+        weatherMapLocations.childNodes.forEach(
+            location => {
+                const [city, state] = location
+                                      .firstChild
+                                      .lastChild
+                                      .firstChild
+                                      .textContent
+                                      .split(","); 
+                LocationQuery.getLocation(
+                    city.toLowerCase().trim(), 
+                    state.trim()
+                ).then(
+                    weatherData => {
+                        const [
+                            { presentTemperature }, 
+                            tempElement
+                        ] = [
+                            weatherData, 
+                            location.lastChild.firstChild
+                        ]; 
+                        Utilities.setMainTempWithSymbol(
+                            tempElement, 
+                            presentTemperature, 
+                            State.metric
+                        ); 
+                    }
+                );
+            }
+        ); 
+    }; 
+
+    createMetricOptionLogic = () => {
+        switch(State.relPath) {
+            case "WeatherPage.html": 
+                this.weatherPageMetricOptionLogic(); 
+                break; 
+            case "WeatherMenu.html": 
+                this.weatherMenuMetricOptionLogic(); 
+                break; 
+            case "WeatherMap.html":
+                this.weatherMapMetricOptionLogic(); 
                 break; 
         }
     }
@@ -201,139 +244,224 @@ class WeatherSettings {
         }
     }
 
-    createTimeOptionLogic = () => {
-        const toggledLocation = State.locationStorage.getItem("toggledLocation") && 
-        JSON.parse(State.locationStorage.getItem("toggledLocation"));
+    weatherPageTimeOptionLogic = (
+        city, 
+        state
+    ) => {
+        LocationQuery.getLocation(
+            city.toLowerCase().trim(), 
+            state.trim()
+        ).then(
+            weatherData => {
+                const { 
+                    presentWeather,
+                    presentForecastStats
+                } = weatherData; 
+                const [
+                    presentTimeElement,
+                    sunriseTime,
+                    sunsetTime,
+                    presentForecastElement,
+                    presentForecast
+                ] = [
+                    document.querySelector(".weatherPageLocation h3"),
+                    presentWeather.sys.sunrise, 
+                    presentWeather.sys.sunset,
+                    document.querySelector(".dailyForecast"), 
+                    presentForecastStats.list
+                ];
 
+                Utilities.setDate(presentTimeElement); 
+                Utilities.setHighlightTimes(
+                    State.sunriseElement, 
+                    State.sunsetElement,
+                    sunriseTime, 
+                    sunsetTime); 
+                presentForecastElement.childNodes.forEach(
+                    (hourlyForecast, idx) => { 
+                        const hourlyTimeElement = hourlyForecast.firstChild;
+                        if (idx > 1) {
+                            const hourlyTime = new Date(presentForecast[idx-1].dt * 1000); 
+                            Utilities.setTimeWithoutSuffix(hourlyTimeElement, hourlyTime); 
+                        }                              
+                    }
+                ); 
+            }
+        ); 
+    }; 
+
+    weatherMenuTimeOptionLogic = () => {
+        const locationContainer = document.querySelector(".weatherMenuLocationContainer"); 
+        locationContainer.childNodes.forEach(
+            location => {
+                const [
+                    locationTimeElement,
+                    presentTime
+                ] = [
+                    location.firstChild.lastChild.lastChild,
+                    new Date(Date.now())
+                ]; 
+                Utilities.setTimeWithoutSuffix(locationTimeElement, presentTime); 
+            }
+        );
+
+        const toggledLocation = Utilities.getToggledLocation(); 
         if (!toggledLocation || !toggledLocation.length) return;
+
+        const [city, state] = toggledLocation.split(","); 
+        LocationQuery.getLocation(
+            city.toLowerCase().trim(), 
+            state.trim()
+        ) .then(
+            weatherData => {
+                const { presentForecastStats } = weatherData; 
+                const [
+                    dateElement,
+                    presentForecastElement,
+                    presentForecast
+                ] = [
+                    document.querySelector(".weatherInfoContainerLocation h3"),
+                    document.querySelector(".weatherInfoContainerPresentForecast"), 
+                    presentForecastStats.list
+                ];
+                Utilities.setDate(dateElement);
+                presentForecastElement.childNodes.forEach(
+                    (hourlyForecast, idx) => {
+                        const hourlyTimeElement = hourlyForecast.firstChild;
+                        if (idx >= 1) {
+                            const hourlyTime = new Date(presentForecast[idx].dt * 1000); 
+                            Utilities.setTimeWithoutSuffix(hourlyTimeElement, hourlyTime); 
+                        }
+                    }
+                ); 
+            }
+        ); 
+        State.applicationStatus = State.pageStatus.SWITCH; 
+    }; 
+
+    weatherMapTimeOptionLogic = () => {
+        const locationContainer = document.querySelector(".weatherMapLocations"); 
+        locationContainer.childNodes.forEach(
+            location => {
+                const [
+                    locationTimeElement,
+                    presentTime
+                ] = [
+                    location.firstChild.lastChild.lastChild,
+                    new Date(Date.now())
+                ];
+                Utilities.setTimeWithoutSuffix(locationTimeElement, presentTime);  
+            }
+        );
+        State.applicationStatus = State.pageStatus.SWITCH; 
+    }; 
+
+    createTimeOptionLogic = () => {
+        const toggledLocation = Utilities.getToggledLocation(); 
+        if (!toggledLocation || !toggledLocation.length) return;
+
         const [city, state] = toggledLocation.split(","); 
         switch(State.relPath) {
-            case "WeatherPage.html": {
-                const presentTimeElement = document.querySelector(".weatherPageLocation h3");
-                LocationQuery.getLocation(city.toLowerCase().trim(), state.trim())
-                    .then(
-                        weatherData => {
-                            const { 
-                                presentWeather,
-                                presentForecastStats
-                             } = weatherData; 
-                            Utilities.setDate(presentTimeElement); 
-
-                            const [
-                                sunriseTime,
-                                sunsetTime
-                            ] = [presentWeather.sys.sunrise, 
-                                presentWeather.sys.sunset]; 
-                            Utilities.setHighlightTimes(
-                                State.sunriseElement, 
-                                State.sunsetElement,
-                                sunriseTime, 
-                                sunsetTime); 
-
-                            const [
-                                presentForecastElement,
-                                presentForecast
-                            ] = [document.querySelector(".dailyForecast"), 
-                                presentForecastStats.list]; 
-                            presentForecastElement.childNodes.forEach(
-                                (hourlyForecast, idx) => { 
-                                    const hourlyTimeElement = hourlyForecast.firstChild;
-                                    if (idx > 1) {
-                                        const hourlyTime = new Date(presentForecast[idx-1].dt * 1000); 
-                                        hourlyTimeElement.textContent = (State.timeConvention === State.timeConventions.TWELVE) ? 
-                                        ((hourlyTime.toLocaleTimeString().length % 2 === 0) ? 
-                                        (`${hourlyTime.toLocaleTimeString().substring(0, 4)} 
-                                        ${hourlyTime.toLocaleTimeString().substring(8, hourlyTime.toLocaleTimeString().length)}`) : 
-                                        (`${hourlyTime.toLocaleTimeString().substring(0, 5)} 
-                                        ${hourlyTime.toLocaleTimeString().substring(9, hourlyTime.length)}`)) : 
-                                        Utilities.convertToTwentyFourHourTime(hourlyTime);  
-                                    }                              
-                                }
-                            ); 
-                        }
-                    ); 
+            case "WeatherPage.html": 
+                this.weatherPageTimeOptionLogic(city, state);  
                 break; 
-            } case "WeatherMenu.html": {
-                State.applicationStatus = State.pageStatus.SWITCH; 
-                const locationContainer = document.querySelector(".weatherMenuLocationContainer"); 
-                locationContainer.childNodes.forEach(
-                    location => {
-                        const [locationTimeElement,
-                               presentTime
-                            ] = [location.firstChild.lastChild.lastChild,
-                                new Date(Date.now())
-                            ]; 
-                        locationTimeElement.textContent = State.timeConvention === State.timeConventions.TWELVE ? 
-                        ((presentTime.toLocaleTimeString().length % 2 === 0) ? 
-                        (`${presentTime.toLocaleTimeString().substring(0, 4)} 
-                        ${presentTime.toLocaleTimeString().substring(8, presentTime.toLocaleTimeString().length)}`) : 
-                        (`${presentTime.toLocaleTimeString().substring(0, 5)} 
-                        ${presentTime.toLocaleTimeString().substring(9, presentTime.length)}`)) : 
-                        Utilities.convertToTwentyFourHourTime(presentTime);  
-                    }
-                );
-
-                const toggledLocation = State.locationStorage.getItem("toggledLocation") && 
-                JSON.parse(State.locationStorage.getItem("toggledLocation"));
-        
-                if (!toggledLocation || !toggledLocation.length) return;
-                const [city, state] = toggledLocation.split(","); 
-                LocationQuery.getLocation(city.toLowerCase().trim(), state.trim()) 
-                    .then(
-                        weatherData => {
-                            const {
-                                presentForecastStats 
-                            } = weatherData; 
-
-                            const dateElement = document.querySelector(".weatherInfoContainerLocation h3");
-                            Utilities.setDate(dateElement);
-            
-                            const [presentForecastElement,
-                                   presentForecast
-                            ] = [document.querySelector(".weatherInfoContainerPresentForecast"), 
-                                 presentForecastStats.list];
-                            console.log(presentForecastElement.childNodes);
-                            presentForecastElement.childNodes.forEach(
-                                (hourlyForecast, idx) => {
-                                    const hourlyTimeElement = hourlyForecast.firstChild;
-                                    if (idx >= 1) {
-                                        const hourlyTime = new Date(presentForecast[idx].dt * 1000); 
-                                        hourlyTimeElement.textContent = (State.timeConvention === State.timeConventions.TWELVE) ? 
-                                        ((hourlyTime.toLocaleTimeString().length % 2 === 0) ? 
-                                        (`${hourlyTime.toLocaleTimeString().substring(0, 4)} 
-                                        ${hourlyTime.toLocaleTimeString().substring(8, hourlyTime.toLocaleTimeString().length)}`) : 
-                                        (`${hourlyTime.toLocaleTimeString().substring(0, 5)} 
-                                        ${hourlyTime.toLocaleTimeString().substring(9, hourlyTime.length)}`)) : 
-                                        Utilities.convertToTwentyFourHourTime(hourlyTime);  
-                                    }
-                                }
-                            ); 
-                        }
-                    ); 
+            case "WeatherMenu.html": 
+                this.weatherMenuTimeOptionLogic(); 
                 break; 
-            } case "WeatherMap.html": {
-                State.applicationStatus = State.pageStatus.SWITCH; 
-                const locationContainer = document.querySelector(".weatherMapLocations"); 
-                locationContainer.childNodes.forEach(
-                    location => {
-                        const [locationTimeElement,
-                               presentTime
-                            ] = [location.firstChild.lastChild.lastChild,
-                                new Date(Date.now())
-                            ]; 
-                        locationTimeElement.textContent = State.timeConvention === State.timeConventions.TWELVE ? 
-                        ((presentTime.toLocaleTimeString().length % 2 === 0) ? 
-                        (`${presentTime.toLocaleTimeString().substring(0, 4)} 
-                        ${presentTime.toLocaleTimeString().substring(8, presentTime.toLocaleTimeString().length)}`) : 
-                        (`${presentTime.toLocaleTimeString().substring(0, 5)} 
-                        ${presentTime.toLocaleTimeString().substring(9, presentTime.length)}`)) : 
-                        Utilities.convertToTwentyFourHourTime(presentTime);  
-                    }
-                );
+            case "WeatherMap.html": {
+                this.weatherMapTimeOptionLogic();
                 break; 
             }
         }
     }
+
+    weatherPageLanguageOptionLogic = () => {
+        const [
+            inputElement,
+            dateElement,
+            presentForecastLabelElement,
+            weatherHighlightLabelElement,
+            highlightsLabel,
+            presentForecastElement,
+            futureForecastLabelElement,
+            futureForecastDaysElement
+        ] = [
+            document.querySelector(".weather-addLocation"),
+            document.querySelector(".weatherPageLocation h3"),
+            document.querySelector(".dailyContainer h4"),
+            document.querySelector(".weatherPageHighlightsContainer h4"),
+            document.querySelector(".weatherPageHighlightsContainer h4"),
+            document.querySelector(".dailyForecast"),
+            document.querySelector(".forecastContainer h2"),
+            document.querySelector(".forecastWeather")
+        ];
+        inputElement.placeholder = State.language === State.languages.EN ? 
+            "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`;
+        Utilities.setDate(dateElement);     
+        presentForecastLabelElement.textContent = State.language === State.languages.EN ? 
+            "Today's Forecast" : State.englishToSpanishTranslation.TodayForecast;
+        weatherHighlightLabelElement.textContent = State.language === State.languages.EN ? 
+            "Today's Highlights" : State.englishToSpanishTranslation.TodayHighlights;
+        Utilities.setHighlightLabels(
+            highlightsLabel, 
+            State.feelsLikeElement.parentElement, 
+            State.visibilityElement.parentElement,
+            State.sunriseElement.parentElement,
+            State.sunsetElement.parentElement); 
+        presentForecastElement.childNodes[1].firstChild.textContent = State.language === State.languages.EN ?
+            "Now" : State.englishToSpanishTranslation.Now;
+        futureForecastLabelElement.textContent = State.language === State.languages.EN ?  
+            "Weekly Forecast" : State.englishToSpanishTranslation.WeeklyForecast; 
+        futureForecastDaysElement.childNodes.forEach(
+            (dailyForecast, idx) => {
+                const dailyForecastDay = dailyForecast.firstChild; 
+                if (idx === 1) {
+                    dailyForecastDay.textContent = State.language === State.languages.EN ? 
+                        "Today" : State.englishToSpanishTranslation.Today; 
+                } else if (idx > 1) {
+                    dailyForecastDay.textContent = State.language === State.languages.EN ? 
+                        State.dayNames[idx-2] : State.englishToSpanishTranslation.dayNames[idx-2]; 
+                }             
+            }
+        );
+    }; 
+
+    weatherMenuLanguageOptionLogic = () => {
+        const [
+            inputElement,
+            dateElement,
+            presentForecastElement,
+            futureForecastElement
+        ] = [
+            document.querySelector(".main-searchWeatherInput"),
+            document.querySelector(".weatherInfoContainerLocation h3"),
+            document.querySelector(".weatherInfoContainerPresentForecast"),
+            document.querySelector(".weatherInfoContainerFutureForecast")
+        ];
+        inputElement.placeholder = State.language === State.languages.EN ? 
+            "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`;
+        Utilities.setDate(dateElement);
+        presentForecastElement.childNodes[0].firstChild.textContent = State.language === State.languages.EN ?
+            "Now" : State.englishToSpanishTranslation.Now;
+        futureForecastElement.childNodes.forEach(
+            (dailyForecast, idx) => {
+                const dailyForecastDay = dailyForecast.firstChild; 
+                if (idx === 0) {
+                    dailyForecastDay.textContent = State.language === State.languages.EN ? 
+                        "Today" : State.englishToSpanishTranslation.Today; 
+                } else if (idx >= 1) {
+                    dailyForecastDay.textContent = State.language === State.languages.EN ? 
+                        State.dayNames[idx-1] : State.englishToSpanishTranslation.dayNames[idx-1]; 
+                }    
+            }
+        );
+    }; 
+
+    weatherMapLanguageOptionLogic = () => {
+        const inputElement = document.querySelector(".weatherMapInput");
+        inputElement.placeholder = State.language === State.languages.EN ? 
+            "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`;
+    }; 
 
     createLanguageOptionLogic = () => {
         const [
@@ -342,11 +470,13 @@ class WeatherSettings {
             themeSettingElement,
             timeSettingElement,
             languageSettingElement
-        ] = [document.querySelector(".weatherSettingsComponent h2"), 
+        ] = [
+            document.querySelector(".weatherSettingsComponent h2"), 
             document.querySelector(".weatherSettingMetricOption h4"),
             document.querySelector(".weatherSettingThemeOption h4"),
             document.querySelector(".weatherSettingTimeOption h4"),
-            document.querySelector(".weatherSettingLangOption h4")];
+            document.querySelector(".weatherSettingLangOption h4")
+        ];
         
         settingLabelElement.textContent = State.language === State.languages.EN ?
             "Settings" : State.englishToSpanishTranslation.Settings; 
@@ -363,82 +493,14 @@ class WeatherSettings {
 
         switch(State.relPath) {
             case "WeatherPage.html": {
-                const inputElement = document.querySelector(".weather-addLocation");
-                inputElement.placeholder = State.language === State.languages.EN ? 
-                    "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`;
-
-                const dateElement = document.querySelector(".weatherPageLocation h3");
-                Utilities.setDate(dateElement);     
-                
-                const presentForecastLabelElement = document.querySelector(".dailyContainer h4");
-                presentForecastLabelElement.textContent = State.language === State.languages.EN ? 
-                    "Today's Forecast" : State.englishToSpanishTranslation.TodayForecast;
-                    
-                const weatherHighlightLabelELement = document.querySelector(".weatherPageHighlightsContainer h4");
-                weatherHighlightLabelELement.textContent = State.language === State.languages.EN ? 
-                    "Today's Highlights" : State.englishToSpanishTranslation.TodayHighlights; 
-
-                const highlightsLabel = document.querySelector(".weatherPageHighlightsContainer h4");
-                Utilities.setHighlightLabels(
-                    highlightsLabel, 
-                    State.feelsLikeElement.parentElement, 
-                    State.visibilityElement.parentElement,
-                    State.sunriseElement.parentElement,
-                    State.sunsetElement.parentElement); 
-
-                const presentForecastElement = document.querySelector(".dailyForecast");
-                presentForecastElement.childNodes[1].firstChild.textContent = State.language === State.languages.EN ?
-                    "Now" : State.englishToSpanishTranslation.Now;
-
-                const futureForecastLabelElement = document.querySelector(".forecastContainer h2");
-                futureForecastLabelElement.textContent = State.language === State.languages.EN ?  
-                    "Weekly Forecast" : State.englishToSpanishTranslation.WeeklyForecast; 
-
-                const futureForecastDaysElement = document.querySelector(".forecastWeather"); 
-                futureForecastDaysElement.childNodes.forEach(
-                    (dailyForecast, idx) => {
-                        const dailyForecastDay = dailyForecast.firstChild; 
-                        if (idx === 1) {
-                            dailyForecastDay.textContent = State.language === State.languages.EN ? 
-                                "Today" : State.englishToSpanishTranslation.Today; 
-                        } else if (idx > 1) {
-                            dailyForecastDay.textContent = State.language === State.languages.EN ? 
-                                State.dayNames[idx-2] : State.englishToSpanishTranslation.dayNames[idx-2]; 
-                        }             
-                    }
-                );
-
+                this.weatherPageLanguageOptionLogic(); 
                 break; 
             } case "WeatherMenu.html": {
-                const inputElement = document.querySelector(".main-searchWeatherInput");
-                inputElement.placeholder = State.language === State.languages.EN ? 
-                    "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`;
-
-                const dateElement = document.querySelector(".weatherInfoContainerLocation h3");
-                Utilities.setDate(dateElement);
-
-                const presentForecastElement = document.querySelector(".weatherInfoContainerPresentForecast");
-                presentForecastElement.childNodes[0].firstChild.textContent = State.language === State.languages.EN ?
-                    "Now" : State.englishToSpanishTranslation.Now;
-
-                const futureForecastElement = document.querySelector(".weatherInfoContainerFutureForecast");
-                futureForecastElement.childNodes.forEach(
-                    (dailyForecast, idx) => {
-                        const dailyForecastDay = dailyForecast.firstChild; 
-                        if (idx === 0) {
-                            dailyForecastDay.textContent = State.language === State.languages.EN ? 
-                                "Today" : State.englishToSpanishTranslation.Today; 
-                        } else if (idx >= 1) {
-                            dailyForecastDay.textContent = State.language === State.languages.EN ? 
-                                State.dayNames[idx-1] : State.englishToSpanishTranslation.dayNames[idx-1]; 
-                        }    
-                    }
-                );
+                this.weatherMenuLanguageOptionLogic(); 
                 break; 
             } case "WeatherMap.html" : {
-                const inputElement = document.querySelector(".weatherMapInput");
-                inputElement.placeholder = State.language === State.languages.EN ? 
-                    "City, State..." : `${State.englishToSpanishTranslation.City}, ${State.englishToSpanishTranslation.State}...`;
+                this.weatherMapLanguageOptionLogic(); 
+                break;
             }         
         }
     }
@@ -482,8 +544,10 @@ class WeatherSettings {
                 const [
                     fahrenheitMetric, 
                     celsiusMetric
-                ] = [document.createElement("h5"), 
-                    document.createElement("h5")];
+                ] = [
+                    document.createElement("h5"), 
+                    document.createElement("h5")
+                ];
                 fahrenheitMetric.textContent = "F" + "\u00b0"; 
                 toggleSlider.appendChild(fahrenheitMetric); 
                 celsiusMetric.textContent = "C" + "\u00b0"; 
@@ -493,8 +557,10 @@ class WeatherSettings {
                 const [
                     darkTheme, 
                     lightTheme
-                ] = [document.createElement("h5"), 
-                    document.createElement("h5")]; 
+                ] = [
+                    document.createElement("h5"), 
+                    document.createElement("h5")
+                ]; 
                 lightTheme.textContent = "LT"; 
                 toggleSlider.appendChild(lightTheme); 
                 darkTheme.textContent = "DK"; 
@@ -504,8 +570,10 @@ class WeatherSettings {
                 const [
                     twelveHour, 
                     twentyFourHour
-                ] = [document.createElement("h5"), 
-                    document.createElement("h5")]; 
+                ] = [
+                    document.createElement("h5"), 
+                    document.createElement("h5")
+                ]; 
                 twelveHour.textContent = "12"; 
                 toggleSlider.appendChild(twelveHour); 
                 twentyFourHour.textContent = "24"; 
@@ -515,8 +583,10 @@ class WeatherSettings {
                 const [
                     EN, 
                     ES
-                ] = [document.createElement("h5"), 
-                    document.createElement("h5")]; 
+                ] = [
+                    document.createElement("h5"), 
+                    document.createElement("h5")
+                ]; 
                 EN.textContent = "EN"; 
                 toggleSlider.appendChild(EN);
                 ES.textContent = "ES"; 
@@ -537,12 +607,12 @@ class WeatherSettings {
             case "Theme": 
                 break; 
             case "Time Format": 
-                if (LocationStorage.getStorageItem("timeConvention") === 
-                State.timeConventions.TWENTY_FOUR) toggleInput.checked = true;  
+                if (LocationStorage.getStorageItem("timeConvention") === State.timeConventions.TWENTY_FOUR
+                ) toggleInput.checked = true;  
                 break; 
             case "Language": 
-                if (LocationStorage.getStorageItem("language") ===
-                State.languages.ES) toggleInput.checked = true; 
+                if (LocationStorage.getStorageItem("language") === State.languages.ES
+                ) toggleInput.checked = true; 
                 break; 
         }
     }
@@ -616,6 +686,39 @@ class WeatherSettings {
             State.language === State.languages.EN ? "Language" : State.englishToSpanishTranslation.Language);
     }; 
 
+    showSettings = (
+        settingsComponent,
+        onSettingsComponentDrag,
+        applicationContainer 
+    ) => {
+        ["mousedown", "mouseup"].forEach(
+            type => 
+                settingsComponent.removeEventListener(type, 
+                    () => 
+                        settingsComponent.removeEventListener("mousemove", onSettingsComponentDrag)
+                )
+            ); 
+        settingsComponent.innerHTML = ""; 
+        applicationContainer.removeChild(settingsComponent);
+    }; 
+
+    hideSettings = (
+        settingsComponent, 
+        onSettingsComponentDrag,
+        applicationContainer
+    ) => {
+        settingsComponent.addEventListener("mousedown", 
+            () => 
+                settingsComponent.addEventListener("mousemove", onSettingsComponentDrag)
+        ); 
+        settingsComponent.addEventListener("mouseup", 
+            () => 
+                settingsComponent.removeEventListener("mousemove", onSettingsComponentDrag)
+        ); 
+        applicationContainer.appendChild(settingsComponent);
+        this.displayOptions(settingsComponent);
+    }; 
+
     displaySettings() {
         const settingsComponent = document.createElement("div");
         settingsComponent.className = "weatherSettingsComponent";
@@ -633,33 +736,17 @@ class WeatherSettings {
         settingsElement.addEventListener("click", () => {
             const applicationContainer = document.body; 
             this.displaySetting ? 
-                (
-                    () => {
-                        ["mousedown", "mouseup"].forEach(
-                            type => 
-                                settingsComponent.removeEventListener(type, 
-                                    () => 
-                                        settingsComponent.removeEventListener("mousemove", onSettingsComponentDrag)
-                                )
-                            ); 
-                        settingsComponent.innerHTML = ""; 
-                        applicationContainer.removeChild(settingsComponent);
-                    }
-                )() : 
-                (
-                    () => {
-                        settingsComponent.addEventListener("mousedown", 
-                            () => 
-                                settingsComponent.addEventListener("mousemove", onSettingsComponentDrag)
-                        ); 
-                        settingsComponent.addEventListener("mouseup", 
-                            () => 
-                                settingsComponent.removeEventListener("mousemove", onSettingsComponentDrag)
-                        ); 
-                        applicationContainer.appendChild(settingsComponent);
-                        this.displayOptions(settingsComponent); 
-                    }
-                )(); 
+                    this.showSettings(
+                        settingsComponent,
+                        onSettingsComponentDrag,
+                        applicationContainer
+                    )
+                   : 
+                    this.hideSettings(
+                        settingsComponent,
+                        onSettingsComponentDrag,
+                        applicationContainer
+                    )
                 this.displaySetting = !this.displaySetting; 
             }
         )

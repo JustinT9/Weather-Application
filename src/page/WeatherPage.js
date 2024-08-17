@@ -15,30 +15,39 @@ class WeatherPage {
             dailyContainer.childNodes.forEach(
                 forecast => {
                     forecast.addEventListener("click", () => {
-                        const iconElement = document.querySelector(".weatherPageTempDigits i");
+                        const [
+                            iconElement,
+                            tempElement,
+                            date,
+                            dateElement,
+                            labelElement
+                        ] = [
+                            document.querySelector(".weatherPageTempDigits i"),
+                            document.querySelector(".tempNum h1"),
+                            new Date(Date.now()),
+                            document.querySelector(".weatherPageLocation h3"),
+                            document.querySelector(".weatherPageHighlightsContainer h4")
+                        ]; 
                         iconElement.className = `${forecast.childNodes[1].className} weather-icon`;
                         iconElement.style.color = forecast.childNodes[1].style.color;
-
-                        const tempElement = document.querySelector(".tempNum h1"); 
-                        (metric === "imperial") ? 
-                        tempElement.textContent = forecast.childNodes[2].textContent + "F" : 
-                        tempElement.textContent = forecast.childNodes[2].textContent + "C"; 
-
-                        const date = new Date(Date.now()); 
-                        const dateElement = document.querySelector(".weatherPageLocation h3");
-                        dateElement.textContent = (forecast.childNodes[0].textContent !== "Now") ? 
-                        `${State.dayNames[date.getDay()]} ${forecast.childNodes[0].textContent}` :
-                        ((date.toLocaleTimeString().length % 2 === 0) ? 
-                        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
-                        ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
-                        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
-                        ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`));
+                        tempElement.textContent =  metric === "imperial" ? 
+                            forecast.childNodes[2].textContent + "F" : forecast.childNodes[2].textContent + "C"; 
+                        dateElement.textContent = forecast.childNodes[0].textContent !== "Now" ? 
+                            `${State.dayNames[date.getDay()]} ${forecast.childNodes[0].textContent}` :
+                            date.toLocaleTimeString().length % 2 === 0 ? 
+                                `${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
+                                ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}` : 
+                                `${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
+                                ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`;
                         
-                        const labelElement = document.querySelector(".weatherPageHighlightsContainer h4"); 
                         if (labelElement.textContent !== "Today's Highlights") {
                             const minMaxElement = document.querySelector(".tempNum h6");  
-                            minMaxElement.textContent = `${Math.round(State.currentWeather.main.temp_max)}` + "\u00b0" + " / " + `${Math.round(State.currentWeather.main.temp_min)}` + "\u00b0";   
-                            labelElement.textContent  = "Today's Highlights"; 
+                            minMaxElement.textContent = `${Math.round(
+                                State.currentWeather.main.temp_max
+                            )}` + "\u00b0" + " / " + `${Math.round(
+                                State.currentWeather.main.temp_min
+                            )}` + "\u00b0";   
+                            labelElement.textContent = "Today's Highlights"; 
                             Utilities.setStats(
                                 State.windElement, 
                                 State.rainElement, 
@@ -48,7 +57,8 @@ class WeatherPage {
                                 State.currentWeather.wind.speed, 
                                 State.currentWeather, 
                                 State.currentWeather.main.humidity, 
-                                State.currentWeather.clouds.all);
+                                State.currentWeather.clouds.all
+                            );
                             Utilities.setHighlights(
                                 State.feelsLikeElement, 
                                 State.visibilityElement, 
@@ -57,7 +67,8 @@ class WeatherPage {
                                 State.currentWeather.main.feels_like, 
                                 State.currentWeather.visibility, 
                                 State.currentWeather.sys.sunrise, 
-                                State.currentWeather.sys.sunset);
+                                State.currentWeather.sys.sunset
+                            );
                         }
                     });
                 }); 
@@ -73,21 +84,26 @@ class WeatherPage {
         dayElement
     ) => {
         labelElement.textContent = "Today's Highlights"; 
-        dayElement.textContent = (date.toLocaleTimeString().length % 2 === 0) ? 
-        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 4)} 
-        ${date.toLocaleTimeString().substring(8, date.toLocaleTimeString().length)}`) : 
-        (`${State.dayNames[date.getDay()]} ${date.toLocaleTimeString().substring(0, 5)} 
-        ${date.toLocaleTimeString().substring(9, date.toLocaleTimeString().length)}`);
-        
-        const tempElement = document.querySelector('.tempNum h1');
-        const minMaxElement = document.querySelector('.tempNum h6'); 
+        Utilities.setTimeWithDayName(
+            dayElement, 
+            date,
+            State.dayNames[date.getDay()]
+        );     
+        const [
+            tempElement,
+            minMaxElement
+        ] = [
+            document.querySelector('.tempNum h1'), 
+            document.querySelector('.tempNum h6')
+        ];
         Utilities.setTemp(
             tempElement, 
             minMaxElement, 
             State.metric, 
             today.main.temp, 
             today.main.temp_max, 
-            today.main.temp_min); 
+            today.main.temp_min
+        ); 
         Utilities.setStats(
             State.windElement, 
             State.rainElement, 
@@ -97,7 +113,8 @@ class WeatherPage {
             today.wind.speed, 
             today, 
             today.main.humidity, 
-            today.clouds.all);
+            today.clouds.all
+        );
         Utilities.setHighlights(
             State.feelsLikeElement, 
             State.visibilityElement, 
@@ -106,7 +123,8 @@ class WeatherPage {
             today.main.feels_like, 
             today.visibility, 
             today.sys.sunrise, 
-            today.sys.sunset);
+            today.sys.sunset
+        );
     }; 
 
     // To display forecast for days that are not today
@@ -124,15 +142,21 @@ class WeatherPage {
         labelElement.textContent = `${dayTitle}'s Highlights`; 
         dayElement.textContent = forecastElement.childNodes[0].textContent;
 
-        const tempElement = document.querySelector('.tempNum h1');  
-        const minMaxElement = document.querySelector('.tempNum h6'); 
+        const [
+            tempElement,
+            minMaxElement
+        ] = [
+            document.querySelector('.tempNum h1'), 
+            document.querySelector('.tempNum h6')
+        ]; 
         Utilities.setTemp(
             tempElement, 
             minMaxElement, 
             State.metric, 
             parseInt(maxTemp), 
             parseInt(maxTemp), 
-            parseInt(minTemp));
+            parseInt(minTemp)
+        );
         Utilities.setStats(
             State.windElement, 
             State.rainElement, 
@@ -142,16 +166,23 @@ class WeatherPage {
             weatherData[dayOfTheWeek-1].speed, 
             weatherData[dayOfTheWeek-1], 
             weatherData[dayOfTheWeek-1].humidity, 
-            weatherData[dayOfTheWeek-1].clouds); 
+            weatherData[dayOfTheWeek-1].clouds
+        ); 
         Utilities.setHighlights(
             State.feelsLikeElement, 
             State.visibilityElement, 
             State.sunriseElement, 
             State.sunsetElement, 
-            Math.round((weatherData[dayOfTheWeek-1].feels_like["day"] + weatherData[dayOfTheWeek-1].feels_like["night"] + weatherData[dayOfTheWeek-1].feels_like["eve"] + weatherData[dayOfTheWeek-1].feels_like["morn"]) / 4), 
+            Math.round(
+                (weatherData[dayOfTheWeek-1].feels_like["day"] + 
+                weatherData[dayOfTheWeek-1].feels_like["night"] + 
+                weatherData[dayOfTheWeek-1].feels_like["eve"] + 
+                weatherData[dayOfTheWeek-1].feels_like["morn"]) / 4
+            ), 
             "???", 
             weatherData[dayOfTheWeek-1].sunrise, 
-            weatherData[dayOfTheWeek-1].sunset);
+            weatherData[dayOfTheWeek-1].sunset
+        );
     }; 
 
     // To allow the UI display the projected weather for the days within the week 
@@ -164,11 +195,17 @@ class WeatherPage {
             forecastElement.childNodes.forEach(
                 (forecast, dayOfTheWeek) => {
                     forecast.addEventListener("click", () => {
-                        const [maxTemp, minTemp] = 
-                            [forecast.childNodes[2].textContent.split("/")[0], 
-                            forecast.childNodes[2].textContent.split("/")[1]];  
-                        const dayElement = document.querySelector(".weatherPageLocation h3"); 
-                        const labelElement = document.querySelector(".weatherPageHighlightsContainer h4");
+                        const [
+                            maxTemp, 
+                            minTemp,
+                            dayElement,
+                            labelElement
+                        ] = [
+                            forecast.childNodes[2].textContent.split("/")[0], 
+                            forecast.childNodes[2].textContent.split("/")[1],
+                            document.querySelector(".weatherPageLocation h3"),
+                            document.querySelector(".weatherPageHighlightsContainer h4")
+                        ];  
                         if (forecast.childNodes[0].textContent === "Today") {
                             const date = new Date(Date.now());              
                             WeatherPage.weeklyForecastTodayUtil(
@@ -176,7 +213,8 @@ class WeatherPage {
                                 State.flag, 
                                 State.currentWeather, 
                                 labelElement, 
-                                dayElement);
+                                dayElement
+                            );
                         } else {
                             WeatherPage.weeklyForecastOtherUtil(
                                 weatherData, 
@@ -187,7 +225,8 @@ class WeatherPage {
                                 maxTemp, 
                                 forecast.childNodes[0].textContent, 
                                 labelElement, 
-                                dayElement); 
+                                dayElement
+                            ); 
                         }
                         iconElement.className = `${forecast.childNodes[1].className} weather-icon`;   
                         iconElement.style.color = forecast.childNodes[1].style.color; 
@@ -201,24 +240,32 @@ class WeatherPage {
         presentWeather, 
         city
     ) => {
-        const weatherDesc = presentWeather.weather[0].description; 
-        const iconElement = document.querySelector(".weatherPageTempDigits i"); 
+        const [
+            weatherDesc,
+            iconElement,
+            locationElement,
+            dateElement, 
+            tempElement,
+            minMaxElement
+        ] = [
+            presentWeather.weather[0].description,
+            document.querySelector(".weatherPageTempDigits i"),
+            document.querySelector(".weatherPageLocation h1"),
+            document.querySelector(".weatherPageLocation h3"),
+            document.querySelector(".tempNum h1"),
+            document.querySelector(".tempNum h6")
+        ]; 
         Utilities.setIcon(iconElement, weatherDesc); 
         iconElement.className = `${iconElement.className} weather-icon`; 
-
-        const locationElement = document.querySelector(".weatherPageLocation h1"); 
-        const dateElement = document.querySelector(".weatherPageLocation h3"); 
         Utilities.setInfo(locationElement, dateElement, city); 
-        
-        const tempElement = document.querySelector(".tempNum h1"); 
-        const minMaxElement = document.querySelector(".tempNum h6"); 
         Utilities.setTemp(
             tempElement, 
             minMaxElement, 
             State.metric, 
             presentWeather.main.temp, 
             presentWeather.main.temp_max, 
-            presentWeather.main.temp_min); 
+            presentWeather.main.temp_min
+        ); 
         Utilities.setStats(
             State.windElement, 
             State.rainElement,  
@@ -228,7 +275,8 @@ class WeatherPage {
             presentWeather.wind.speed, 
             presentWeather, 
             presentWeather.main.humidity, 
-            presentWeather.clouds.all); 
+            presentWeather.clouds.all
+        ); 
         Utilities.setHighlights(
             State.feelsLikeElement, 
             State.visibilityElement, 
@@ -237,7 +285,8 @@ class WeatherPage {
             presentWeather.main.feels_like, 
             presentWeather.visibility, 
             presentWeather.sys.sunrise, 
-            presentWeather.sys.sunset); 
+            presentWeather.sys.sunset
+        ); 
         State.currentWeather = presentWeather; 
         console.log("Today's Weather:", presentWeather); 
     };
@@ -245,13 +294,15 @@ class WeatherPage {
     static presentForecast = (
         presentForecast
     ) => {
-        const [dailyInfo, 
+        const [
+            dailyInfo, 
             forecastElement,
             presentForecastLabelElement
-        ] = [presentForecast.list, 
+        ] = [
+            presentForecast.list, 
             document.querySelector(".dailyForecast"),
-            document.querySelector(".dailyContainer h4")];
-
+            document.querySelector(".dailyContainer h4")
+        ];
         presentForecastLabelElement.textContent = State.language === State.languages.EN ? 
             "Today's Forecast" : State.englishToSpanishTranslation.TodayForecast;
         Utilities.setPresentForecast(forecastElement, dailyInfo); 
@@ -262,12 +313,15 @@ class WeatherPage {
     static weeklyForecastWeather = (
         futureForecast
     ) => {
-        const [weekInfo, 
+        const [
+            weekInfo, 
             futureForecastElement, 
             futureForecastLabelElement 
-        ] = [futureForecast.list, 
+        ] = [
+            futureForecast.list, 
             document.querySelector(".forecastWeather"),
-            document.querySelector(".forecastContainer h2")];
+            document.querySelector(".forecastContainer h2")
+        ];
             
         futureForecastLabelElement.textContent = State.language === State.languages.EN ? 
             "Weekly Forecast" : State.englishToSpanishTranslation.WeeklyForecast; 
@@ -324,8 +378,7 @@ class WeatherPage {
     static searchLocation = () => LocationHandler.inputLocation(".inputWrapper", ".weather-addLocation");z
 
     static displayWeather = () => {
-        const toggledLocation = State.locationStorage.getItem("toggledLocation") && 
-                                JSON.parse(State.locationStorage.getItem("toggledLocation"));
+        const toggledLocation = Utilities.getToggledLocation();
         if (toggledLocation && toggledLocation.length) {
             const [city, state] = toggledLocation.split(","); 
             LocationQuery.getLocation(city.toLowerCase().trim(), state.trim())
@@ -336,8 +389,8 @@ class WeatherPage {
                             presentForecastStats,
                             futureForecastStats, 
                         } = weatherData;
-                        this.presentWeather(presentWeather, city); 
                         State.cityStatePair = {"city": city, "state": state}; 
+                        this.presentWeather(presentWeather, city); 
                         this.presentForecast(presentForecastStats); 
                         this.weeklyForecastWeather(futureForecastStats); 
                     }
