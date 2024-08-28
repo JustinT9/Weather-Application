@@ -42,6 +42,18 @@ const applicationStates = {
         TimeFormat: "Formato de tiempo",
         Language: "Idioma", 
     },
+    mapTypes: Object.freeze({
+        Default: "roadmap", 
+        Satellite: "satellite", 
+        Hybrid: "hybrid", 
+        Terrain: "terrain" 
+    }),
+    mapTypesMapper: Object.freeze({
+        roadmap: "Default", 
+        satellite: "Satellite", 
+        hybrid: "Hybrid", 
+        terrain: "Terrain" 
+    }),  
     windElement: document.querySelector(".windSpeed"), 
     rainElement: document.querySelector(".rainVolume"),  
     humidityElement: document.querySelector(".humidity"),
@@ -66,6 +78,7 @@ let applicationEffects = {
     timeConvention: applicationStates.timeConvention.TWELVE,
     language: applicationStates.language.EN, 
     theme: applicationStates.themes.light, 
+    mapType: applicationStates.mapTypes.Default, 
 }; 
  
 class State {
@@ -99,6 +112,9 @@ class State {
     static get themes() { return applicationStates.themes; }
     static get theme() { return applicationEffects.theme; }
     static get englishToSpanishTranslation() { return applicationStates.englishToSpanishTranslation; }
+    static get mapTypes() { return applicationStates.mapTypes; }
+    static get mapType() { return applicationEffects.mapType; }
+    static get mapTypesMapper() { return applicationStates.mapTypesMapper; }
 
     static set locations(val) { applicationEffects.locations += val }
     static set metric(newMetric) { applicationEffects.metric = newMetric; }
@@ -112,6 +128,7 @@ class State {
     static set timeConvention(newTimeConvention) { applicationEffects.timeConvention = newTimeConvention; }
     static set language(newLanguage) { applicationEffects.language = newLanguage; }
     static set theme(newTheme) { applicationEffects.theme = newTheme; }
+    static set mapType(newMapType) { applicationEffects.mapType = newMapType; }
 }
 
 export { State }; 

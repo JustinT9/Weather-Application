@@ -527,12 +527,11 @@ class LocationStorage {
         const newLocationsStorage = 
             locationsStorage.filter(location => {
                 const locationDOMElement = new DOMParser().parseFromString(location, "text/xml")
+                const locationTextContent = locationDOMElement.firstChild.textContent;
                 const [
-                    locationTextContent,
                     cityText,
                     stateText
                 ] = [
-                    locationDOMElement.firstChild.textContent,
                     locationTextContent.split(",")[0].trim(),
                     locationTextContent.split(",")[1].trim()
                 ];

@@ -29,7 +29,7 @@ class WeatherRequest {
         lat, 
         lon
     ) => {
-        const weatherEndpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=${State.metric}&cnt=7`;
+        const weatherEndpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=imperial&cnt=7`;
         return fetch(State.proxyURL + weatherEndpoint, this.fetchBody);
     };
     
@@ -37,7 +37,7 @@ class WeatherRequest {
         lat, 
         lon
     ) => {
-        const forecastEndpoint = `https://pro.openweathermap.org/data/2.5/forecast/hourly?lat=${lat}&lon=${lon}&appid=${api_key}&cnt=7&units=${State.metric}`; 
+        const forecastEndpoint = `https://pro.openweathermap.org/data/2.5/forecast/hourly?lat=${lat}&lon=${lon}&appid=${api_key}&cnt=7&units=imperial`; 
         return fetch(State.proxyURL + forecastEndpoint, this.fetchBody);
     }; 
     
@@ -45,7 +45,7 @@ class WeatherRequest {
         lat, 
         lon
     ) => {
-        const forecastEndpoint = `api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${api_key}&units=${State.metric}`;
+        const forecastEndpoint = `api.openweathermap.org/data/2.5/forecast/daily?lat=${lat}&lon=${lon}&cnt=7&appid=${api_key}&units=imperial`;
         return fetch(State.proxyURL + forecastEndpoint, this.fetchBody);
     }; 
 }; 

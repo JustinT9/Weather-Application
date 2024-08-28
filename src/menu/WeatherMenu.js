@@ -733,6 +733,7 @@ class LocationHandler {
             State.locationStorage.setItem("timeConvention", JSON.stringify(State.timeConvention)); 
             State.locationStorage.setItem("language", JSON.stringify(State.language)); 
             State.locationStorage.setItem("theme", JSON.stringify(State.theme)); 
+            State.locationStorage.setItem("mapType", JSON.stringify(State.mapType)); 
 
             State.applicationStatus = State.pageStatus.ADD; 
             State.locations += 1; 
